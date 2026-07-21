@@ -2,11 +2,6 @@
   <canvas id="execution-field" data-engine="three.js r184"></canvas>
   <svg class="execution-field__fallback" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
     <defs>
-      <radialGradient id="fallback-core" cx="35%" cy="28%" r="74%">
-        <stop offset="0" stop-color="#ffffff" />
-        <stop offset="0.35" stop-color="#a9d8ff" />
-        <stop offset="1" stop-color="#397fd0" />
-      </radialGradient>
       <filter id="fallback-soft" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="18" />
       </filter>
@@ -14,13 +9,14 @@
     <g class="fallback-light" filter="url(#fallback-soft)">
       <ellipse cx="850" cy="470" rx="410" ry="260" />
     </g>
-    <g class="fallback-organism" transform="translate(820 485) rotate(-8)">
-      <path d="M-390 15C-280-230-10-210 92-60C194 90 120 256-74 218C-268 180-240-44-65-94C110-144 320-94 390 75" />
-      <path d="M-305 116C-170 260 78 286 218 112C358-62 270-244 70-232C-130-220-170-15-16 48C138 111 318 40 355-70" />
-      <circle cx="-16" cy="44" r="62" fill="url(#fallback-core)" />
+    <g class="fallback-wordmark" transform="translate(805 455) rotate(-2)">
+      <path d="M-480 105V-105L-390 20L-300-105V105" />
+      <path d="M-235 105L-155-105L-75 105M-205 20H-105" />
+      <path d="M0 -105V105M0 0L105 -105M0 0L105 105" />
+      <path d="M175 105L255-105L335 105M205 20H305" />
     </g>
     <g class="fallback-satellites">
-      <rect x="330" y="315" width="82" height="82" rx="23" transform="rotate(-18 371 356)" />
+      <rect x="250" y="245" width="82" height="82" rx="23" transform="rotate(-18 291 286)" />
       <circle cx="1245" cy="640" r="46" />
       <path d="M1192 256h78l20 106h-118z" />
     </g>

@@ -268,5 +268,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
     const initialView = location.hash.slice(1);
     if (initialView && initialView !== "overview") setView(initialView, false);
+    if (initialView) requestAnimationFrame(() => window.scrollTo(0, 0));
   </script>
 </BaseLayout>

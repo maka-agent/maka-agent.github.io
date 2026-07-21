@@ -104,20 +104,6 @@ if (canvas) {
     atmosphere.renderOrder = -100;
     scene.add(atmosphere, world);
 
-    class ExecutionCurve extends THREE.Curve<THREE.Vector3> {
-      constructor() {
-        super();
-      }
-
-      override getPoint(t: number, target = new THREE.Vector3()) {
-        const a = t * Math.PI * 2;
-        const x = Math.sin(a) * 4.25 + Math.sin(a * 3) * 0.62;
-        const y = Math.sin(a * 2) * 1.48 + Math.cos(a * 3) * 0.2;
-        const z = Math.cos(a) * 0.72 + Math.sin(a * 2) * 0.56;
-        return target.set(x, y, z);
-      }
-    }
-
     const pearl = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color("#1f70b8"),
       metalness: 0.12,
@@ -133,9 +119,8 @@ if (canvas) {
       anisotropy: 0.28,
     });
 
-    // Keep the silhouette stable while letting the pearl surface catch light like
-    // a living material. This is intentionally a normal perturbation, not a
-    // geometry wobble, so the execution loop remains legible at every state.
+    // Keep the silhouette stable while letting pearl accents catch light like
+    // a living material. This changes surface normals, not object geometry.
     let pearlShader: Parameters<typeof pearl.onBeforeCompile>[0] | null = null;
     pearl.onBeforeCompile = (shader) => {
       pearlShader = shader;
@@ -165,17 +150,17 @@ if (canvas) {
     pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
 
     const glass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#2f83ce"),
+      color: new THREE.Color("#63b6f6"),
       metalness: 0,
-      roughness: 0.2,
-      transmission: 0.08,
-      thickness: 0.9,
-      ior: 1.36,
-      dispersion: 0.32,
+      roughness: 0.14,
+      transmission: 0.24,
+      thickness: 1.25,
+      ior: 1.42,
+      dispersion: 0.16,
       clearcoat: 1,
       clearcoatRoughness: 0.04,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.9,
     });
 
     const cobalt = new THREE.MeshPhysicalMaterial({
@@ -214,37 +199,69 @@ if (canvas) {
       clearcoatRoughness: 0.09,
     });
 
-    const loop = new THREE.Mesh(
-      new THREE.TubeGeometry(new ExecutionCurve(), 360, 0.5, 28, true),
-      pearl,
-    );
-    loop.castShadow = true;
-    loop.receiveShadow = true;
-    loop.rotation.set(-0.18, -0.05, -0.08);
-    organism.add(loop);
+    type LetterStroke = readonly [number, number, number, number];
+    const makeStroke = ([x1, y1, x2, y2]: LetterStroke) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const length = Math.hypot(dx, dy);
+      const stroke = new THREE.Mesh(
+        new RoundedBoxGeometry(length, 0.46, 0.54, 5, 0.21),
+        glass,
+      );
+      stroke.position.set((x1 + x2) * 0.5, (y1 + y2) * 0.5, 0);
+      stroke.rotation.z = Math.atan2(dy, dx);
+      stroke.castShadow = true;
+      stroke.receiveShadow = true;
+      return stroke;
+    };
 
-    const glassLoop = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(2.08, 0.42, 260, 24, 2, 3),
-      glass,
-    );
-    glassLoop.scale.set(0.48, 0.38, 0.45);
-    glassLoop.rotation.set(0.22, 0.28, 0.58);
-    glassLoop.position.set(0.06, 0.12, 0.82);
-    glassLoop.castShadow = true;
-    organism.add(glassLoop);
+    const letterDefinitions: Array<{ x: number; strokes: LetterStroke[] }> = [
+      {
+        x: -4.05,
+        strokes: [
+          [-0.72, -1.3, -0.72, 1.3],
+          [0.72, -1.3, 0.72, 1.3],
+          [-0.72, 1.3, 0, 0.12],
+          [0, 0.12, 0.72, 1.3],
+        ],
+      },
+      {
+        x: -1.35,
+        strokes: [
+          [-0.82, -1.3, 0, 1.3],
+          [0, 1.3, 0.82, -1.3],
+          [-0.5, -0.18, 0.5, -0.18],
+        ],
+      },
+      {
+        x: 1.35,
+        strokes: [
+          [-0.66, -1.3, -0.66, 1.3],
+          [-0.53, 0, 0.74, 1.3],
+          [-0.53, 0, 0.74, -1.3],
+        ],
+      },
+      {
+        x: 4.05,
+        strokes: [
+          [-0.82, -1.3, 0, 1.3],
+          [0, 1.3, 0.82, -1.3],
+          [-0.5, -0.18, 0.5, -0.18],
+        ],
+      },
+    ];
 
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.82, 6), cobalt);
-    core.position.set(-0.05, 0.12, 1.15);
-    core.castShadow = true;
-    organism.add(core);
-
-    const coreHalo = new THREE.Mesh(
-      new THREE.TorusGeometry(1.18, 0.035, 12, 128),
-      new THREE.MeshBasicMaterial({ color: "#266ba8", transparent: true, opacity: 0.28 }),
-    );
-    coreHalo.position.copy(core.position);
-    coreHalo.rotation.x = 1.08;
-    organism.add(coreHalo);
+    const wordmark = new THREE.Group();
+    const wordLetters = letterDefinitions.map(({ x, strokes }, index) => {
+      const letter = new THREE.Group();
+      letter.add(...strokes.map(makeStroke));
+      letter.position.set(x, 0, index % 2 === 0 ? 0.08 : -0.04);
+      wordmark.add(letter);
+      return { letter, baseZ: letter.position.z, phase: index * 0.8 };
+    });
+    wordmark.position.set(0.18, 0.28, 0.42);
+    wordmark.rotation.set(-0.08, -0.03, -0.015);
+    organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
     task.position.set(-5.15, 2.18, 1.15);
@@ -398,7 +415,7 @@ if (canvas) {
       cursor.visible = pointerEngaged && !pointerOverControl && window.innerWidth >= 768 && stateIndex !== 1;
     };
 
-    const materialTargets = { pearl: 1, glass: 0.82, cobalt: 1, ink: 1, amber: 1, green: 1, atmosphere: 1 };
+    const materialTargets = { pearl: 1, glass: 0.9, cobalt: 1, ink: 1, amber: 1, green: 1, atmosphere: 1 };
 
     const parallaxObjects = [
       { object: task, depth: 1.08, x: 0.62, y: 0.38, drift: 0.10, phase: 0.2 },
@@ -428,10 +445,12 @@ if (canvas) {
     const applyState = (index: number) => {
       stateIndex = index;
       if (index === 0) {
-        worldPositionTarget.set(0.75, 0.28, 0);
+        const compact = canvas.clientWidth < 768;
+        const compactShort = compact && canvas.clientHeight < 700;
+        worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.6 : compact ? 0.38 : 0.28, 0);
         worldScaleTarget.setScalar(1);
         materialTargets.pearl = 1;
-        materialTargets.glass = 0.82;
+        materialTargets.glass = 0.9;
         materialTargets.cobalt = 1;
         materialTargets.ink = 1;
         materialTargets.amber = 1;
@@ -500,8 +519,11 @@ if (canvas) {
       camera.fov = width < 768 ? 43 : width < 1100 ? 36 : 30;
       camera.position.z = width < 768 ? 20 : 18;
       camera.updateProjectionMatrix();
-      organism.scale.setScalar(width < 768 ? 0.69 : 1);
-      satellites.scale.setScalar(width < 768 ? 0.72 : 1);
+      const compact = width < 768;
+      const compactShort = compact && height < 700;
+      organism.scale.setScalar(compactShort ? 0.5 : compact ? 0.58 : 1);
+      satellites.scale.setScalar(compactShort ? 0.64 : compact ? 0.72 : 1);
+      if (stateIndex === 0) worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.6 : compact ? 0.38 : 0.28, 0);
       updateCursorVisibility();
       renderer.render(scene, camera);
     };
@@ -561,11 +583,12 @@ if (canvas) {
       cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.78 * (1 - cursorSpeed * 0.09), 13, delta);
       cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.78, 13, delta);
 
-      loop.rotation.z = -0.08 + Math.sin(elapsed * 0.28) * 0.035;
-      glassLoop.rotation.y = 0.28 + elapsed * (stateIndex === 2 ? 0.12 : 0.045);
-      glassLoop.rotation.z = 0.58 + Math.sin(elapsed * 0.36) * 0.08;
-      core.rotation.set(elapsed * 0.18, elapsed * 0.28, elapsed * 0.11);
-      coreHalo.rotation.z = elapsed * 0.25;
+      wordmark.rotation.x = -0.08 + Math.sin(elapsed * 0.32) * 0.018;
+      wordmark.rotation.z = -0.015 + Math.sin(elapsed * 0.24) * 0.012;
+      wordLetters.forEach(({ letter, baseZ, phase }) => {
+        letter.rotation.y = Math.sin(elapsed * 0.38 + phase) * 0.075;
+        letter.position.z = baseZ + Math.sin(elapsed * 0.44 + phase) * 0.08;
+      });
       task.rotation.y = -0.34 + elapsed * 0.22;
       tool.rotation.y = 0.5 - elapsed * 0.2;
       artifact.rotation.y = 0.38 + Math.sin(elapsed * 0.42) * 0.22;

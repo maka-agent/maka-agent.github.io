@@ -201,17 +201,12 @@ html[data-field="unavailable"] .execution-field canvas {
   fill: oklch(1 0 0 / 0.75);
 }
 
-.fallback-organism {
+.fallback-wordmark {
   fill: none;
   stroke: oklch(0.83 0.1 245 / 0.84);
-  stroke-width: 54;
+  stroke-width: 46;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.fallback-organism path:nth-child(2) {
-  stroke: oklch(0.94 0.03 245 / 0.88);
-  stroke-width: 38;
 }
 
 .fallback-satellites {
