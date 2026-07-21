@@ -27,7 +27,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:site_name" content="Maka" />
     <meta name="twitter:card" content="summary" />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:image" content={new URL("/icon-512.png", Astro.site)} />
     <link rel="manifest" href="/site.webmanifest" />
     <title>{title}</title>
   </head>
