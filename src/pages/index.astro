@@ -89,8 +89,8 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <section class="view view--product" id="product" data-view-panel="product" aria-labelledby="product-title" aria-hidden="true" inert>
         <div class="product-copy">
           <p class="section-signal"><span></span>REAL MAKA / CURRENT SOURCE</p>
-          <h2 id="product-title">Work becomes<br />evidence you<br />can inspect.</h2>
-          <p>Conversation, Tool Calls, permissions, and generated files remain attached to one task. Inspect what ran, what changed, and what survives an interruption.</p>
+          <h2 id="product-title">Real work.<br />Visible proof.</h2>
+          <p>Conversation, Tool Calls, permissions, and generated files stay attached to one task. Inspect what ran and what remains.</p>
           <div class="product-facts" aria-label="Product facts">
             <p><b>ATTACHED</b><span>Files stay with the turn that made them.</span></p>
             <p><b>EXPLICIT</b><span>Tool Calls cross a visible boundary.</span></p>
@@ -108,44 +108,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
               src={artifactCurrent}
               alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
               widths={[960, 1280, 1600, 1920]}
-              sizes="(max-width: 760px) 96vw, 72vw"
+              sizes="(max-width: 760px) 132vw, 65vw"
               format="webp"
               quality={92}
               loading="eager"
               fetchpriority="high"
             />
-            <div class="product-callout product-callout--turn" aria-hidden="true">
-              <span>TOOL CALL / 01</span>
-              <b>Execution stays inspectable</b>
-            </div>
-            <div class="product-callout product-callout--composer" aria-hidden="true">
-              <span>ARTIFACT / 03</span>
-              <b>Real files remain attached</b>
-            </div>
-            <figcaption><span>REAL PRODUCT</span><b>Conversation → Tool Call → Artifact</b></figcaption>
-          </figure>
-
-          <figure class="product-detail">
-            <div class="product-detail__crop">
-              <Image
-                src={artifactCurrent}
-                alt="Close-up of the current Maka artifact pane showing generated files and the selected Markdown preview."
-                widths={[960, 1280, 1600]}
-                sizes="(max-width: 760px) 52vw, 25vw"
-                format="webp"
-                quality={92}
-                loading="eager"
-              />
-            </div>
-            <figcaption><span>ARTIFACT / DETAIL</span><b>03</b></figcaption>
+            <figcaption><span>REAL PRODUCT</span><b>Tool Call → Artifact</b></figcaption>
           </figure>
 
           <figure class="product-proof product-proof--streaming">
             <Image
               src={permissionCurrent}
               alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
-              widths={[480, 720]}
-              sizes="18vw"
+              widths={[720, 960, 1280]}
+              sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"
@@ -157,8 +134,8 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             <Image
               src={questionCurrent}
               alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
-              widths={[480, 720]}
-              sizes="18vw"
+              widths={[720, 960, 1280]}
+              sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"

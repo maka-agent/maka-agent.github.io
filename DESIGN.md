@@ -249,11 +249,11 @@ A fixed WebGL2 canvas builds the literal `Maka` project name as one beveled `Tex
 
 ### Product Proof Frame
 
-Authentic Maka screenshots retain their original aspect ratio and UI text. A frame may cross columns but never receives invented browser chrome, fake status, or generated metric overlays. Alt text describes the work shown, not “screenshot.”
+Authentic Maka screenshots retain their original UI text and are cropped only by an explicit viewport frame; they never receive invented browser chrome, fake status, or generated metric overlays. Alt text describes the work shown, not “screenshot.”
 
-One source image may appear once as the complete task context and once as a clearly labeled detail crop when the crop reveals otherwise unreadable product evidence. The detail never rearranges or redraws the underlying interface, and its entrance follows the main frame so the relationship remains legible.
+Product follows a single-dominant proof hierarchy. The current Artifact task owns the rightmost 65% of the upper working plane; the left field carries concise claim and trust facts. Permission and Clarification appear once each as equal-width next proofs below the fold. Duplicate crops, floating callouts, unequal proof fragments, and decorative rotations are prohibited because they make evidence compete with itself.
 
-The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the Artifact detail and smaller permission/clarification proofs rise last. Runtime uses the same lifecycle for its circular reveal. `prefers-reduced-motion` bypasses preparation and settles every state immediately.
+The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the equal Permission and Clarification proofs rise last as the next row. Runtime uses the same lifecycle for its circular reveal. `prefers-reduced-motion` bypasses preparation and settles every state immediately.
 
 ## 6. Do's and Don'ts
 

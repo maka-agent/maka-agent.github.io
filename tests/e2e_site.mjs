@@ -53,8 +53,9 @@ for (const [label, width, height] of VIEWPORTS) {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 3) throw new Error(`${label}: expected 3 views`);
-  if ((await page.locator("img").count()) !== 4) throw new Error(`${label}: expected 4 product images`);
-  if ((await page.locator(".product-detail img").count()) !== 1) throw new Error(`${label}: artifact detail is missing`);
+  if ((await page.locator("img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
+  if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
+  if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
   if ((await page.locator("a:not([href])").count()) !== 0) throw new Error(`${label}: anchor missing href`);
 
@@ -120,6 +121,24 @@ for (const [label, width, height] of VIEWPORTS) {
     });
     if (productFinalState.opacity !== 1 || productFinalState.clipPath !== "inset(0px)" || productFinalState.filter !== "none") {
       throw new Error(`desktop: Product transition did not settle ${JSON.stringify(productFinalState)}`);
+    }
+    const productHierarchy = await page.evaluate(() => {
+      const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect();
+      const main = rect(".product-shot--main");
+      const proofs = [...document.querySelectorAll(".product-proof")].map((element) => element.getBoundingClientRect());
+      return { main, proofs, viewport: { width: innerWidth, height: innerHeight } };
+    });
+    if (!productHierarchy.main
+      || productHierarchy.main.width / productHierarchy.viewport.width < 0.62
+      || productHierarchy.main.width / productHierarchy.viewport.width > 0.68
+      || productHierarchy.main.height / productHierarchy.viewport.height < 0.45
+      || productHierarchy.main.height / productHierarchy.viewport.height > 0.62
+      || productHierarchy.main.x / productHierarchy.viewport.width < 0.33
+      || productHierarchy.main.x / productHierarchy.viewport.width > 0.37) {
+      throw new Error(`desktop: dominant Product proof lost its reference-led ownership ${JSON.stringify(productHierarchy)}`);
+    }
+    if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs.some((proof) => proof.y / productHierarchy.viewport.height < 0.75)) {
+      throw new Error(`desktop: next Product proofs lost equal below-fold pacing ${JSON.stringify(productHierarchy)}`);
     }
     await page.locator('.view-nav [data-view-target="overview"]').click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");

@@ -61,6 +61,14 @@ use original copy, composition, assets, and shaders.
   replaces the hero scaffold in the first sampled transition frame, and reveals
   the leading project image from a low-contrast wash to full contrast within
   roughly the first 400ms. The structure arrives before the image finish.
+- `SOURCE` — At 1440 × 900, the settled leading Work image begins at x≈506 and
+  owns about 65% of the viewport width, leaving the upper-left 35% as open
+  field. The next row exposes two equal images at about 37% width each with an
+  8.9% viewport gap; it does not add a third floating crop or annotation layer.
+- `PARTIAL` — Maka should translate this as one dominant authentic task and two
+  equal next proofs. The exact ratios remain Maka-owned layout values rather
+  than copied constants, and compact viewports crop the image inside a stable
+  frame so labels stay readable.
 
 ## Renderer findings
 
