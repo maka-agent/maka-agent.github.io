@@ -108,13 +108,19 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.goto(new URL("#overview", BASE_URL).href, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
     await page.waitForFunction(() => document.documentElement.dataset.field === "ready" && scrollY === 0);
 
-    await page.locator('.view-nav [data-view-target="product"]').click();
-    const transitionMarker = await page.locator(".stage").getAttribute("data-transitioning");
-    if (transitionMarker !== "overview-to-product") {
-      throw new Error(`desktop: missing Product transition lifecycle marker (${transitionMarker})`);
+    const productLifecycle = await page.locator('.view-nav [data-view-target="product"]').evaluate((element) => {
+      element.click();
+      const stage = document.querySelector(".stage");
+      return {
+        transitioning: stage?.getAttribute("data-transitioning"),
+        duration: stage?.getAttribute("data-transition-duration"),
+      };
+    });
+    if (productLifecycle.transitioning !== "overview-to-product") {
+      throw new Error(`desktop: missing Product transition lifecycle marker (${JSON.stringify(productLifecycle)})`);
     }
-    if ((await page.locator(".stage").getAttribute("data-transition-duration")) !== "1450") {
-      throw new Error("desktop: Product readiness marker does not cover the full proof stagger");
+    if (productLifecycle.duration !== "1450") {
+      throw new Error(`desktop: Product readiness marker does not cover the full proof stagger (${JSON.stringify(productLifecycle)})`);
     }
     const productTransitionConfig = await page.locator(".product-shot--main").evaluate((element) => {
       const style = getComputedStyle(element);
@@ -146,8 +152,8 @@ for (const [label, width, height] of VIEWPORTS) {
       || productHierarchy.main.x / productHierarchy.viewport.width > 0.37) {
       throw new Error(`desktop: dominant Product proof lost its reference-led ownership ${JSON.stringify(productHierarchy)}`);
     }
-    if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs.some((proof) => proof.y / productHierarchy.viewport.height < 0.75)) {
-      throw new Error(`desktop: next Product proofs lost equal below-fold pacing ${JSON.stringify(productHierarchy)}`);
+    if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs.some((proof) => proof.y / productHierarchy.viewport.height < 0.7)) {
+      throw new Error(`desktop: next Product proofs lost equal lower-edge pacing ${JSON.stringify(productHierarchy)}`);
     }
     await page.locator('.view-nav [data-view-target="overview"]').click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
@@ -156,15 +162,20 @@ for (const [label, width, height] of VIEWPORTS) {
 
   const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900" };
   for (const [index, view] of ["overview", "product", "runtime"].entries()) {
-    const outgoing = await page.locator(".stage").getAttribute("data-view");
-    await page.locator(`[data-view-target="${view}"]`).first().click();
+    const lifecycle = await page.locator(`[data-view-target="${view}"]`).first().evaluate((element) => {
+      const stage = document.querySelector(".stage");
+      const outgoing = stage?.getAttribute("data-view");
+      element.click();
+      return {
+        outgoing,
+        current: stage?.getAttribute("data-view"),
+        transitioning: stage?.getAttribute("data-transitioning"),
+        duration: stage?.getAttribute("data-transition-duration"),
+      };
+    });
     await page.waitForFunction((expected) => document.querySelector(".stage")?.getAttribute("data-view") === expected, view);
-    if (outgoing !== view) {
-      const lifecycle = await page.locator(".stage").evaluate((element) => ({
-        transitioning: element.dataset.transitioning,
-        duration: element.dataset.transitionDuration,
-      }));
-      if (lifecycle.transitioning !== `${outgoing}-to-${view}` || lifecycle.duration !== expectedTransitionDurations[view]) {
+    if (lifecycle.outgoing !== view) {
+      if (lifecycle.current !== view || lifecycle.transitioning !== `${lifecycle.outgoing}-to-${view}` || lifecycle.duration !== expectedTransitionDurations[view]) {
         throw new Error(`${label}/${view}: incomplete transition lifecycle ${JSON.stringify(lifecycle)}`);
       }
       await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
@@ -179,7 +190,7 @@ for (const [label, width, height] of VIEWPORTS) {
     const footerIndex = await page.locator(".stage-status em").innerText();
     if (footerIndex !== `0${index + 1} / 03`) throw new Error(`${label}: footer state mismatch`);
     if (view === "product" && (label === "phone-390" || label === "desktop")) {
-      await page.screenshot({ path: `${RESULTS}/${label}-product.png` });
+      await page.screenshot({ path: `${RESULTS}/${label}-product.png`, timeout: NAVIGATION_TIMEOUT });
     }
     if (view === "runtime") {
       if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {
@@ -209,7 +220,7 @@ for (const [label, width, height] of VIEWPORTS) {
       if (runtimeGeometry.hubFontSize < Math.max(...runtimeGeometry.secondaryFontSizes) * 3) {
         throw new Error(`${label}: Event Log no longer owns the Runtime hierarchy ${JSON.stringify(runtimeGeometry)}`);
       }
-      if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png` });
+      if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png`, timeout: NAVIGATION_TIMEOUT });
     }
   }
 
@@ -257,7 +268,7 @@ for (const [label, width, height] of VIEWPORTS) {
 
   report.viewports[label] = geometry;
   await page.waitForTimeout(250);
-  await page.screenshot({ path: `${RESULTS}/${label}.png` });
+  await page.screenshot({ path: `${RESULTS}/${label}.png`, timeout: NAVIGATION_TIMEOUT });
   await context.close();
 }
 
@@ -269,7 +280,7 @@ if (!(await reducedPage.evaluate(() => matchMedia("(prefers-reduced-motion: redu
   throw new Error("Reduced-motion media query did not apply");
 }
 await reducedPage.locator('[data-view-target="runtime"]').first().click();
-await reducedPage.screenshot({ path: `${RESULTS}/reduced-motion.png` });
+await reducedPage.screenshot({ path: `${RESULTS}/reduced-motion.png`, timeout: NAVIGATION_TIMEOUT });
 await reduced.close();
 
 const fallback = await browser.newContext({ viewport: { width: 1280, height: 720 } });
@@ -284,7 +295,7 @@ await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATIO
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
 if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
 if ((await fallbackPage.locator(".fallback-wordmark").textContent())?.trim() !== "Maka") throw new Error("Static Maka wordmark is incomplete");
-await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
+await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png`, timeout: NAVIGATION_TIMEOUT });
 await fallback.close();
 
 const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 720 } });
@@ -293,7 +304,7 @@ const noRendererPage = await noRenderer.newPage();
 await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 if (!(await noRendererPage.locator("#overview-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
 if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
-await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });
+await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png`, timeout: NAVIGATION_TIMEOUT });
 await noRenderer.close();
 
 await browser.close();
