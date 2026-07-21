@@ -48,6 +48,9 @@ export const initReveal = (reduceMotion: boolean): void => {
           const title = element.querySelector<HTMLElement>("[data-scramble]");
           if (title) scramble(title);
         }
+        if (element.matches(".cta-link")) {
+          element.querySelectorAll<HTMLElement>("[data-scramble-text]").forEach(scramble);
+        }
         observer.unobserve(element);
       }
     },

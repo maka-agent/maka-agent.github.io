@@ -6,6 +6,9 @@ import { NAV } from "../content/site";
   <a class="brand" href="#top" data-nav="top">MAKA</a>
   <p class="shell-role">Local-first Agent&nbsp;Workspace</p>
   <nav class="shell-nav" aria-label="Sections">
+    <button id="theme-toggle" type="button" aria-label="Toggle dark theme">
+      <span data-scramble-label>THEME</span><small>[A]</small>
+    </button>
     {
       NAV.map((item) => (
         <a

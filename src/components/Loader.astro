@@ -9,7 +9,7 @@
     z-index: 90;
     display: grid;
     place-items: center;
-    background: #eaf2fa;
+    background: var(--loader-bg);
     opacity: 1;
     transition: opacity 0.55s ease 0.12s;
   }
@@ -28,7 +28,7 @@
     display: block;
     width: 148px;
     height: 2px;
-    background: rgba(19, 19, 22, 0.14);
+    background: color-mix(in srgb, var(--ink) 14%, transparent);
     overflow: hidden;
   }
 

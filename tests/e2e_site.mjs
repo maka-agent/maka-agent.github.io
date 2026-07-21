@@ -162,6 +162,27 @@ for (const [label, width, height] of VIEWPORTS) {
     });
     report.axe[label] = violations;
     if (violations.length) throw new Error(`${label}: axe violations ${JSON.stringify(violations)}`);
+
+    /* THEME[A]: dark mode must stay accessible too. */
+    if (label === "desktop") {
+      await page.keyboard.press("a");
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "dark");
+      await page.waitForTimeout(600);
+      const darkViolations = await page.evaluate(async () => {
+        const result = await globalThis.axe.run(document, {
+          runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] },
+        });
+        return result.violations.map(({ id, help, nodes }) => ({
+          id,
+          help,
+          nodes: nodes.map((node) => ({ target: node.target, summary: node.failureSummary })),
+        }));
+      });
+      report.axe["desktop-dark"] = darkViolations;
+      if (darkViolations.length) throw new Error(`desktop-dark: axe violations ${JSON.stringify(darkViolations)}`);
+      await page.keyboard.press("a");
+      await page.waitForFunction(() => document.documentElement.dataset.theme === undefined);
+    }
   }
 
   await page.evaluate(() => window.scrollTo(0, 0));

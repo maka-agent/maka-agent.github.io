@@ -30,7 +30,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
     <title>{title}</title>
-    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script is:inline>
+      document.documentElement.classList.add("js");
+      try {
+        if (localStorage.getItem("maka-theme") === "dark") {
+          document.documentElement.dataset.theme = "dark";
+        }
+      } catch (_) {}
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>

@@ -1,8 +1,8 @@
 /*
  * The execution field: one fixed canvas behind the whole page, rendered
- * with raw WebGL. Four draw calls — daylight background, pearl-chrome
- * monogram tube, sparkle glints, particle stream — all driven by three
- * real signals: time, pointer, and scroll.
+ * with raw WebGL. Five passes — pointer flow buffer, daylight background,
+ * transmissive monogram tube, sparkle glints, particle stream — all driven
+ * by four real signals: time, pointer, scroll, and the theme toggle.
  *
  * Reduced motion renders discrete frames with no continuous animation.
  * Without WebGL the CSS sky gradient and opaque section backgrounds keep
@@ -28,6 +28,7 @@ import {
   TUBE_FRAGMENT,
   TUBE_VERTEX,
 } from "./field/shaders";
+import { createFlowField } from "./field/flow";
 import { ParticleSystem, type PointerState } from "./field/particles";
 import { ScrollMap } from "./field/scroll-map";
 import { buildMonogramTube, paintMatcap } from "./field/tube";
@@ -45,15 +46,15 @@ const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
 
 const start = (surface: HTMLCanvasElement): void => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const attributes: WebGLContextAttributes = {
+  const contextAttributes: WebGLContextAttributes = {
     alpha: false,
     depth: true,
     stencil: false,
     antialias: true,
     powerPreference: "high-performance",
   };
-  const gl = (surface.getContext("webgl2", attributes)
-    ?? surface.getContext("webgl", attributes)) as WebGLRenderingContext | null;
+  const gl = (surface.getContext("webgl2", contextAttributes)
+    ?? surface.getContext("webgl", contextAttributes)) as WebGLRenderingContext | null;
   if (!gl) throw new Error("WebGL unavailable");
 
   /* ————— Programs and geometry ————— */
@@ -68,18 +69,25 @@ const start = (surface: HTMLCanvasElement): void => {
       time: gl.getUniformLocation(backgroundProgram, "uTime"),
       aspect: gl.getUniformLocation(backgroundProgram, "uAspect"),
       theme: gl.getUniformLocation(backgroundProgram, "uTheme"),
+      night: gl.getUniformLocation(backgroundProgram, "uNight"),
       pointer: gl.getUniformLocation(backgroundProgram, "uPointer"),
-      velocity: gl.getUniformLocation(backgroundProgram, "uVelocity"),
+      flow: gl.getUniformLocation(backgroundProgram, "uFlow"),
     },
     particle: {
       aspect: gl.getUniformLocation(particleProgram, "uAspect"),
       dpr: gl.getUniformLocation(particleProgram, "uDpr"),
       theme: gl.getUniformLocation(particleProgram, "uTheme"),
+      night: gl.getUniformLocation(particleProgram, "uNight"),
     },
     tube: {
       model: gl.getUniformLocation(tubeProgram, "uModel"),
       aspect: gl.getUniformLocation(tubeProgram, "uAspect"),
       matcap: gl.getUniformLocation(tubeProgram, "uMatcap"),
+      flow: gl.getUniformLocation(tubeProgram, "uFlow"),
+      resolution: gl.getUniformLocation(tubeProgram, "uResolution"),
+      time: gl.getUniformLocation(tubeProgram, "uTime"),
+      theme: gl.getUniformLocation(tubeProgram, "uTheme"),
+      night: gl.getUniformLocation(tubeProgram, "uNight"),
       opacity: gl.getUniformLocation(tubeProgram, "uOpacity"),
     },
     glint: {
@@ -89,7 +97,7 @@ const start = (surface: HTMLCanvasElement): void => {
     },
   };
 
-  const attributes2 = {
+  const attribute = {
     backgroundPosition: gl.getAttribLocation(backgroundProgram, "aPosition"),
     particlePosition: gl.getAttribLocation(particleProgram, "aPosition"),
     particleSize: gl.getAttribLocation(particleProgram, "aSize"),
@@ -102,6 +110,7 @@ const start = (surface: HTMLCanvasElement): void => {
   };
 
   const quadBuffer = createStaticBuffer(gl, new Float32Array([-1, -1, 3, -1, -1, 3]));
+  const flow = createFlowField(gl, quadBuffer);
 
   const particles = new ParticleSystem(PARTICLE_COUNT);
   const particlePositionBuffer = createDynamicBuffer(gl, particles.positions);
@@ -130,6 +139,13 @@ const start = (surface: HTMLCanvasElement): void => {
   let aspect = 1;
   let dpr = 1;
   let compact = false;
+  let nightMode = document.documentElement.dataset.theme === "dark" ? 1 : 0;
+  let nightTarget = nightMode;
+
+  new MutationObserver(() => {
+    nightTarget = document.documentElement.dataset.theme === "dark" ? 1 : 0;
+    if (reduceMotion) renderStill();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   window.addEventListener(
     "pointermove",
@@ -150,6 +166,7 @@ const start = (surface: HTMLCanvasElement): void => {
     surface.height = Math.round(height * dpr);
     gl.viewport(0, 0, surface.width, surface.height);
     aspect = width / height;
+    flow.resize(surface.width, surface.height);
     scrollMap.measure();
   };
 
@@ -169,24 +186,40 @@ const start = (surface: HTMLCanvasElement): void => {
     previousPointer.y = pointerTarget.y;
     pointer.x = damp(pointer.x, pointerTarget.x, 7, delta);
     pointer.y = damp(pointer.y, pointerTarget.y, 7, delta);
+    nightMode = settle ? nightTarget : damp(nightMode, nightTarget, 5, delta);
 
     particles.update(stage, elapsed, delta, aspect, pointer, settle);
 
-    /* Background. */
+    /* Pass 1 — pointer flow buffer (skipped in settle frames). */
+    if (!settle && pointer.active) {
+      flow.update(
+        pointer.x * 0.5 + 0.5,
+        pointer.y * 0.5 + 0.5,
+        clamp(pointer.velocityX * 0.5, -3, 3),
+        clamp(pointer.velocityY * 0.5, -3, 3),
+        delta,
+        aspect,
+      );
+    }
+
+    /* Pass 2 — background. */
     gl.disable(gl.BLEND);
     gl.disable(gl.DEPTH_TEST);
     gl.useProgram(backgroundProgram);
     gl.uniform1f(uniforms.background.time, elapsed);
     gl.uniform1f(uniforms.background.aspect, aspect);
     gl.uniform1f(uniforms.background.theme, theme);
+    gl.uniform1f(uniforms.background.night, nightMode);
     gl.uniform2f(uniforms.background.pointer, pointer.x, pointer.y);
-    gl.uniform2f(uniforms.background.velocity, pointer.velocityX * 0.16, pointer.velocityY * 0.16);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, flow.texture);
+    gl.uniform1i(uniforms.background.flow, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
-    gl.enableVertexAttribArray(attributes2.backgroundPosition);
-    gl.vertexAttribPointer(attributes2.backgroundPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribute.backgroundPosition);
+    gl.vertexAttribPointer(attribute.backgroundPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    /* Monogram tube — hero only; it rises away as the reader scrolls. */
+    /* Pass 3 — monogram tube; it rises away as the reader scrolls. */
     const tubeOpacity = clamp(1 - stage * 1.5, 0, 1);
     let model: Float32Array | null = null;
     if (tubeOpacity > 0.01) {
@@ -213,22 +246,30 @@ const start = (surface: HTMLCanvasElement): void => {
       gl.useProgram(tubeProgram);
       gl.uniformMatrix4fv(uniforms.tube.model, false, model);
       gl.uniform1f(uniforms.tube.aspect, aspect);
+      gl.uniform1f(uniforms.tube.time, elapsed);
+      gl.uniform1f(uniforms.tube.theme, theme);
+      gl.uniform1f(uniforms.tube.night, nightMode);
       gl.uniform1f(uniforms.tube.opacity, tubeOpacity);
+      gl.uniform2f(uniforms.tube.resolution, surface.width, surface.height);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, matcapTexture);
       gl.uniform1i(uniforms.tube.matcap, 0);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, flow.texture);
+      gl.uniform1i(uniforms.tube.flow, 1);
       gl.bindBuffer(gl.ARRAY_BUFFER, tubePositionBuffer);
-      gl.enableVertexAttribArray(attributes2.tubePosition);
-      gl.vertexAttribPointer(attributes2.tubePosition, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(attribute.tubePosition);
+      gl.vertexAttribPointer(attribute.tubePosition, 3, gl.FLOAT, false, 0, 0);
       gl.bindBuffer(gl.ARRAY_BUFFER, tubeNormalBuffer);
-      gl.enableVertexAttribArray(attributes2.tubeNormal);
-      gl.vertexAttribPointer(attributes2.tubeNormal, 3, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(attribute.tubeNormal);
+      gl.vertexAttribPointer(attribute.tubeNormal, 3, gl.FLOAT, false, 0, 0);
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tubeIndexBuffer);
       gl.drawElements(gl.TRIANGLES, tube.indices.length, gl.UNSIGNED_SHORT, 0);
       gl.disable(gl.DEPTH_TEST);
+      gl.activeTexture(gl.TEXTURE0);
     }
 
-    /* Sparkle glints riding the tube. */
+    /* Pass 4 — sparkle glints riding the tube. */
     if (model && tubeOpacity > 0.01) {
       for (let i = 0; i < GLINT_COUNT; i += 1) {
         const world = transformPoint(model, tube.glintAnchors[i]);
@@ -246,36 +287,37 @@ const start = (surface: HTMLCanvasElement): void => {
       gl.uniform1f(uniforms.glint.opacity, tubeOpacity);
       gl.bindBuffer(gl.ARRAY_BUFFER, glintPositionBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, glintData);
-      gl.enableVertexAttribArray(attributes2.glintPosition);
-      gl.vertexAttribPointer(attributes2.glintPosition, 2, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(attribute.glintPosition);
+      gl.vertexAttribPointer(attribute.glintPosition, 2, gl.FLOAT, false, 0, 0);
       gl.bindBuffer(gl.ARRAY_BUFFER, glintSizeBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, glintSizes);
-      gl.enableVertexAttribArray(attributes2.glintSize);
-      gl.vertexAttribPointer(attributes2.glintSize, 1, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(attribute.glintSize);
+      gl.vertexAttribPointer(attribute.glintSize, 1, gl.FLOAT, false, 0, 0);
       gl.bindBuffer(gl.ARRAY_BUFFER, glintPulseBuffer);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, glintPulses);
-      gl.enableVertexAttribArray(attributes2.glintPulse);
-      gl.vertexAttribPointer(attributes2.glintPulse, 1, gl.FLOAT, false, 0, 0);
+      gl.enableVertexAttribArray(attribute.glintPulse);
+      gl.vertexAttribPointer(attribute.glintPulse, 1, gl.FLOAT, false, 0, 0);
       gl.drawArrays(gl.POINTS, 0, GLINT_COUNT);
     }
 
-    /* Particle stream. */
+    /* Pass 5 — particle stream. */
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(particleProgram);
     gl.uniform1f(uniforms.particle.aspect, aspect);
     gl.uniform1f(uniforms.particle.dpr, dpr);
     gl.uniform1f(uniforms.particle.theme, theme);
+    gl.uniform1f(uniforms.particle.night, nightMode);
     gl.bindBuffer(gl.ARRAY_BUFFER, particlePositionBuffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, particles.positions);
-    gl.enableVertexAttribArray(attributes2.particlePosition);
-    gl.vertexAttribPointer(attributes2.particlePosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribute.particlePosition);
+    gl.vertexAttribPointer(attribute.particlePosition, 2, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, particleSizeBuffer);
-    gl.enableVertexAttribArray(attributes2.particleSize);
-    gl.vertexAttribPointer(attributes2.particleSize, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribute.particleSize);
+    gl.vertexAttribPointer(attribute.particleSize, 1, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, particleShadeBuffer);
-    gl.enableVertexAttribArray(attributes2.particleShade);
-    gl.vertexAttribPointer(attributes2.particleShade, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attribute.particleShade);
+    gl.vertexAttribPointer(attribute.particleShade, 1, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.POINTS, 0, particles.count);
   };
 

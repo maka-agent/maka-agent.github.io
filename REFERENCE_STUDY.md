@@ -111,3 +111,24 @@ use original copy, composition, assets, and shaders.
   palette process selects a related hue for product reasons.
 - Do not ship a fake terminal aesthetic. Any technical data shown on the Maka
   page must correspond to an actual product capability or architecture fact.
+
+## Deep-dive addendum (live capture, 1440×900)
+
+Evidence: `.web-shader-extractor/evidence/screenshots/deep-dive/` (not published).
+
+- `SOURCE` — The hero tube is transmissive glass: the sky field is visible
+  through the letterforms with refraction; pointer motion drives a fluid
+  buffer that displaces the refraction into dispersion-like shards.
+- `SOURCE` — A sticker layer (hearts, badges, pixel hands) floats over the
+  page and reacts to pointer turbulence; the closing sequence re-renders the
+  stickers in halftone dither around a giant "FUTURE-FIRST ALWAYS" statement.
+  Maka intentionally does not adopt stickers (brand anti-reference).
+- `SOURCE` — Sky light reads as large diagonal streaks (≈30° slant), not
+  round blobs; the closing section reuses the same streak field at scale.
+- `SOURCE` — The dark section is a radial "warp" starfield of cyan/violet
+  line streaks with floating principle statements.
+- `SOURCE` — The document scrollHeight stays at viewport height; scrolling is
+  fully virtualized (wheel-driven), and the bottom telemetry's left slot
+  shows the current project name during the work gallery.
+- `SOURCE` — Work cards: full-bleed image areas with an acid tag top-right
+  and a name/year caption row; smaller two-up cards for events.

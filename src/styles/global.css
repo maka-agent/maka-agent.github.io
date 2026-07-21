@@ -37,6 +37,37 @@
   --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --frame-bg: #ffffff;
+  --frame-shadow: rgba(19, 19, 22, 0.07);
+  --statement-ghost: rgba(19, 19, 22, 0.1);
+  --loader-bg: #eaf2fa;
+}
+
+/* THEME[A] — the dark instrument. The difference-blended shells and the
+   canvas palettes follow automatically; these tokens flip the DOM. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #101216;
+  --ink: #edeff3;
+  --ink-2: rgba(237, 239, 243, 0.64);
+  --ink-3: rgba(237, 239, 243, 0.62);
+  --line: rgba(237, 239, 243, 0.15);
+  --line-soft: rgba(237, 239, 243, 0.08);
+  --signal-text: #8ab4f0;
+  --wash: #1d2c47;
+  --sky-fallback: linear-gradient(
+    168deg,
+    #16202f 0%,
+    #131c2b 34%,
+    #1a2740 62%,
+    #16202f 100%
+  );
+  --frame-bg: #171a20;
+  --frame-shadow: rgba(0, 0, 0, 0.45);
+  --statement-ghost: rgba(237, 239, 243, 0.1);
+  --loader-bg: #10151d;
+  scrollbar-color: rgba(237, 239, 243, 0.35) transparent;
 }
 
 *,
@@ -254,21 +285,28 @@ html[data-field="ready"] .execution-field canvas {
   gap: clamp(16px, 3vw, 40px);
 }
 
-.shell-nav a {
+.shell-nav a,
+.shell-nav button {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-decoration: none;
   padding: 12px 10px;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
 }
 
-.shell-nav a small {
+.shell-nav a small,
+.shell-nav button small {
   font-size: inherit;
   color: rgba(255, 255, 255, 0.55);
 }
 
-.shell-nav a:hover small {
+.shell-nav a:hover small,
+.shell-nav button:hover small {
   color: inherit;
 }
 
@@ -406,7 +444,8 @@ html.js .is-in {
     display: none;
   }
 
-  .shell-nav a small {
+  .shell-nav a small,
+  .shell-nav button small {
     display: none;
   }
 
