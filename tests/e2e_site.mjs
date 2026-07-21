@@ -78,6 +78,9 @@ for (const [label, width, height] of VIEWPORTS) {
   if (geometry.field !== "ready" || !geometry.canvas?.width || !geometry.canvas.height) {
     throw new Error(`${label}: WebGL field did not initialize ${JSON.stringify(geometry)}`);
   }
+  if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
+    throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
+  }
 
   for (const image of await page.locator("img").all()) {
     await image.evaluate((element) => element.complete && element.naturalWidth > 0
@@ -207,7 +210,7 @@ const fallbackPage = await fallback.newPage();
 await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
 if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
-if ((await fallbackPage.locator(".fallback-wordmark path").count()) !== 4) throw new Error("Static MAKA wordmark is incomplete");
+if ((await fallbackPage.locator(".fallback-wordmark").textContent())?.trim() !== "Maka") throw new Error("Static Maka wordmark is incomplete");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
 await fallback.close();
 

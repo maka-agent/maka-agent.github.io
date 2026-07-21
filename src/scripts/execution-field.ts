@@ -1,6 +1,9 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { FontLoader } from "three/addons/loaders/FontLoader.js";
+import optimer from "three/examples/fonts/optimer_regular.typeface.json";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
 
@@ -150,20 +153,21 @@ if (canvas) {
     pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
 
     const wordGlass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#4d8ed5"),
-      metalness: 0.04,
-      roughness: 0.17,
-      transmission: 0.3,
-      thickness: 2,
-      ior: 1.36,
-      dispersion: 0.2,
+      color: new THREE.Color("#3d86c8"),
+      metalness: 0,
+      roughness: 0.13,
+      transmission: 0.28,
+      thickness: 0.96,
+      ior: 1.38,
+      dispersion: 0.1,
       clearcoat: 1,
-      clearcoatRoughness: 0.035,
-      attenuationColor: new THREE.Color("#397fca"),
-      attenuationDistance: 1.9,
-      iridescence: 0.22,
+      clearcoatRoughness: 0.045,
+      attenuationColor: new THREE.Color("#1f66ad"),
+      attenuationDistance: 0.92,
+      iridescence: 0.24,
       iridescenceIOR: 1.3,
       opacity: 1,
+      envMapIntensity: 0.9,
     });
 
     const glass = wordGlass.clone();
@@ -209,83 +213,23 @@ if (canvas) {
       clearcoatRoughness: 0.09,
     });
 
-    type TubePoint = readonly [number, number, number?];
-    const makeTubeStroke = (points: TubePoint[], radius = 0.27, closed = false) => {
-      const path = new THREE.CatmullRomCurve3(
-        points.map(([x, y, z = 0]) => new THREE.Vector3(x, y, z)),
-        closed,
-        "centripetal",
-        0.42,
-      );
-      const stroke = new THREE.Mesh(
-        new THREE.TubeGeometry(path, Math.max(56, points.length * 18), radius, 24, closed),
-        wordGlass,
-      );
-      stroke.castShadow = true;
-      stroke.receiveShadow = true;
-      return stroke;
-    };
-
-    const letterDefinitions: Array<{ x: number; strokes: Array<{ points: TubePoint[]; radius?: number; closed?: boolean }> }> = [
-      {
-        x: -3.4,
-        strokes: [
-          {
-            points: [
-              [-0.92, -1.18, 0], [-0.91, 0.52, 0.04], [-0.76, 1.18, 0.08],
-              [-0.38, 1.28, 0.12], [0.02, 0.05, 0.02], [0.42, 1.23, -0.02],
-              [0.8, 1.08, 0.04], [0.9, 0.24, 0.08], [0.91, -1.18, 0],
-            ],
-            radius: 0.29,
-          },
-        ],
-      },
-      {
-        x: -1.5,
-        strokes: [
-          {
-            points: [
-              [-0.68, 0.02, 0], [-0.55, 0.6, 0.06], [-0.04, 0.84, 0.1],
-              [0.5, 0.62, 0.06], [0.67, 0.06, 0], [0.46, -0.55, -0.03],
-              [-0.08, -0.78, 0], [-0.59, -0.5, 0.04],
-            ],
-            closed: true,
-          },
-          { points: [[0.59, 0.67, 0.02], [0.61, 0.2, 0.04], [0.62, -0.35, 0], [0.64, -0.86, -0.02]], radius: 0.255 },
-        ],
-      },
-      {
-        x: 0.2,
-        strokes: [
-          { points: [[-0.62, -1.15, 0], [-0.64, -0.22, 0.05], [-0.61, 0.62, 0.02], [-0.53, 1.22, -0.04]], radius: 0.27 },
-          { points: [[-0.5, -0.02, 0.05], [-0.08, 0.31, 0.08], [0.38, 0.78, 0.02], [0.72, 1.02, -0.04]], radius: 0.255 },
-          { points: [[-0.45, -0.02, 0.05], [-0.05, -0.3, 0.08], [0.4, -0.72, 0.02], [0.77, -1.02, -0.04]], radius: 0.255 },
-        ],
-      },
-      {
-        x: 1.95,
-        strokes: [
-          {
-            points: [
-              [-0.68, 0.02, 0], [-0.55, 0.6, -0.02], [-0.04, 0.84, 0.05],
-              [0.5, 0.62, 0.08], [0.67, 0.06, 0.03], [0.46, -0.55, 0],
-              [-0.08, -0.78, -0.02], [-0.59, -0.5, 0.02],
-            ],
-            closed: true,
-          },
-          { points: [[0.59, 0.67, 0.04], [0.61, 0.2, 0.07], [0.62, -0.35, 0.02], [0.64, -0.86, -0.02]], radius: 0.255 },
-        ],
-      },
-    ];
-
     const wordmark = new THREE.Group();
-    const wordLetters = letterDefinitions.map(({ x, strokes }, index) => {
-      const letter = new THREE.Group();
-      letter.add(...strokes.map(({ points, radius, closed }) => makeTubeStroke(points, radius, closed)));
-      letter.position.set(x, 0, index % 2 === 0 ? 0.08 : -0.04);
-      wordmark.add(letter);
-      return { letter, baseZ: letter.position.z, phase: index * 0.8 };
+    const wordmarkGeometry = new TextGeometry("Maka", {
+      font: new FontLoader().parse(optimer),
+      size: 2.5,
+      depth: 0.34,
+      curveSegments: 20,
+      bevelEnabled: true,
+      bevelThickness: 0.11,
+      bevelSize: 0.075,
+      bevelOffset: 0,
+      bevelSegments: 8,
     });
+    wordmarkGeometry.center();
+    const wordmarkMesh = new THREE.Mesh(wordmarkGeometry, wordGlass);
+    wordmarkMesh.castShadow = true;
+    wordmarkMesh.receiveShadow = true;
+    wordmark.add(wordmarkMesh);
     const glintCanvas = document.createElement("canvas");
     glintCanvas.width = 96;
     glintCanvas.height = 96;
@@ -302,10 +246,10 @@ if (canvas) {
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
     const glintPositions = [
-      new THREE.Vector3(-3.7, 0.86, 0.38),
-      new THREE.Vector3(-1.4, -0.44, 0.34),
-      new THREE.Vector3(0.2, 0.02, 0.36),
-      new THREE.Vector3(2.08, 0.5, 0.36),
+      new THREE.Vector3(-3.28, 0.78, 0.52),
+      new THREE.Vector3(-1.18, -0.36, 0.5),
+      new THREE.Vector3(0.66, 0.24, 0.51),
+      new THREE.Vector3(2.78, -0.12, 0.5),
     ];
     const wordGlints = glintPositions.map((position, index) => {
       const material = new THREE.SpriteMaterial({
@@ -322,9 +266,9 @@ if (canvas) {
       wordmark.add(glint);
       return { glint, material, phase: index * 1.35 };
     });
-    wordmark.position.set(1, -0.68, 0.42);
-    wordmark.rotation.set(-0.065, -0.03, -0.02);
-    wordmark.scale.setScalar(1.2);
+    wordmark.position.set(0.42, -0.42, 0.42);
+    wordmark.rotation.set(-0.055, -0.028, -0.014);
+    wordmark.scale.setScalar(1.1);
     organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
@@ -658,12 +602,9 @@ if (canvas) {
       cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.78 * (1 - cursorSpeed * 0.09), 13, delta);
       cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.78, 13, delta);
 
-      wordmark.rotation.x = -0.08 + Math.sin(elapsed * 0.32) * 0.018;
-      wordmark.rotation.z = -0.015 + Math.sin(elapsed * 0.24) * 0.012;
-      wordLetters.forEach(({ letter, baseZ, phase }) => {
-        letter.rotation.y = Math.sin(elapsed * 0.34 + phase) * 0.052;
-        letter.position.z = baseZ + Math.sin(elapsed * 0.4 + phase) * 0.055;
-      });
+      wordmark.rotation.x = -0.055 + Math.sin(elapsed * 0.32) * 0.012;
+      wordmark.rotation.y = -0.028 + Math.sin(elapsed * 0.28) * 0.018;
+      wordmark.rotation.z = -0.014 + Math.sin(elapsed * 0.24) * 0.007;
       wordGlints.forEach(({ glint, material, phase }) => {
         const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.45 + phase);
         glint.scale.setScalar(0.38 + pulse * 0.3);

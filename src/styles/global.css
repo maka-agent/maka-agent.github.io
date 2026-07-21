@@ -204,11 +204,14 @@ html[data-field="unavailable"] .execution-field canvas {
 }
 
 .fallback-wordmark {
-  fill: none;
-  stroke: oklch(0.8 0.11 248 / 0.86);
-  stroke-width: 52;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  fill: oklch(0.72 0.12 248 / 0.76);
+  stroke: oklch(0.9 0.08 235 / 0.9);
+  stroke-width: 9;
+  paint-order: stroke fill;
+  font-family: var(--sans);
+  font-size: 330px;
+  font-weight: 720;
+  letter-spacing: -0.045em;
 }
 
 .fallback-satellites {
