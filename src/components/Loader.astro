@@ -1,0 +1,42 @@
+<div id="loader" class="loader" aria-hidden="true">
+  <i class="loader-bar"><b></b></i>
+</div>
+
+<style>
+  .loader {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    background: #eaf2fa;
+    opacity: 1;
+    transition: opacity 0.55s ease 0.12s;
+  }
+
+  /* Only exists as an experience when JS drives it. */
+  :global(html:not(.js)) .loader {
+    display: none;
+  }
+
+  :global(html.is-loaded) .loader {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .loader-bar {
+    display: block;
+    width: 148px;
+    height: 2px;
+    background: rgba(19, 19, 22, 0.14);
+    overflow: hidden;
+  }
+
+  .loader-bar b {
+    display: block;
+    height: 100%;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+</style>

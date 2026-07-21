@@ -1,0 +1,153 @@
+---
+import { ARCHITECTURE_URL, LEDGER } from "../content/site";
+import Ticks from "./Ticks.astro";
+---
+
+<section class="band band--night runtime" id="runtime" data-theme="night" data-section="03 RUNTIME">
+  <Ticks />
+
+  <header class="band-head">
+    <p class="band-index mono">02</p>
+    <h2 class="band-title" data-scramble>RUNTIME</h2>
+    <p class="band-note mono">Append-only execution record</p>
+  </header>
+
+  <div class="runtime-lede">
+    <h3>Every step becomes a fact.</h3>
+    <p>
+      Messages, Tool&nbsp;Calls, Tool&nbsp;Results, and termination facts enter
+      one Event&nbsp;Log. Context, UI, and recovery are projections over the
+      same recorded execution — so interrupted work can resume instead of
+      restarting.
+    </p>
+    <a class="mono runtime-link" href={ARCHITECTURE_URL} target="_blank" rel="noreferrer"
+      >READ ARCHITECTURE.MD&nbsp;↗</a
+    >
+  </div>
+
+  <ol class="ledger" aria-label="Maka execution flow">
+    {
+      LEDGER.map((stage) => (
+        <li>
+          <span class="mono">{stage.no}</span>
+          <b>{stage.name}</b>
+          <p class="mono">{stage.note}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .runtime-lede {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    margin-bottom: clamp(180px, 30vh, 340px);
+  }
+
+  .runtime-lede h3 {
+    grid-column: 1 / 6;
+    font-size: clamp(1.8rem, 3.2vw, 2.9rem);
+    font-weight: 660;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+
+  .runtime-lede p {
+    grid-column: 7 / 11;
+    color: var(--night-2);
+    font-size: 0.9375rem;
+  }
+
+  .runtime-link {
+    grid-column: 11 / 13;
+    justify-self: end;
+    align-self: start;
+    color: var(--night-ink);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--night-line);
+    padding: 12px 0;
+  }
+
+  .runtime-link:hover {
+    border-bottom-color: var(--night-ink);
+  }
+
+  .ledger {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--night-line);
+  }
+
+  .ledger li {
+    padding: 26px 20px 34px 20px;
+    border-left: 1px solid var(--night-line);
+  }
+
+  .ledger li:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+
+  .ledger li > span {
+    display: block;
+    color: #7aa7e8;
+    letter-spacing: 0.1em;
+    margin-bottom: 22px;
+  }
+
+  .ledger li b {
+    display: block;
+    font-size: 1.1875rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .ledger li p {
+    color: var(--night-2);
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+  }
+
+  @media (max-width: 1023px) {
+    .runtime-lede {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: clamp(120px, 20vh, 220px);
+    }
+
+    .runtime-lede h3,
+    .runtime-lede p,
+    .runtime-link {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .ledger {
+      grid-template-columns: 1fr;
+    }
+
+    .ledger li {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 4px 16px;
+      border-left: none;
+      border-top: 1px solid var(--night-line);
+      padding: 18px 0;
+    }
+
+    .ledger li:first-child {
+      border-top: none;
+    }
+
+    .ledger li > span {
+      grid-row: 1 / 3;
+      margin-bottom: 0;
+    }
+  }
+</style>

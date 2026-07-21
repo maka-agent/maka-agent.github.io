@@ -1,0 +1,24 @@
+---
+import { NAV } from "../content/site";
+---
+
+<header class="shell shell--top" aria-label="Primary navigation">
+  <a class="brand" href="#top" data-nav="top">MAKA</a>
+  <p class="shell-role">Local-first Agent&nbsp;Workspace</p>
+  <nav class="shell-nav" aria-label="Sections">
+    {
+      NAV.map((item) => (
+        <a
+          href={item.href}
+          data-key={item.key}
+          {...(item.external
+            ? { target: "_blank", rel: "noreferrer" }
+            : { "data-nav": item.href.slice(1) })}
+        >
+          <span data-scramble-label>{item.label}</span><small>[{item.key}]</small>
+          {item.external && <span aria-hidden="true">&nbsp;↗</span>}
+        </a>
+      ))
+    }
+  </nav>
+</header>

@@ -1,0 +1,198 @@
+---
+import { Image } from "astro:assets";
+import { WORK_ENTRIES } from "../content/site";
+import Ticks from "./Ticks.astro";
+---
+
+<section class="band band--paper work" id="work" data-theme="paper" data-section="01 WORK">
+  <Ticks />
+
+  <header class="band-head">
+    <p class="band-index mono">01</p>
+    <h2 class="band-title" data-scramble>WORK</h2>
+    <p class="band-note mono">Real product · current source · nothing staged</p>
+  </header>
+
+  {
+    WORK_ENTRIES.map((entry) => (
+      <article class={`entry entry--${entry.layout}`}>
+        <div class="entry-row mono" aria-hidden="true">
+          <span class="entry-name">{entry.name}</span>
+          <span class="entry-meta">{entry.meta}</span>
+          <span class="entry-tag">{entry.tag}</span>
+          <span class="entry-no">{entry.no}</span>
+        </div>
+        <div class="entry-body">
+          <figure class="frame">
+            <Image
+              src={entry.image}
+              alt={entry.alt}
+              widths={entry.layout === "wide" ? [960, 1280, 1600, 1920] : [480, 720, 1080]}
+              sizes={
+                entry.layout === "wide"
+                  ? "(max-width: 760px) 94vw, 72vw"
+                  : "(max-width: 760px) 94vw, 38vw"
+              }
+              format="webp"
+              quality={entry.layout === "wide" ? 90 : 88}
+              loading={entry.eager ? "eager" : "lazy"}
+              fetchpriority={entry.eager ? "high" : "auto"}
+            />
+            <figcaption class="mono">{entry.caption}</figcaption>
+          </figure>
+          <div class="entry-copy">
+            <h3>{entry.heading}</h3>
+            <p>{entry.body}</p>
+          </div>
+        </div>
+      </article>
+    ))
+  }
+</section>
+
+<style>
+  .entry {
+    margin-bottom: clamp(72px, 11vh, 140px);
+  }
+
+  .entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .entry-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr auto auto;
+    gap: 24px;
+    align-items: center;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+  }
+
+  .entry-name {
+    font-weight: 700;
+  }
+
+  .entry-meta {
+    color: var(--ink-2);
+  }
+
+  .entry-tag {
+    padding: 3px 8px;
+    background: var(--wash);
+    color: var(--signal-text);
+    font-weight: 600;
+  }
+
+  .entry-no {
+    color: var(--ink-3);
+  }
+
+  .entry-body {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+    margin-top: clamp(28px, 4vh, 48px);
+    align-items: start;
+  }
+
+  .entry-copy {
+    position: sticky;
+    top: calc(var(--shell-h) + 24px);
+  }
+
+  /* Three layout recipes, declared by the content data. */
+  .entry--wide .frame {
+    grid-column: 1 / 9;
+  }
+
+  .entry--wide .entry-copy {
+    grid-column: 10 / 13;
+  }
+
+  .entry--copy-first .entry-copy {
+    grid-column: 1 / 4;
+  }
+
+  .entry--copy-first .frame {
+    grid-column: 6 / 12;
+    order: 1;
+  }
+
+  .entry--frame-first .frame {
+    grid-column: 1 / 8;
+  }
+
+  .entry--frame-first .entry-copy {
+    grid-column: 9 / 13;
+  }
+
+  .frame {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(19, 19, 22, 0.07);
+    will-change: transform;
+  }
+
+  .frame :global(img) {
+    border-radius: 4px;
+  }
+
+  .frame figcaption {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 6px 4px;
+    color: var(--ink-2);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+  }
+
+  .entry-copy h3 {
+    font-size: clamp(1.35rem, 2vw, 1.75rem);
+    font-weight: 640;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin-bottom: 14px;
+  }
+
+  .entry-copy p {
+    color: var(--ink-2);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 1023px) {
+    .entry-body {
+      grid-template-columns: 1fr;
+    }
+
+    .entry--wide .frame,
+    .entry--wide .entry-copy,
+    .entry--copy-first .frame,
+    .entry--copy-first .entry-copy,
+    .entry--frame-first .frame,
+    .entry--frame-first .entry-copy {
+      grid-column: 1 / -1;
+      position: static;
+      order: 0;
+    }
+
+    .entry-copy {
+      max-width: 52ch;
+    }
+  }
+
+  @media (max-width: 759px) {
+    .entry-row {
+      grid-template-columns: 1fr auto;
+      row-gap: 8px;
+    }
+
+    .entry-meta {
+      display: none;
+    }
+  }
+</style>

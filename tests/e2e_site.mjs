@@ -47,6 +47,8 @@ for (const [label, width, height] of VIEWPORTS) {
   const response = await page.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
   if (!response || response.status() !== 200) throw new Error(`${label}: site did not return 200`);
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
+  /* The loading sequence must always hand off (hard cap 2.8s). */
+  await page.waitForFunction(() => document.documentElement.classList.contains("is-loaded"), undefined, { timeout: 10_000 });
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const heroText = (await page.locator("#hero-title").innerText())
@@ -194,6 +196,7 @@ await fallback.addInitScript(() => {
 const fallbackPage = await fallback.newPage();
 await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
+await fallbackPage.waitForFunction(() => document.documentElement.classList.contains("is-loaded"), undefined, { timeout: 10_000 });
 if (!(await fallbackPage.locator("#hero-title").isVisible())) throw new Error("Hero is hidden without WebGL");
 if (!(await fallbackPage.locator(".execution-field").isVisible())) throw new Error("CSS sky fallback is not visible");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
@@ -204,6 +207,7 @@ const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 7
 await noRenderer.route(/execution[-_]?field/i, (route) => route.abort());
 const noRendererPage = await noRenderer.newPage();
 await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
+await noRendererPage.waitForFunction(() => document.documentElement.classList.contains("is-loaded"), undefined, { timeout: 10_000 });
 if (!(await noRendererPage.locator("#hero-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
 if ((await noRendererPage.locator("main img").count()) !== 3) throw new Error("Product proof is missing while renderer code is unavailable");
 await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });

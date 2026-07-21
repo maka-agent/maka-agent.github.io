@@ -1,0 +1,68 @@
+---
+import { SURFACES } from "../content/site";
+import Ticks from "./Ticks.astro";
+---
+
+<section class="band band--paper surfaces" data-theme="paper" data-section="04 SURFACES">
+  <Ticks />
+
+  <header class="band-head">
+    <p class="band-index mono">03</p>
+    <h2 class="band-title" data-scramble>SURFACES</h2>
+    <p class="band-note mono">One engine · several fronts</p>
+  </header>
+
+  <ul class="surface-list">
+    {
+      SURFACES.map((surface) => (
+        <li>
+          <b>{surface.name}</b>
+          <span class="mono">{surface.note}</span>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .surface-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .surface-list li {
+    padding-top: 22px;
+    border-top: 3px solid var(--ink);
+    margin-top: -2px;
+  }
+
+  .surface-list b {
+    display: block;
+    font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
+  }
+
+  .surface-list span {
+    color: var(--ink-2);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 1023px) {
+    .surface-list {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 759px) {
+    .surface-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

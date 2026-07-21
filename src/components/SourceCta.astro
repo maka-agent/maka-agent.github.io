@@ -1,0 +1,101 @@
+---
+import { ARCHITECTURE_URL, GITHUB_URL } from "../content/site";
+import Ticks from "./Ticks.astro";
+---
+
+<section class="band band--paper cta" data-theme="paper" data-section="05 SOURCE">
+  <Ticks />
+
+  <p class="cta-note mono">
+    Source-first. No waitlist, no telemetry pitch —<br />
+    read the implementation yourself.
+  </p>
+
+  <a class="cta-link" href={GITHUB_URL} target="_blank" rel="noreferrer">
+    <span class="line"><span>VIEW</span></span>
+    <span class="line"><span>SOURCE&nbsp;<b aria-hidden="true">↗</b></span></span>
+  </a>
+
+  <div class="cta-foot mono">
+    <a href={GITHUB_URL} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
+    <a href={ARCHITECTURE_URL} target="_blank" rel="noreferrer">ARCHITECTURE.md ↗</a>
+    <span>MAKA © 2026</span>
+  </div>
+</section>
+
+<style>
+  .cta {
+    padding-bottom: 140px;
+  }
+
+  .cta-note {
+    color: var(--ink-2);
+    letter-spacing: 0.05em;
+    margin-bottom: clamp(40px, 6vh, 72px);
+  }
+
+  .cta-link {
+    display: block;
+    width: fit-content;
+    text-decoration: none;
+    font-size: clamp(3.4rem, 11.5vw, 12.5rem);
+    font-weight: 800;
+    line-height: 0.93;
+    letter-spacing: -0.022em;
+    text-transform: uppercase;
+  }
+
+  .cta-link .line {
+    display: block;
+    overflow: hidden;
+  }
+
+  .cta-link .line > span {
+    display: inline-block;
+    transition: transform 0.5s var(--ease-out), color 0.3s ease;
+  }
+
+  .cta-link:hover .line > span {
+    transform: translateX(0.06em);
+    color: var(--signal-text);
+  }
+
+  .cta-link b {
+    font-weight: 800;
+  }
+
+  .cta-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 48px;
+    margin-top: clamp(48px, 7vh, 80px);
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+    letter-spacing: 0.05em;
+  }
+
+  .cta-foot a {
+    display: inline-block;
+    padding: 12px 0;
+    text-decoration: none;
+  }
+
+  .cta-foot a:hover {
+    color: var(--ink);
+  }
+
+  .cta-foot span:last-child {
+    margin-left: auto;
+  }
+
+  @media (max-width: 759px) {
+    .cta {
+      padding-bottom: 120px;
+    }
+
+    .cta-foot span:last-child {
+      margin-left: 0;
+    }
+  }
+</style>
