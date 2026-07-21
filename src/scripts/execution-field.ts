@@ -139,172 +139,243 @@ if (canvas) {
       if (!shader) throw new Error("Unable to create WebGL shader");
       gl.shaderSource(shader, source);
       gl.compileShader(shader);
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        const message = gl.getShaderInfoLog(shader) || "WebGL shader compilation failed";
-        gl.deleteShader(shader);
-        throw new Error(message);
-      }
       return shader;
     };
 
-    try {
-      const program = gl.createProgram();
-      if (!program) throw new Error("Unable to create WebGL program");
-      const vertexShader = compile(gl.VERTEX_SHADER, vertexSource);
-      const fragmentShader = compile(gl.FRAGMENT_SHADER, fragmentSource);
-      gl.attachShader(program, vertexShader);
-      gl.attachShader(program, fragmentShader);
-      gl.linkProgram(program);
-      gl.deleteShader(vertexShader);
-      gl.deleteShader(fragmentShader);
+    const parallelCompile = gl.getExtension("KHR_parallel_shader_compile") as {
+      COMPLETION_STATUS_KHR: number;
+    } | null;
+    const nextFrame = (): Promise<void> =>
+      new Promise((resolve) => {
+        window.requestAnimationFrame(() => resolve());
+      });
 
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        throw new Error(gl.getProgramInfoLog(program) || "WebGL program linking failed");
-      }
+    void (async () => {
+      try {
+        const program = gl.createProgram();
+        if (!program) throw new Error("Unable to create WebGL program");
+        const vertexShader = compile(gl.VERTEX_SHADER, vertexSource);
+        await nextFrame();
+        const fragmentShader = compile(gl.FRAGMENT_SHADER, fragmentSource);
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
 
-      const uniform = (name: string): WebGLUniformLocation => {
-        const location = gl.getUniformLocation(program, name);
-        if (!location) throw new Error(`Missing WebGL uniform: ${name}`);
-        return location;
-      };
-
-      const resolutionLocation = uniform("uResolution");
-      const pointerLocation = uniform("uPointer");
-      const timeLocation = uniform("uTime");
-      const scrollLocation = uniform("uScroll");
-      const sectionLocation = uniform("uSection");
-      const motionLocation = uniform("uMotion");
-
-      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-      const coarsePointer = window.matchMedia("(pointer: coarse)");
-      let pointer = coarsePointer.matches ? { x: -1, y: -1 } : { x: 0.68, y: 0.28 };
-      let targetSection = 0;
-      let currentSection = 0;
-      let scrollProgress = 0;
-      let frame = 0;
-      let lastFrameAt = 0;
-      let startedAt = performance.now();
-      let running = false;
-      const frameInterval = 1000 / 30;
-
-      const telemetryX = document.querySelector<HTMLElement>("#telemetry-x");
-      const telemetryY = document.querySelector<HTMLElement>("#telemetry-y");
-      const telemetrySection = document.querySelector<HTMLElement>("#telemetry-section");
-
-      const resize = (): void => {
-        const maxDpr = window.innerWidth < 768 ? 1.5 : 2;
-        const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
-        const width = Math.max(1, Math.round(window.innerWidth * dpr));
-        const height = Math.max(1, Math.round(window.innerHeight * dpr));
-        if (canvas.width !== width || canvas.height !== height) {
-          canvas.width = width;
-          canvas.height = height;
-          gl.viewport(0, 0, width, height);
+        if (parallelCompile) {
+          while (
+            !gl.getProgramParameter(
+              program,
+              parallelCompile.COMPLETION_STATUS_KHR,
+            )
+          ) {
+            await nextFrame();
+          }
+        } else {
+          await nextFrame();
         }
-      };
 
-      const updateScroll = (): void => {
-        const range = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-        scrollProgress = Math.min(1, Math.max(0, window.scrollY / range));
-      };
-
-      const draw = (now: number): void => {
-        currentSection += (targetSection - currentSection) * (reducedMotion.matches ? 1 : 0.055);
-        gl.disable(gl.BLEND);
-        gl.disable(gl.DEPTH_TEST);
-        gl.disable(gl.CULL_FACE);
-        gl.useProgram(program);
-        gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-        gl.uniform2f(pointerLocation, pointer.x, pointer.y);
-        gl.uniform1f(timeLocation, (now - startedAt) / 1000);
-        gl.uniform1f(scrollLocation, scrollProgress);
-        gl.uniform1f(sectionLocation, currentSection);
-        gl.uniform1f(motionLocation, reducedMotion.matches ? 0 : 1);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-      };
-
-      const loop = (now: number): void => {
-        if (!running) return;
-        if (now - lastFrameAt >= frameInterval) {
-          draw(now);
-          lastFrameAt = now;
+        for (const shader of [vertexShader, fragmentShader]) {
+          if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            const message =
+              gl.getShaderInfoLog(shader) || "WebGL shader compilation failed";
+            gl.deleteShader(vertexShader);
+            gl.deleteShader(fragmentShader);
+            gl.deleteProgram(program);
+            throw new Error(message);
+          }
         }
-        frame = window.requestAnimationFrame(loop);
-      };
 
-      const start = (): void => {
-        if (running || document.hidden) return;
-        running = true;
-        startedAt = performance.now();
-        lastFrameAt = 0;
-        if (reducedMotion.matches) draw(startedAt);
-        else frame = window.requestAnimationFrame(loop);
-      };
+        gl.deleteShader(vertexShader);
+        gl.deleteShader(fragmentShader);
 
-      const stop = (): void => {
-        running = false;
-        window.cancelAnimationFrame(frame);
-      };
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          throw new Error(
+            gl.getProgramInfoLog(program) || "WebGL program linking failed",
+          );
+        }
 
-      const redrawStatic = (): void => {
-        if (reducedMotion.matches) draw(performance.now());
-      };
+        const uniform = (name: string): WebGLUniformLocation => {
+          const location = gl.getUniformLocation(program, name);
+          if (!location) throw new Error(`Missing WebGL uniform: ${name}`);
+          return location;
+        };
 
-      window.addEventListener("pointermove", (event) => {
-        if (coarsePointer.matches) return;
-        pointer = { x: event.clientX / window.innerWidth, y: event.clientY / window.innerHeight };
-        if (telemetryX) telemetryX.textContent = String(Math.round(event.clientX)).padStart(4, "0");
-        if (telemetryY) telemetryY.textContent = String(Math.round(event.clientY)).padStart(4, "0");
-        redrawStatic();
-      }, { passive: true });
+        const resolutionLocation = uniform("uResolution");
+        const pointerLocation = uniform("uPointer");
+        const timeLocation = uniform("uTime");
+        const scrollLocation = uniform("uScroll");
+        const sectionLocation = uniform("uSection");
+        const motionLocation = uniform("uMotion");
 
-      window.addEventListener("scroll", () => {
+        const reducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        );
+        const coarsePointer = window.matchMedia("(pointer: coarse)");
+        let pointer = coarsePointer.matches
+          ? { x: -1, y: -1 }
+          : { x: 0.68, y: 0.28 };
+        let targetSection = 0;
+        let currentSection = 0;
+        let scrollProgress = 0;
+        let frame = 0;
+        let lastFrameAt = 0;
+        let startedAt = performance.now();
+        let running = false;
+        const frameInterval = 1000 / 30;
+
+        const telemetryX = document.querySelector<HTMLElement>("#telemetry-x");
+        const telemetryY = document.querySelector<HTMLElement>("#telemetry-y");
+        const telemetrySection =
+          document.querySelector<HTMLElement>("#telemetry-section");
+
+        const resize = (): void => {
+          const maxDpr = window.innerWidth < 768 ? 1.5 : 2;
+          const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
+          const width = Math.max(1, Math.round(window.innerWidth * dpr));
+          const height = Math.max(1, Math.round(window.innerHeight * dpr));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+            gl.viewport(0, 0, width, height);
+          }
+        };
+
+        const updateScroll = (): void => {
+          const range = Math.max(
+            1,
+            document.documentElement.scrollHeight - window.innerHeight,
+          );
+          scrollProgress = Math.min(1, Math.max(0, window.scrollY / range));
+        };
+
+        const draw = (now: number): void => {
+          currentSection +=
+            (targetSection - currentSection) *
+            (reducedMotion.matches ? 1 : 0.055);
+          gl.disable(gl.BLEND);
+          gl.disable(gl.DEPTH_TEST);
+          gl.disable(gl.CULL_FACE);
+          gl.useProgram(program);
+          gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+          gl.uniform2f(pointerLocation, pointer.x, pointer.y);
+          gl.uniform1f(timeLocation, (now - startedAt) / 1000);
+          gl.uniform1f(scrollLocation, scrollProgress);
+          gl.uniform1f(sectionLocation, currentSection);
+          gl.uniform1f(motionLocation, reducedMotion.matches ? 0 : 1);
+          gl.drawArrays(gl.TRIANGLES, 0, 3);
+        };
+
+        const loop = (now: number): void => {
+          if (!running) return;
+          if (now - lastFrameAt >= frameInterval) {
+            draw(now);
+            lastFrameAt = now;
+          }
+          frame = window.requestAnimationFrame(loop);
+        };
+
+        const start = (): void => {
+          if (running || document.hidden) return;
+          running = true;
+          startedAt = performance.now();
+          lastFrameAt = 0;
+          if (reducedMotion.matches) draw(startedAt);
+          else frame = window.requestAnimationFrame(loop);
+        };
+
+        const stop = (): void => {
+          running = false;
+          window.cancelAnimationFrame(frame);
+        };
+
+        const redrawStatic = (): void => {
+          if (reducedMotion.matches) draw(performance.now());
+        };
+
+        window.addEventListener(
+          "pointermove",
+          (event) => {
+            if (coarsePointer.matches) return;
+            pointer = {
+              x: event.clientX / window.innerWidth,
+              y: event.clientY / window.innerHeight,
+            };
+            if (telemetryX)
+              telemetryX.textContent = String(
+                Math.round(event.clientX),
+              ).padStart(4, "0");
+            if (telemetryY)
+              telemetryY.textContent = String(
+                Math.round(event.clientY),
+              ).padStart(4, "0");
+            redrawStatic();
+          },
+          { passive: true },
+        );
+
+        window.addEventListener(
+          "scroll",
+          () => {
+            updateScroll();
+            redrawStatic();
+          },
+          { passive: true },
+        );
+
+        window.addEventListener(
+          "resize",
+          () => {
+            resize();
+            redrawStatic();
+          },
+          { passive: true },
+        );
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) stop();
+          else start();
+        });
+
+        reducedMotion.addEventListener("change", () => {
+          stop();
+          start();
+        });
+
+        const sections = [
+          ...document.querySelectorAll<HTMLElement>("[data-field-state]"),
+        ];
+        const observer = new IntersectionObserver(
+          (entries) => {
+            const visible = entries
+              .filter((entry) => entry.isIntersecting)
+              .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+            if (!visible) return;
+            const element = visible.target as HTMLElement;
+            targetSection = Number(element.dataset.fieldState || 0);
+            if (telemetrySection)
+              telemetrySection.textContent =
+                element.dataset.fieldLabel || "OVERVIEW";
+            redrawStatic();
+          },
+          { rootMargin: "-18% 0px -42%", threshold: [0.08, 0.25, 0.5, 0.75] },
+        );
+        sections.forEach((section) => observer.observe(section));
+
+        canvas.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          stop();
+          document.documentElement.dataset.field = "unavailable";
+        });
+
         updateScroll();
-        redrawStatic();
-      }, { passive: true });
-
-      window.addEventListener("resize", () => {
         resize();
-        redrawStatic();
-      }, { passive: true });
-
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) stop();
-        else start();
-      });
-
-      reducedMotion.addEventListener("change", () => {
-        stop();
+        draw(performance.now());
+        document.documentElement.dataset.field = "ready";
         start();
-      });
-
-      const sections = [...document.querySelectorAll<HTMLElement>("[data-field-state]")];
-      const observer = new IntersectionObserver((entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible) return;
-        const element = visible.target as HTMLElement;
-        targetSection = Number(element.dataset.fieldState || 0);
-        if (telemetrySection) telemetrySection.textContent = element.dataset.fieldLabel || "OVERVIEW";
-        redrawStatic();
-      }, { rootMargin: "-18% 0px -42%", threshold: [0.08, 0.25, 0.5, 0.75] });
-      sections.forEach((section) => observer.observe(section));
-
-      canvas.addEventListener("webglcontextlost", (event) => {
-        event.preventDefault();
-        stop();
+      } catch (error) {
+        console.error("Execution field unavailable", error);
         document.documentElement.dataset.field = "unavailable";
-      });
-
-      updateScroll();
-      resize();
-      draw(performance.now());
-      document.documentElement.dataset.field = "ready";
-      start();
-    } catch (error) {
-      console.error("Execution field unavailable", error);
-      document.documentElement.dataset.field = "unavailable";
-    }
+      }
+    })();
   }
 }
