@@ -22,6 +22,8 @@ export const initCursor = (reduceMotion: boolean): void => {
   let velocityY = 0;
   let engaged = false;
   let lastAt = performance.now();
+  let grow = 1;
+  const statement = document.getElementById("statement");
 
   window.addEventListener(
     "pointermove",
@@ -57,10 +59,20 @@ export const initCursor = (reduceMotion: boolean): void => {
     const angle = speed > 0.02 ? Math.atan2(velocityY, velocityX) * (180 / Math.PI) : 0;
     const stretch = 1 + speed * 0.24;
 
+    /* The arrow swells while the statement section holds the viewport,
+       like the reference's outsize cursor over its manifesto. */
+    let growTarget = 1;
+    if (statement) {
+      const rect = statement.getBoundingClientRect();
+      const middle = window.innerHeight * 0.5;
+      if (rect.top < middle && rect.bottom > middle) growTarget = 2.6;
+    }
+    grow = damp(grow, growTarget, 6, delta);
+
     cursor.style.transform =
       `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
       + ` rotate(${(angle * 0.08).toFixed(2)}deg)`
-      + ` scale(${stretch.toFixed(3)}, ${(2 - stretch).toFixed(3)})`;
+      + ` scale(${(stretch * grow).toFixed(3)}, ${((2 - stretch) * grow).toFixed(3)})`;
 
     requestAnimationFrame(frame);
   };

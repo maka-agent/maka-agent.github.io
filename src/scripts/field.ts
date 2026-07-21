@@ -27,6 +27,8 @@ import {
   PARTICLE_VERTEX,
   TUBE_FRAGMENT,
   TUBE_VERTEX,
+  WARP_FRAGMENT,
+  WARP_VERTEX,
 } from "./field/shaders";
 import { createFlowField } from "./field/flow";
 import { ParticleSystem, type PointerState } from "./field/particles";
@@ -63,6 +65,7 @@ const start = (surface: HTMLCanvasElement): void => {
   const particleProgram = linkProgram(gl, PARTICLE_VERTEX, PARTICLE_FRAGMENT);
   const tubeProgram = linkProgram(gl, TUBE_VERTEX, TUBE_FRAGMENT);
   const glintProgram = linkProgram(gl, GLINT_VERTEX, GLINT_FRAGMENT);
+  const warpProgram = linkProgram(gl, WARP_VERTEX, WARP_FRAGMENT);
 
   const uniforms = {
     background: {
@@ -78,6 +81,11 @@ const start = (surface: HTMLCanvasElement): void => {
       dpr: gl.getUniformLocation(particleProgram, "uDpr"),
       theme: gl.getUniformLocation(particleProgram, "uTheme"),
       night: gl.getUniformLocation(particleProgram, "uNight"),
+      warpFade: gl.getUniformLocation(particleProgram, "uWarpFade"),
+    },
+    warp: {
+      aspect: gl.getUniformLocation(warpProgram, "uAspect"),
+      strength: gl.getUniformLocation(warpProgram, "uStrength"),
     },
     tube: {
       model: gl.getUniformLocation(tubeProgram, "uModel"),
@@ -107,6 +115,8 @@ const start = (surface: HTMLCanvasElement): void => {
     glintPosition: gl.getAttribLocation(glintProgram, "aPosition"),
     glintSize: gl.getAttribLocation(glintProgram, "aSize"),
     glintPulse: gl.getAttribLocation(glintProgram, "aPulse"),
+    warpPosition: gl.getAttribLocation(warpProgram, "aPosition"),
+    warpShade: gl.getAttribLocation(warpProgram, "aShade"),
   };
 
   const quadBuffer = createStaticBuffer(gl, new Float32Array([-1, -1, 3, -1, -1, 3]));
@@ -116,6 +126,8 @@ const start = (surface: HTMLCanvasElement): void => {
   const particlePositionBuffer = createDynamicBuffer(gl, particles.positions);
   const particleSizeBuffer = createStaticBuffer(gl, particles.sizes);
   const particleShadeBuffer = createStaticBuffer(gl, particles.shades);
+  const warpPositionBuffer = createDynamicBuffer(gl, particles.linePositions);
+  const warpShadeBuffer = createStaticBuffer(gl, particles.lineShades);
 
   const tube = buildMonogramTube();
   const tubePositionBuffer = createStaticBuffer(gl, tube.positions);
@@ -189,6 +201,7 @@ const start = (surface: HTMLCanvasElement): void => {
     nightMode = settle ? nightTarget : damp(nightMode, nightTarget, 5, delta);
 
     particles.update(stage, elapsed, delta, aspect, pointer, settle);
+    particles.updateWarp(stage, elapsed, aspect);
 
     /* Pass 1 — pointer flow buffer (skipped in settle frames). */
     if (!settle && pointer.active) {
@@ -218,6 +231,23 @@ const start = (surface: HTMLCanvasElement): void => {
     gl.enableVertexAttribArray(attribute.backgroundPosition);
     gl.vertexAttribPointer(attribute.backgroundPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    /* Pass 2.5 — Runtime warp streaks (additive, dark band only). */
+    if (particles.warpStrength > 0.01) {
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(warpProgram);
+      gl.uniform1f(uniforms.warp.aspect, aspect);
+      gl.uniform1f(uniforms.warp.strength, particles.warpStrength);
+      gl.bindBuffer(gl.ARRAY_BUFFER, warpPositionBuffer);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, particles.linePositions);
+      gl.enableVertexAttribArray(attribute.warpPosition);
+      gl.vertexAttribPointer(attribute.warpPosition, 2, gl.FLOAT, false, 0, 0);
+      gl.bindBuffer(gl.ARRAY_BUFFER, warpShadeBuffer);
+      gl.enableVertexAttribArray(attribute.warpShade);
+      gl.vertexAttribPointer(attribute.warpShade, 1, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.LINES, 0, particles.count * 2);
+    }
 
     /* Pass 3 — monogram tube; it rises away as the reader scrolls. */
     const tubeOpacity = clamp(1 - stage * 1.5, 0, 1);
@@ -308,6 +338,7 @@ const start = (surface: HTMLCanvasElement): void => {
     gl.uniform1f(uniforms.particle.dpr, dpr);
     gl.uniform1f(uniforms.particle.theme, theme);
     gl.uniform1f(uniforms.particle.night, nightMode);
+    gl.uniform1f(uniforms.particle.warpFade, 1 - particles.warpStrength * 0.8);
     gl.bindBuffer(gl.ARRAY_BUFFER, particlePositionBuffer);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, particles.positions);
     gl.enableVertexAttribArray(attribute.particlePosition);

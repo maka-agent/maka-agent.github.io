@@ -27,6 +27,11 @@ export class ParticleSystem {
   readonly positions: Float32Array;
   readonly sizes: Float32Array;
   readonly shades: Float32Array;
+  /** Two vertices per particle for the Runtime warp streaks. */
+  readonly linePositions: Float32Array;
+  readonly lineShades: Float32Array;
+  /** 0..1 — how strongly the warp streaks should show. */
+  warpStrength = 0;
 
   private readonly velocities: Float32Array;
   private readonly random1: Float32Array;
@@ -38,6 +43,8 @@ export class ParticleSystem {
   constructor(count: number) {
     this.count = count;
     this.positions = new Float32Array(count * 2);
+    this.linePositions = new Float32Array(count * 4);
+    this.lineShades = new Float32Array(count * 2);
     this.velocities = new Float32Array(count * 2);
     this.sizes = new Float32Array(count);
     this.shades = new Float32Array(count);
@@ -59,6 +66,35 @@ export class ParticleSystem {
       this.shades[i] = seeded(i, 8);
       this.positions[i * 2] = (this.random1[i] * 2 - 1) * 1.4;
       this.positions[i * 2 + 1] = (this.random2[i] * 2 - 1) * 1.1;
+      this.lineShades[i * 2] = this.shades[i];
+      this.lineShades[i * 2 + 1] = this.shades[i];
+    }
+  }
+
+  /*
+   * Runtime warp: radial light streaks racing outward from a center point,
+   * the reference's hyperspace field translated to Maka's palette. Head and
+   * tail per particle; streaks lengthen with radius.
+   */
+  updateWarp(stage: number, elapsed: number, aspect: number): void {
+    this.warpStrength = Math.max(0, 1 - Math.abs(stage - 3) * 1.6);
+    if (this.warpStrength <= 0.01) return;
+
+    const maxRadius = Math.max(1.15, aspect) * 1.35;
+    for (let i = 0; i < this.count; i += 1) {
+      const angle = this.random1[i] * Math.PI * 2;
+      const speed = 0.16 + this.random2[i] * 0.5;
+      const radius = ((this.random3[i] * maxRadius + elapsed * speed) % maxRadius);
+      const dirX = Math.cos(angle);
+      const dirY = Math.sin(angle) * 0.9;
+      const grow = radius / maxRadius;
+      const tail = Math.min(radius, 0.05 + grow * grow * 0.34);
+      const headX = dirX * radius;
+      const headY = dirY * radius + 0.05;
+      this.linePositions[i * 4] = headX;
+      this.linePositions[i * 4 + 1] = headY;
+      this.linePositions[i * 4 + 2] = headX - dirX * tail;
+      this.linePositions[i * 4 + 3] = headY - dirY * tail;
     }
   }
 

@@ -157,6 +157,7 @@ export const PARTICLE_FRAGMENT = `
 precision mediump float;
 uniform float uTheme;
 uniform float uNight;
+uniform float uWarpFade;
 varying float vShade;
 void main() {
   vec2 offset = gl_PointCoord - 0.5;
@@ -171,7 +172,38 @@ void main() {
   vec3 color = mix(dayColor, nightColor, dark);
 
   float dayAlpha = mix(0.20, 0.10, toPaper);
-  float alpha = mix(dayAlpha, 0.5, dark) * disc;
+  float alpha = mix(dayAlpha, 0.5, dark) * disc * uWarpFade;
+  gl_FragColor = vec4(color, alpha);
+}
+`;
+
+/*
+ * Runtime warp streaks: radial lines racing outward behind the Event Log,
+ * the reference's hyperspace field in Maka's blue range.
+ */
+export const WARP_VERTEX = `
+attribute vec2 aPosition;
+attribute float aShade;
+uniform float uAspect;
+varying float vShade;
+void main() {
+  vShade = aShade;
+  gl_Position = vec4(aPosition.x / uAspect, aPosition.y, 0.0, 1.0);
+}
+`;
+
+export const WARP_FRAGMENT = `
+precision mediump float;
+uniform float uStrength;
+varying float vShade;
+void main() {
+  vec3 cyan = vec3(0.42, 0.78, 0.96);
+  vec3 blue = vec3(0.36, 0.55, 0.95);
+  vec3 violet = vec3(0.66, 0.52, 0.96);
+  vec3 color = mix(blue, cyan, smoothstep(0.2, 0.7, vShade));
+  color = mix(color, violet, step(0.86, vShade));
+  color = mix(color, vec3(1.0), step(0.965, vShade) * 0.8);
+  float alpha = uStrength * (0.45 + vShade * 0.5);
   gl_FragColor = vec4(color, alpha);
 }
 `;
