@@ -34,6 +34,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="manifest" href="/site.webmanifest" />
     <script is:inline>
       document.documentElement.classList.add("js");
+      try {
+        var makaTheme = localStorage.getItem("maka-theme");
+        if (!makaTheme && matchMedia("(prefers-color-scheme: dark)").matches) makaTheme = "night";
+        if (makaTheme === "night") document.documentElement.dataset.theme = "night";
+      } catch (storageError) {}
       document.documentElement.dataset.boot = "loading";
       document.documentElement.dataset.bootTimeout = String(window.setTimeout(() => {
         document.documentElement.dataset.boot = "complete";
