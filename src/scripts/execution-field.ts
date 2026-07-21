@@ -33,8 +33,7 @@ if (canvas) {
     const world = new THREE.Group();
     const organism = new THREE.Group();
     const satellites = new THREE.Group();
-    const foreground = new THREE.Group();
-    world.add(organism, satellites, foreground);
+    world.add(organism, satellites);
 
     const atmosphereUniforms = {
       uMakaTime: { value: 0 },
@@ -419,12 +418,12 @@ if (canvas) {
     });
     cursorGeometry.center();
     const cursor = new THREE.Mesh(cursorGeometry, cobalt);
-    cursor.scale.setScalar(0.64);
+    cursor.scale.setScalar(0.55);
     cursor.rotation.set(0.12, -0.16, 0.05);
     cursor.position.set(4.28, -0.46, 3.1);
     cursor.visible = window.innerWidth >= 768;
     cursor.castShadow = true;
-    foreground.add(cursor);
+    scene.add(cursor);
 
     const nodeGeometry = new THREE.SphereGeometry(0.115, 20, 20);
     const nodes = Array.from({ length: 9 }, (_, index) => {
@@ -483,9 +482,11 @@ if (canvas) {
     let frame = 0;
     let visible = true;
     let pointerEngaged = false;
+    let pointerInShell = false;
 
     const updateCursorVisibility = () => {
-      cursor.visible = window.innerWidth >= 768 && stateIndex !== 1;
+      cursor.visible = window.innerWidth >= 768 && stateIndex === 0 && !pointerInShell;
+      canvas.dataset.cursorState = cursor.visible ? "active" : "suppressed";
     };
 
     const materialTargets = { pearl: 1, word: 1, glass: 0.76, cobalt: 0.94, ink: 0.88, amber: 0.9, green: 0.88, atmosphere: 1 };
@@ -588,6 +589,7 @@ if (canvas) {
     }>) => {
       const { x, y, normalizedX, normalizedY, pointerType } = event.detail;
       if (pointerType !== "touch") pointerEngaged = true;
+      pointerInShell = y < 72 || y > window.innerHeight - 44;
       updateCursorVisibility();
       pointerTarget.set(normalizedX, normalizedY);
       canvas.dataset.pointerX = String(Math.round(x));
@@ -643,9 +645,6 @@ if (canvas) {
       world.rotation.y = THREE.MathUtils.damp(world.rotation.y, desiredWorldRotation.y, 5.2, delta);
       organism.position.x = THREE.MathUtils.damp(organism.position.x, pointer.x * 0.2, 5.5, delta);
       organism.position.y = THREE.MathUtils.damp(organism.position.y, pointer.y * 0.12 + Math.sin(elapsed * 0.55) * 0.07, 5.5, delta);
-      foreground.position.x = THREE.MathUtils.damp(foreground.position.x, pointer.x * 0.24, 8, delta);
-      foreground.position.y = THREE.MathUtils.damp(foreground.position.y, pointer.y * 0.18, 8, delta);
-
       const velocityDepth = Math.min(1, pointerVelocity.length() * 0.12);
       for (const item of parallaxObjects) {
         desiredObjectPosition.set(

@@ -196,15 +196,18 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
     await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
 
+    await page.mouse.move(123, 36);
+    await page.waitForFunction(() => document.querySelector("#execution-field")?.getAttribute("data-cursor-state") === "suppressed");
     await page.mouse.move(123, 456);
     await page.waitForFunction(() => document.querySelector(".pointer-readout")?.textContent?.replaceAll(/\s+/g, "").trim() === "0123X0456Y");
     const pointerBus = await page.evaluate(() => ({
       stage: document.querySelector(".stage")?.getAttribute("data-pointer"),
       x: document.querySelector("#execution-field")?.getAttribute("data-pointer-x"),
       y: document.querySelector("#execution-field")?.getAttribute("data-pointer-y"),
+      cursor: document.querySelector("#execution-field")?.getAttribute("data-cursor-state"),
       lightTransform: getComputedStyle(document.querySelector(".light-field")).transform,
     }));
-    if (pointerBus.stage !== "engaged" || pointerBus.x !== "123" || pointerBus.y !== "456" || pointerBus.lightTransform === "none") {
+    if (pointerBus.stage !== "engaged" || pointerBus.x !== "123" || pointerBus.y !== "456" || pointerBus.cursor !== "active" || pointerBus.lightTransform === "none") {
       throw new Error(`desktop: DOM, light field, and WebGL do not share one pointer source ${JSON.stringify(pointerBus)}`);
     }
 
