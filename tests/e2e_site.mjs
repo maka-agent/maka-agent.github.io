@@ -53,11 +53,13 @@ for (const [label, width, height] of VIEWPORTS) {
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const commandHints = await page.locator(".view-nav small").allTextContents();
-  if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]"])) throw new Error(`${label}: navigation command hints are incomplete`);
+  if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]", "[4]"])) throw new Error(`${label}: navigation command hints are incomplete`);
   if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
     throw new Error(`${label}: unexpected h1`);
   }
-  if ((await page.locator("[data-view-panel]").count()) !== 3) throw new Error(`${label}: expected 3 views`);
+  if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
+  if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
+  if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
   if ((await page.locator("img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
@@ -221,8 +223,8 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
   }
 
-  const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900" };
-  for (const [index, view] of ["overview", "product", "runtime"].entries()) {
+  const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900", surfaces: "1300" };
+  for (const [index, view] of ["overview", "product", "runtime", "surfaces"].entries()) {
     const lifecycle = await page.locator(`[data-view-target="${view}"]`).first().evaluate((element) => {
       const stage = document.querySelector(".stage");
       const outgoing = stage?.getAttribute("data-view");
@@ -249,7 +251,7 @@ for (const [label, width, height] of VIEWPORTS) {
       throw new Error(`${label}: active view is hidden from accessibility tree`);
     }
     const footerIndex = await page.locator(".stage-status em").innerText();
-    if (footerIndex !== `0${index + 1} / 03`) throw new Error(`${label}: footer state mismatch`);
+    if (footerIndex !== `0${index + 1} / 04`) throw new Error(`${label}: footer state mismatch`);
     if (view === "product" && (label === "phone-390" || label === "desktop")) {
       await page.screenshot({ path: `${RESULTS}/${label}-product.png`, timeout: NAVIGATION_TIMEOUT });
     }
@@ -283,14 +285,22 @@ for (const [label, width, height] of VIEWPORTS) {
       }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png`, timeout: NAVIGATION_TIMEOUT });
     }
+    if (view === "surfaces") {
+      await page.waitForFunction(() => Array.from(document.querySelectorAll("[data-decode]"))
+        .every((element) => element.textContent === element.dataset.decode), undefined, { timeout: NAVIGATION_TIMEOUT });
+      if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {
+        throw new Error(`${label}: WebGL sculpture still competes with the Surfaces close`);
+      }
+      if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-surfaces.png`, timeout: NAVIGATION_TIMEOUT });
+    }
   }
 
   await page.keyboard.press("ArrowLeft");
-  if ((await page.locator(".stage").getAttribute("data-view")) !== "product") throw new Error(`${label}: keyboard view navigation failed`);
+  if ((await page.locator(".stage").getAttribute("data-view")) !== "runtime") throw new Error(`${label}: keyboard view navigation failed`);
   await page.locator('[data-view-target="overview"]').first().click();
 
   if (width < 768) {
-    for (const view of ["overview", "product", "runtime"]) {
+    for (const view of ["overview", "product", "runtime", "surfaces"]) {
       await page.locator(`[data-view-target="${view}"]`).first().click();
       const smallTargets = await page.locator("a").evaluateAll((elements) => elements
         .filter((element) => {

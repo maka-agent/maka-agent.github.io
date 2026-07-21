@@ -32,6 +32,10 @@ use original copy, composition, assets, and shaders.
   not a decorative background.
 - `SOURCE` — Long-form pacing alternates dense project indexes with single-idea
   viewport sections and an experimental, character-scrambled closing sequence.
+- `PARTIAL` — Maka translates that closing grammar as a fourth Surfaces state:
+  one decoded single-idea statement, a four-entry surface index, and a final
+  source CTA. The decode mechanism, glyph pool, timing, and copy are
+  Maka-original and correspond to real README surface facts.
 
 ### Typography and color
 
