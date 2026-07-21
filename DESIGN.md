@@ -245,11 +245,13 @@ The fixed desktop navigation uses a compact wordmark, two evidence-led destinati
 
 ### Execution Field
 
-A fixed WebGL2 canvas draws one continuous execution loop connecting Task, Tool, Artifact, Permission, and Recovery objects. Each object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a restrained blue-white light field, and briefly advances foreground objects in depth. A low-amplitude normal perturbation moves highlights across the loop without deforming its silhouette. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a static SVG/CSS map carry the same meaning when WebGL, JavaScript, or motion is unavailable.
+A fixed WebGL2 canvas draws one continuous execution loop connecting Task, Tool, Artifact, Permission, and Recovery objects. Each object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a restrained blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. A low-amplitude normal perturbation moves highlights across the loop without deforming its silhouette. Deliberately restrained exposure preserves blue midtones and dark silhouettes instead of clipping the loop to white. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a static SVG/CSS map carry the same meaning when WebGL, JavaScript, or motion is unavailable.
 
 ### Product Proof Frame
 
 Authentic Maka screenshots retain their original aspect ratio and UI text. A frame may cross columns but never receives invented browser chrome, fake status, or generated metric overlays. Alt text describes the work shown, not “screenshot.”
+
+One source image may appear once as the complete task context and once as a clearly labeled detail crop when the crop reveals otherwise unreadable product evidence. The detail never rearranges or redraws the underlying interface, and its entrance follows the main frame so the relationship remains legible.
 
 ## 6. Do's and Don'ts
 

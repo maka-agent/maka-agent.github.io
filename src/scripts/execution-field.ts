@@ -17,16 +17,17 @@ if (canvas) {
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.92;
+    renderer.toneMappingExposure = 0.78;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 80);
     camera.position.set(0, 0, 18);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.045).texture;
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
+    scene.environmentIntensity = 0.82;
     pmrem.dispose();
 
     const world = new THREE.Group();
@@ -70,6 +71,14 @@ if (canvas) {
           point.x *= uMakaAspect;
           point += vec2(uMakaPointer.x * -0.2, uMakaPointer.y * -0.12);
           float velocity = min(1.0, length(uMakaVelocity) * 0.12);
+          vec2 velocityDirection = normalize(uMakaVelocity + vec2(0.0001));
+          vec2 velocityNormal = vec2(-velocityDirection.y, velocityDirection.x);
+          float trailAcross = dot(point - vec2(0.12, 0.02), velocityNormal);
+          float trailAlong = dot(point - vec2(0.12, 0.02), velocityDirection);
+          float velocityTrail = exp(-trailAcross * trailAcross * 18.0)
+            * exp(-abs(trailAlong) * 1.35)
+            * smoothstep(-0.72, 0.18, trailAlong)
+            * velocity;
           float lean = uMakaVelocity.x * 0.012;
           float whiteBand = makaBand(point, 0.42 + lean, 0.12, 0.10, 0.0);
           float pearlBand = makaBand(point, -0.54 + lean * 0.6, -0.18, 0.13, 2.4);
@@ -80,7 +89,8 @@ if (canvas) {
           vec3 blueLight = vec3(0.38, 0.68, 0.96) * blueBand;
           vec3 color = whiteLight * 0.78 + pearlLight * 0.54 + blueLight * 0.24;
           color += vec3(0.82, 0.93, 1.0) * centerBloom * (0.08 + velocity * 0.055);
-          float alpha = clamp((whiteBand * 0.24 + pearlBand * 0.16 + blueBand * 0.1 + centerBloom * 0.04) * uMakaIntensity, 0.0, 0.32);
+          color += vec3(0.3, 0.64, 0.98) * velocityTrail * 0.2;
+          float alpha = clamp((whiteBand * 0.2 + pearlBand * 0.14 + blueBand * 0.1 + centerBloom * 0.035 + velocityTrail * 0.08) * uMakaIntensity, 0.0, 0.28);
           gl_FragColor = vec4(color, alpha);
         }
       `,
@@ -343,9 +353,9 @@ if (canvas) {
     shadow.receiveShadow = true;
     organism.add(shadow);
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x6a83a4, 1.45));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x55789e, 0.92));
 
-    const key = new THREE.DirectionalLight(0xffffff, 3.25);
+    const key = new THREE.DirectionalLight(0xffffff, 2.1);
     key.position.set(-4, 8, 9);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -355,11 +365,11 @@ if (canvas) {
     key.shadow.camera.bottom = -6;
     scene.add(key);
 
-    const rim = new THREE.DirectionalLight(0x5fafff, 2.6);
+    const rim = new THREE.DirectionalLight(0x4b9eff, 1.55);
     rim.position.set(8, -1, 7);
     scene.add(rim);
 
-    const pointerLight = new THREE.PointLight(0xd9efff, 5.5, 26, 1.5);
+    const pointerLight = new THREE.PointLight(0xd9efff, 3.8, 26, 1.5);
     pointerLight.position.set(0, 1, 7);
     scene.add(pointerLight);
 

@@ -53,7 +53,8 @@ for (const [label, width, height] of VIEWPORTS) {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 3) throw new Error(`${label}: expected 3 views`);
-  if ((await page.locator("img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
+  if ((await page.locator("img").count()) !== 4) throw new Error(`${label}: expected 4 product images`);
+  if ((await page.locator(".product-detail img").count()) !== 1) throw new Error(`${label}: artifact detail is missing`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
   if ((await page.locator("a:not([href])").count()) !== 0) throw new Error(`${label}: anchor missing href`);
 

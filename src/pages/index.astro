@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import shellCurrent from "../assets/maka-shell-fresh.png";
+import artifactCurrent from "../assets/maka-artifact-pane.png";
 import permissionCurrent from "../assets/maka-permission-fresh.png";
 import questionCurrent from "../assets/maka-question-fresh.png";
 
@@ -89,11 +89,11 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <section class="view view--product" id="product" data-view-panel="product" aria-labelledby="product-title" aria-hidden="true" inert>
         <div class="product-copy">
           <p class="section-signal"><span></span>REAL MAKA / CURRENT SOURCE</p>
-          <h2 id="product-title">See the work,<br />not the theatre.</h2>
-          <p>Conversation, Tool Calls, permissions, and output remain attached to one task. Nothing important disappears behind an animation.</p>
+          <h2 id="product-title">Work becomes<br />evidence you<br />can inspect.</h2>
+          <p>Conversation, Tool Calls, permissions, and generated files remain attached to one task. Inspect what ran, what changed, and what survives an interruption.</p>
           <div class="product-facts" aria-label="Product facts">
-            <p><b>LOCAL</b><span>Your machine remains the boundary.</span></p>
-            <p><b>VISIBLE</b><span>Every action stays with the turn.</span></p>
+            <p><b>ATTACHED</b><span>Files stay with the turn that made them.</span></p>
+            <p><b>EXPLICIT</b><span>Tool Calls cross a visible boundary.</span></p>
             <p><b>DURABLE</b><span>Interrupted work can be resumed.</span></p>
           </div>
         </div>
@@ -101,12 +101,12 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         <div class="product-gallery" aria-label="Current Maka interface previews">
           <figure class="product-shot product-shot--main">
             <div class="product-shot__bar">
-              <span>maka-agent / live task</span>
+              <span>maka-agent / artifact task</span>
               <i>LOCAL</i>
             </div>
             <Image
-              src={shellCurrent}
-              alt="Current Maka desktop workspace with task sidebar, real conversation, model controls, and composer."
+              src={artifactCurrent}
+              alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
               widths={[960, 1280, 1600, 1920]}
               sizes="(max-width: 760px) 96vw, 72vw"
               format="webp"
@@ -115,14 +115,29 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
               fetchpriority="high"
             />
             <div class="product-callout product-callout--turn" aria-hidden="true">
-              <span>TURN / 01</span>
-              <b>Conversation stays in context</b>
+              <span>TOOL CALL / 01</span>
+              <b>Execution stays inspectable</b>
             </div>
             <div class="product-callout product-callout--composer" aria-hidden="true">
-              <span>BOUNDARY / LOCAL</span>
-              <b>Permission travels with the task</b>
+              <span>ARTIFACT / 03</span>
+              <b>Real files remain attached</b>
             </div>
-            <figcaption><span>REAL PRODUCT</span><b>Conversation + workspace</b></figcaption>
+            <figcaption><span>REAL PRODUCT</span><b>Conversation → Tool Call → Artifact</b></figcaption>
+          </figure>
+
+          <figure class="product-detail">
+            <div class="product-detail__crop">
+              <Image
+                src={artifactCurrent}
+                alt="Close-up of the current Maka artifact pane showing generated files and the selected Markdown preview."
+                widths={[960, 1280, 1600]}
+                sizes="(max-width: 760px) 52vw, 25vw"
+                format="webp"
+                quality={92}
+                loading="eager"
+              />
+            </div>
+            <figcaption><span>ARTIFACT / DETAIL</span><b>03</b></figcaption>
           </figure>
 
           <figure class="product-proof product-proof--streaming">
