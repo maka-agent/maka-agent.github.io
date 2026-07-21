@@ -137,9 +137,9 @@ components:
 
 ## 1. Overview
 
-**Creative North Star: "The Maka Instrument Wordmark"**
+**Creative North Star: "The Measured Daylight Instrument"**
 
-The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument opened in daylight, led by an organic glass `Maka` wordmark with Task, Tool, Artifact, Permission, and Recovery objects moving around its perimeter. The sculpture establishes the project name first; the satellites then explain durable execution through real product concepts.
+The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It reads as one long measured working plane: a daylight-blue hero carried by typography and a WebGL light field, a paper proof section where real product screenshots sit in an index of capabilities, a near-black Runtime band where an append-only particle stream flows behind the Event Log story, and a source-first closing statement. Persistent measurement rules, crosshair ticks, and real telemetry (local time, pointer coordinates, scroll state) frame every section.
 
 The measured grid, edge telemetry, and DOM/WebGL cooperation come from the reference study, but the content model is Maka's own: task, turn, Tool Call, permission, artifact, Event Log, and recovery. Generic AI tool marketing, fake terminal theatre, and card-grid SaaS composition are prohibited.
 
@@ -245,7 +245,7 @@ The fixed desktop navigation uses a compact wordmark, two evidence-led destinati
 
 ### Execution Field
 
-A fixed WebGL2 canvas builds the literal `Maka` project name as one beveled `TextGeometry` wordmark with physically based transmission, attenuation, iridescence, and animated glints. The letters share one stable baseline and move as a single identity object so material motion can never collapse the name into an anonymous sculpture; Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each secondary object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a literal static SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
+One fixed canvas behind the whole page, rendered with raw WebGL (no runtime dependency) in two draw calls. A daylight fragment shader carries soft blue light through the hero, settles to paper across the proof sections, and dims to near-black behind Runtime; the transition is driven by real scroll position over the section map. A 300-particle stream shares the same three signals — time, pointer, scroll — forming a loose cloud in the hero, receding to the margins during proof, and aligning into one flowing band behind the Event Log ledger. Pointer velocity produces a short light streak and a local particle wake. Reduced motion renders discrete frames with no continuous animation; without WebGL or JavaScript a CSS sky gradient and opaque section backgrounds preserve the full composition.
 
 ### Product Proof Frame
 

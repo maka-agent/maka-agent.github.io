@@ -2,9 +2,9 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import artifactCurrent from "../assets/maka-artifact-pane.png";
-import permissionCurrent from "../assets/maka-permission-fresh.png";
-import questionCurrent from "../assets/maka-question-fresh.png";
+import artifactShot from "../assets/maka-artifact-pane.png";
+import permissionShot from "../assets/maka-permission-fresh.png";
+import questionShot from "../assets/maka-question-fresh.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -14,286 +14,408 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
   title="Maka — Your work. Your agent."
   description="A local-first Agent workspace where tools, permissions, artifacts, and durable progress stay visible."
 >
-  <div class="stage" data-view="overview" id="top">
-    <ExecutionField />
-    <div class="light-field" aria-hidden="true"><i></i><i></i><i></i></div>
+  <ExecutionField />
 
-    <div class="measurement-grid" aria-hidden="true">
-      <i class="rule rule--v rule--v1"></i>
-      <i class="rule rule--v rule--v2"></i>
-      <i class="rule rule--v rule--v3"></i>
-      <i class="rule rule--h rule--h1"></i>
-      <i class="cross cross--a"></i>
-      <i class="cross cross--b"></i>
-      <i class="cross cross--c"></i>
-    </div>
+  <div class="rules" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i>
+  </div>
 
-    <header class="stage-header" aria-label="Primary navigation">
-      <a class="brand" href="#overview" data-view-target="overview" aria-label="Maka home">
-        <svg viewBox="0 0 34 34" aria-hidden="true">
-          <path d="M10 5H5v24h5M24 5h5v24h-5" />
-          <circle cx="17" cy="17" r="3" />
-        </svg>
-        <span>MAKA</span>
+  <header class="shell shell--top" aria-label="Primary navigation">
+    <a class="brand" href="#top" data-nav="top">MAKA</a>
+    <p class="shell-role">Local-first Agent&nbsp;Workspace</p>
+    <nav class="shell-nav" aria-label="Sections">
+      <a href="#work" data-nav="work" data-scramble>WORK<small>[W]</small></a>
+      <a href="#runtime" data-nav="runtime" data-scramble>RUNTIME<small>[R]</small></a>
+      <a href={githubUrl} target="_blank" rel="noreferrer" data-scramble
+        >SOURCE<small>[G]</small><span aria-hidden="true">&nbsp;↗</span></a
+      >
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <!-- 00 · HERO -->
+    <section class="hero" id="top" data-theme="sky" data-section="00 INTRO">
+      <div class="hero-notes">
+        <p class="hero-thesis">
+          Direct real work.<br />Keep every decision visible.
+        </p>
+        <p class="hero-mono mono">
+          Directed by you.<br />Executed on your machine.
+        </p>
+        <p class="hero-bio mono">
+          Maka is an open-source workspace for directing and supervising
+          agents. Conversation, Tool&nbsp;Calls, permissions, and generated
+          artifacts stay attached to one durable, recoverable task.
+        </p>
+      </div>
+
+      <h1 class="hero-statement" id="hero-title">
+        <span class="line"><span>YOUR&nbsp;WORK.</span></span>
+        <span class="line"><span>YOUR&nbsp;AGENT.</span></span>
+      </h1>
+
+      <a class="hero-cue mono" href="#work" data-nav="work">
+        <span>01&nbsp;WORK</span>
+        <b aria-hidden="true">↓</b>
       </a>
+    </section>
 
-      <nav class="view-nav" aria-label="Explore Maka">
-        <a href="#overview" data-view-target="overview" aria-current="page">Overview</a>
-        <a href="#product" data-view-target="product">Product</a>
-        <a href="#runtime" data-view-target="runtime">Runtime</a>
-      </nav>
+    <!-- 01 · WORK — real product proof -->
+    <section class="band band--paper work" id="work" data-theme="paper" data-section="01 WORK">
+      <div class="ticks" aria-hidden="true"><s></s><s></s><s></s><s></s><s></s></div>
 
-      <a class="source-link" href={githubUrl} target="_blank" rel="noreferrer" aria-label="View Maka source on GitHub">
-        <span>View source</span>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
-      </a>
-    </header>
+      <header class="band-head">
+        <p class="band-index mono">01</p>
+        <h2 class="band-title" data-scramble>WORK</h2>
+        <p class="band-note mono">Real product · current source · nothing staged</p>
+      </header>
 
-    <main id="main-content" class="stage-main">
-      <section class="view view--overview is-active" id="overview" data-view-panel="overview" aria-labelledby="overview-title" aria-hidden="false">
-        <div class="overview-note overview-note--identity">
-          <strong>LOCAL-FIRST<br />AGENT WORKSPACE</strong>
-          <p>Work on your machine.<br />Keep every decision visible.</p>
+      <!-- Entry 01 -->
+      <article class="entry">
+        <div class="entry-row mono" aria-hidden="true">
+          <span class="entry-name">ARTIFACT PANE</span>
+          <span class="entry-meta">TASK / TURN / FILES</span>
+          <span class="entry-tag">ATTACHED</span>
+          <span class="entry-no">№01</span>
         </div>
-
-        <div class="overview-note overview-note--model">
-          <span class="signal-dot"></span>
-          <p>Task → Tool Call → Artifact</p>
-          <p>One continuous execution record.</p>
-        </div>
-
-        <div class="overview-note overview-note--trust">
-          <p>Your connections.<br />Your permission boundary.</p>
-          <a href={architectureUrl} target="_blank" rel="noreferrer">Read architecture ↗</a>
-        </div>
-
-        <div class="hero-copy">
-          <p class="hero-copy__signal"><span></span> EXECUTION, MADE TANGIBLE</p>
-          <h1 id="overview-title"><span>YOUR WORK.</span><span>YOUR AGENT.</span></h1>
-          <div class="hero-copy__footer">
-            <p>Maka turns agent conversations into<br />inspectable, recoverable local work.</p>
-            <a class="primary-action" href="#product" data-view-target="product">
-              Enter workspace
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
-            </a>
-          </div>
-        </div>
-
-        <ol class="object-index" aria-label="Maka execution objects">
-          <li><span>01</span><b>Task</b><small>intent</small></li>
-          <li><span>02</span><b>Tool</b><small>action</small></li>
-          <li><span>03</span><b>Artifact</b><small>proof</small></li>
-        </ol>
-      </section>
-
-      <section class="view view--product" id="product" data-view-panel="product" aria-labelledby="product-title" aria-hidden="true" inert>
-        <div class="product-copy">
-          <p class="section-signal"><span></span>REAL MAKA / CURRENT SOURCE</p>
-          <h2 id="product-title">Work becomes<br />evidence you<br />can inspect.</h2>
-          <p>Conversation, Tool Calls, permissions, and generated files remain attached to one task. Inspect what ran, what changed, and what survives an interruption.</p>
-          <div class="product-facts" aria-label="Product facts">
-            <p><b>ATTACHED</b><span>Files stay with the turn that made them.</span></p>
-            <p><b>EXPLICIT</b><span>Tool Calls cross a visible boundary.</span></p>
-            <p><b>DURABLE</b><span>Interrupted work can be resumed.</span></p>
-          </div>
-        </div>
-
-        <div class="product-gallery" aria-label="Current Maka interface previews">
-          <figure class="product-shot product-shot--main">
-            <div class="product-shot__bar">
-              <span>maka-agent / artifact task</span>
-              <i>LOCAL</i>
-            </div>
+        <div class="entry-body entry-body--wide">
+          <figure class="frame">
             <Image
-              src={artifactCurrent}
-              alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
+              src={artifactShot}
+              alt="A Maka task where a Tool Call generated three files; the artifact pane shows the files and a Markdown preview beside the conversation."
               widths={[960, 1280, 1600, 1920]}
-              sizes="(max-width: 760px) 96vw, 72vw"
+              sizes="(max-width: 760px) 94vw, 72vw"
               format="webp"
-              quality={92}
+              quality={90}
               loading="eager"
               fetchpriority="high"
             />
-            <div class="product-callout product-callout--turn" aria-hidden="true">
-              <span>TOOL CALL / 01</span>
-              <b>Execution stays inspectable</b>
-            </div>
-            <div class="product-callout product-callout--composer" aria-hidden="true">
-              <span>ARTIFACT / 03</span>
-              <b>Real files remain attached</b>
-            </div>
-            <figcaption><span>REAL PRODUCT</span><b>Conversation → Tool Call → Artifact</b></figcaption>
+            <figcaption class="mono">CONVERSATION → TOOL CALL → ARTIFACT</figcaption>
           </figure>
+          <div class="entry-copy">
+            <h3>Work becomes evidence you can inspect.</h3>
+            <p>
+              Generated files stay with the turn that made them. Open any
+              artifact, read what ran, and verify what changed — inside the
+              task, not in a downloads folder.
+            </p>
+          </div>
+        </div>
+      </article>
 
-          <figure class="product-detail">
-            <div class="product-detail__crop">
-              <Image
-                src={artifactCurrent}
-                alt="Close-up of the current Maka artifact pane showing generated files and the selected Markdown preview."
-                widths={[960, 1280, 1600]}
-                sizes="(max-width: 760px) 52vw, 25vw"
-                format="webp"
-                quality={92}
-                loading="eager"
-              />
-            </div>
-            <figcaption><span>ARTIFACT / DETAIL</span><b>03</b></figcaption>
-          </figure>
-
-          <figure class="product-proof product-proof--streaming">
+      <!-- Entry 02 -->
+      <article class="entry">
+        <div class="entry-row mono" aria-hidden="true">
+          <span class="entry-name">PERMISSION BOUNDARY</span>
+          <span class="entry-meta">FILE EDIT / EXACT DIFF</span>
+          <span class="entry-tag">EXPLICIT</span>
+          <span class="entry-no">№02</span>
+        </div>
+        <div class="entry-body">
+          <div class="entry-copy">
+            <h3>Tool&nbsp;Calls cross a visible boundary.</h3>
+            <p>
+              Before Maka touches a file, you see the exact proposed change and
+              an explicit allow-or-deny control. Nothing runs behind your back.
+            </p>
+          </div>
+          <figure class="frame frame--narrow">
             <Image
-              src={permissionCurrent}
-              alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
-              widths={[480, 720]}
-              sizes="18vw"
+              src={permissionShot}
+              alt="Maka's file-edit permission prompt showing the exact proposed diff and explicit deny or allow controls."
+              widths={[480, 720, 1080]}
+              sizes="(max-width: 760px) 94vw, 38vw"
               format="webp"
-              quality={86}
-              loading="eager"
+              quality={88}
             />
-            <figcaption><span>PERMISSION</span><b>02</b></figcaption>
+            <figcaption class="mono">ALLOW / DENY · SHOWN BEFORE EXECUTION</figcaption>
           </figure>
+        </div>
+      </article>
 
-          <figure class="product-proof product-proof--empty">
+      <!-- Entry 03 -->
+      <article class="entry">
+        <div class="entry-row mono" aria-hidden="true">
+          <span class="entry-name">CLARIFICATION</span>
+          <span class="entry-meta">QUESTION / CHOICES</span>
+          <span class="entry-tag">IN-TASK</span>
+          <span class="entry-no">№03</span>
+        </div>
+        <div class="entry-body">
+          <figure class="frame frame--narrow">
             <Image
-              src={questionCurrent}
-              alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
-              widths={[480, 720]}
-              sizes="18vw"
+              src={questionShot}
+              alt="A Maka clarification prompt keeping explicit release choices inside the task conversation."
+              widths={[480, 720, 1080]}
+              sizes="(max-width: 760px) 94vw, 38vw"
               format="webp"
-              quality={86}
-              loading="eager"
+              quality={88}
             />
-            <figcaption><span>CLARIFICATION</span><b>03</b></figcaption>
+            <figcaption class="mono">DECISIONS STAY IN THE RECORD</figcaption>
           </figure>
+          <div class="entry-copy">
+            <h3>Questions stay inside the task.</h3>
+            <p>
+              When the agent needs a decision, the question and your answer are
+              part of the same record as the work itself — inspectable later,
+              never lost in chat scroll.
+            </p>
+          </div>
         </div>
-      </section>
+      </article>
+    </section>
 
-      <section class="view view--runtime" id="runtime" data-view-panel="runtime" aria-labelledby="runtime-title" aria-hidden="true" inert>
-        <div class="runtime-copy">
-          <p class="section-signal section-signal--light"><span></span>APPEND-ONLY EXECUTION</p>
-          <h2 id="runtime-title">Progress has<br />a memory.</h2>
-          <p>Messages, Tool Calls, Tool Results, and termination facts enter one Event Log. Context, UI, and recovery are projections over the same recorded execution.</p>
-          <a href={architectureUrl} target="_blank" rel="noreferrer">Inspect the architecture ↗</a>
-        </div>
+    <!-- 02 · STATEMENT -->
+    <section class="band band--paper statement" data-theme="paper" data-section="02 THESIS">
+      <div class="ticks" aria-hidden="true"><s></s><s></s><s></s><s></s><s></s></div>
+      <p class="statement-text" id="statement">
+        <span>PROGRESS</span>
+        <span>HAS A</span>
+        <span>MEMORY</span>
+      </p>
+    </section>
 
-        <div class="runtime-map" aria-label="Maka runtime event flow">
-          <svg viewBox="0 0 800 520" aria-hidden="true">
-            <path d="M80 280C150 90 350 80 430 230C510 380 650 410 735 235" />
-            <path d="M92 310C250 480 565 440 710 180" />
-          </svg>
-          <ol>
-            <li style="--x: 8%; --y: 49%"><span>01</span><b>Request</b><small>Turn begins</small></li>
-            <li style="--x: 27%; --y: 17%"><span>02</span><b>AgentRun</b><small>Model + tools</small></li>
-            <li style="--x: 49%; --y: 42%"><span>03</span><b>Event Log</b><small>Facts append</small></li>
-            <li style="--x: 68%; --y: 70%"><span>04</span><b>Projection</b><small>UI + context</small></li>
-            <li style="--x: 88%; --y: 33%"><span>05</span><b>Recovery</b><small>Work survives</small></li>
-          </ol>
-        </div>
+    <!-- 03 · RUNTIME -->
+    <section class="band band--night runtime" id="runtime" data-theme="night" data-section="03 RUNTIME">
+      <div class="ticks" aria-hidden="true"><s></s><s></s><s></s><s></s><s></s></div>
 
-        <div class="runtime-code" aria-label="Architecture summary">
-          <p><span>surface</span> Desktop / TUI / Headless</p>
-          <p><span>engine</span> SessionManager → AgentRun</p>
-          <p><span>record</span> Runtime Event Log</p>
-          <p><span>result</span> Context / UI / Recovery</p>
-        </div>
-      </section>
-    </main>
+      <header class="band-head">
+        <p class="band-index mono">02</p>
+        <h2 class="band-title" data-scramble>RUNTIME</h2>
+        <p class="band-note mono">Append-only execution record</p>
+      </header>
 
-    <footer class="stage-footer">
-      <p class="stage-caption">LOCAL EXECUTION / OPEN SOURCE</p>
-      <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 03</em></p>
-      <p class="local-time" aria-label="Local time"><span>LOCAL</span> <b id="local-time">--:--:--</b></p>
-      <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
-    </footer>
+      <div class="runtime-lede">
+        <h3>Every step becomes a fact.</h3>
+        <p>
+          Messages, Tool&nbsp;Calls, Tool&nbsp;Results, and termination facts
+          enter one Event&nbsp;Log. Context, UI, and recovery are projections
+          over the same recorded execution — so interrupted work can resume
+          instead of restarting.
+        </p>
+        <a class="mono runtime-link" href={architectureUrl} target="_blank" rel="noreferrer"
+          >READ ARCHITECTURE.MD&nbsp;↗</a
+        >
+      </div>
 
-  </div>
+      <ol class="ledger" aria-label="Maka execution flow">
+        <li>
+          <span class="mono">01</span>
+          <b>Request</b>
+          <p class="mono">A turn begins with your intent.</p>
+        </li>
+        <li>
+          <span class="mono">02</span>
+          <b>AgentRun</b>
+          <p class="mono">Model reasons, tools act.</p>
+        </li>
+        <li>
+          <span class="mono">03</span>
+          <b>Event&nbsp;Log</b>
+          <p class="mono">Facts append. Nothing rewrites.</p>
+        </li>
+        <li>
+          <span class="mono">04</span>
+          <b>Projection</b>
+          <p class="mono">Context and UI derive from the log.</p>
+        </li>
+        <li>
+          <span class="mono">05</span>
+          <b>Recovery</b>
+          <p class="mono">Work survives interruption.</p>
+        </li>
+      </ol>
+    </section>
+
+    <!-- 04 · SURFACES -->
+    <section class="band band--paper surfaces" data-theme="paper" data-section="04 SURFACES">
+      <div class="ticks" aria-hidden="true"><s></s><s></s><s></s><s></s><s></s></div>
+
+      <header class="band-head">
+        <p class="band-index mono">03</p>
+        <h2 class="band-title" data-scramble>SURFACES</h2>
+        <p class="band-note mono">One engine · several fronts</p>
+      </header>
+
+      <ul class="surface-list">
+        <li><b>DESKTOP</b><span class="mono">The full companion workspace.</span></li>
+        <li><b>TUI</b><span class="mono">The same tasks in your terminal.</span></li>
+        <li><b>CLI</b><span class="mono">Scriptable, single-shot runs.</span></li>
+        <li><b>HEADLESS</b><span class="mono">Embedded and automated execution.</span></li>
+      </ul>
+    </section>
+
+    <!-- 05 · SOURCE / CTA -->
+    <section class="band band--paper cta" data-theme="paper" data-section="05 SOURCE">
+      <div class="ticks" aria-hidden="true"><s></s><s></s><s></s><s></s><s></s></div>
+
+      <p class="cta-note mono">
+        Source-first. No waitlist, no telemetry pitch —<br />
+        read the implementation yourself.
+      </p>
+
+      <a class="cta-link" href={githubUrl} target="_blank" rel="noreferrer">
+        <span class="line"><span>VIEW</span></span>
+        <span class="line"><span>SOURCE&nbsp;<b aria-hidden="true">↗</b></span></span>
+      </a>
+
+      <div class="cta-foot mono">
+        <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
+        <a href={architectureUrl} target="_blank" rel="noreferrer">ARCHITECTURE.md ↗</a>
+        <span>MAKA © 2026</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell shell--bottom" aria-label="Telemetry">
+    <p class="mono" aria-label="Local time"><span id="tz">GMT</span>&nbsp;<b id="clock">--:--:--</b></p>
+    <p class="mono shell-pointer" aria-hidden="true"><b id="coords">0000&nbsp;X&nbsp;0000&nbsp;Y</b></p>
+    <p class="mono shell-progress">
+      <span id="section-label">00 INTRO</span>&nbsp;·&nbsp;<b id="scroll-pct">000%</b>
+    </p>
+  </footer>
 
   <script>
-    const stage = document.querySelector<HTMLElement>(".stage");
-    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-view-target]"));
-    const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-view-panel]"));
-    const statusLabel = document.querySelector<HTMLElement>("#telemetry-view");
-    const statusIndex = document.querySelector<HTMLElement>(".stage-status em");
-    const timeReadout = document.querySelector<HTMLElement>("#local-time");
-    const lightField = document.querySelector<HTMLElement>(".light-field");
-    const views = ["overview", "product", "runtime"] as const;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let transitionToken = 0;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const clock = document.getElementById("clock");
+    const tz = document.getElementById("tz");
+    const coords = document.getElementById("coords");
+    const scrollPct = document.getElementById("scroll-pct");
+    const sectionLabel = document.getElementById("section-label");
+    const statement = document.getElementById("statement");
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("[data-section]"));
 
-    const setView = (requested: string, updateHash = true) => {
-      const view = views.includes(requested as (typeof views)[number]) ? requested : "overview";
-      if (!stage || stage.dataset.view === view) return;
-      const outgoing = stage.dataset.view ?? "overview";
-      const token = ++transitionToken;
-      if (!reduceMotion.matches) {
-        stage.dataset.entering = view;
-        stage.dataset.transitioning = `${outgoing}-to-${view}`;
-      } else {
-        delete stage.dataset.entering;
-        delete stage.dataset.transitioning;
-      }
-      stage.dataset.view = view;
-      panels.forEach((panel) => {
-        const active = panel.dataset.viewPanel === view;
-        panel.classList.toggle("is-active", active);
-        panel.toggleAttribute("inert", !active);
-        panel.setAttribute("aria-hidden", String(!active));
-      });
-      links.forEach((link) => {
-        if (link.closest(".brand")) return;
-        if (link.dataset.viewTarget === view) link.setAttribute("aria-current", "page");
-        else link.removeAttribute("aria-current");
-      });
-      const index = views.indexOf(view as (typeof views)[number]);
-      if (statusLabel) statusLabel.textContent = view.toUpperCase();
-      if (statusIndex) statusIndex.textContent = `0${index + 1} / 03`;
-      if (updateHash) history.replaceState(null, "", `#${view}`);
-      window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
-
-      if (!reduceMotion.matches) {
-        requestAnimationFrame(() => {
-          if (token !== transitionToken || !stage) return;
-          const activePanel = stage.querySelector<HTMLElement>(`[data-view-panel="${view}"]`);
-          activePanel?.getBoundingClientRect();
-          requestAnimationFrame(() => {
-            if (token !== transitionToken || !stage) return;
-            delete stage.dataset.entering;
-            window.setTimeout(() => {
-              if (token === transitionToken && stage) delete stage.dataset.transitioning;
-            }, 1250);
-          });
-        });
-      }
-    };
-
-    links.forEach((link) => link.addEventListener("click", (event) => {
-      event.preventDefault();
-      setView(link.dataset.viewTarget ?? "overview");
-    }));
-
-    window.addEventListener("keydown", (event) => {
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      const current = views.indexOf((stage?.dataset.view ?? "overview") as (typeof views)[number]);
-      const next = event.key === "ArrowRight" ? Math.min(views.length - 1, current + 1) : Math.max(0, current - 1);
-      setView(views[next]);
+    /* Clock — real local time with real UTC offset. */
+    const offsetMinutes = -new Date().getTimezoneOffset();
+    const sign = offsetMinutes >= 0 ? "+" : "-";
+    const offsetHours = Math.abs(offsetMinutes) / 60;
+    if (tz) tz.textContent = `GMT${sign}${Number.isInteger(offsetHours) ? offsetHours : offsetHours.toFixed(1)}`;
+    const formatTime = new Intl.DateTimeFormat("en-GB", {
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
     });
+    const tick = () => { if (clock) clock.textContent = formatTime.format(new Date()); };
+    tick();
+    window.setInterval(tick, 1000);
 
+    /* Pointer telemetry — real cursor coordinates. */
+    const pad = (value: number) => String(Math.max(0, Math.round(value))).padStart(4, "0");
     window.addEventListener("pointermove", (event) => {
-      const x = event.clientX / innerWidth - 0.5;
-      const y = event.clientY / innerHeight - 0.5;
-      if (lightField) lightField.style.transform = `translate3d(${x * -18}px, ${y * -12}px, 0)`;
+      if (coords) coords.textContent = `${pad(event.clientX)} X ${pad(event.clientY)} Y`;
     }, { passive: true });
 
-    const updateTime = () => {
-      if (timeReadout) timeReadout.textContent = new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
-      }).format(new Date());
-    };
-    updateTime();
-    window.setInterval(updateTime, 1000);
+    /* Scroll telemetry + statement fill + section label. */
+    let scrollQueued = false;
+    const onScroll = () => {
+      scrollQueued = false;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? window.scrollY / max : 0;
+      if (scrollPct) scrollPct.textContent = `${String(Math.round(progress * 100)).padStart(3, "0")}%`;
 
-    const initialView = location.hash.slice(1);
-    if (initialView && initialView !== "overview") setView(initialView, false);
-    if (initialView) requestAnimationFrame(() => window.scrollTo(0, 0));
+      const middle = window.scrollY + window.innerHeight * 0.5;
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.offsetTop <= middle) current = section;
+      }
+      const label = current?.dataset.section ?? "00 INTRO";
+      if (sectionLabel && sectionLabel.textContent !== label) sectionLabel.textContent = label;
+
+      if (statement && !reduceMotion) {
+        const rect = statement.getBoundingClientRect();
+        const fill = 1 - Math.min(1, Math.max(0, (rect.top + rect.height * 0.6) / window.innerHeight));
+        statement.style.setProperty("--fill", `${Math.min(100, fill * 165)}%`);
+      }
+    };
+    window.addEventListener("scroll", () => {
+      if (!scrollQueued) {
+        scrollQueued = true;
+        requestAnimationFrame(onScroll);
+      }
+    }, { passive: true });
+    if (reduceMotion) statement?.style.setProperty("--fill", "100%");
+    onScroll();
+
+    /* In-page navigation. */
+    const scrollToTarget = (hash: string) => {
+      const target = document.querySelector<HTMLElement>(hash);
+      target?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    };
+    document.querySelectorAll<HTMLAnchorElement>("[data-nav]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const hash = link.getAttribute("href") ?? "";
+        if (!hash.startsWith("#")) return;
+        event.preventDefault();
+        history.replaceState(null, "", hash === "#top" ? location.pathname : hash);
+        scrollToTarget(hash);
+      });
+    });
+
+    /* Keyboard commands mirrored by the [key] hints in the nav. */
+    window.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      const key = event.key.toLowerCase();
+      if (key === "w") scrollToTarget("#work");
+      else if (key === "r") scrollToTarget("#runtime");
+      else if (key === "g") window.open("https://github.com/maka-agent/maka-agent", "_blank", "noreferrer");
+    });
+
+    /* Scramble-in for mono labels (skipped under reduced motion). */
+    const GLYPHS = "MAKA/#><+=·0123456789";
+    const scramble = (element: HTMLElement) => {
+      const original = element.dataset.text ?? element.textContent ?? "";
+      element.dataset.text = original;
+      let frame = 0;
+      const total = Math.max(10, original.length * 2);
+      const run = () => {
+        frame += 1;
+        const reveal = Math.floor((frame / total) * original.length);
+        element.textContent = original
+          .split("")
+          .map((char, index) => {
+            if (char.trim() === "" || index < reveal) return char;
+            return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+          })
+          .join("");
+        if (frame < total) requestAnimationFrame(run);
+        else element.textContent = original;
+      };
+      run();
+    };
+    if (!reduceMotion) {
+      document.querySelectorAll<HTMLElement>(".shell-nav [data-scramble]").forEach((link) => {
+        const label = link.childNodes[0];
+        link.addEventListener("mouseenter", () => {
+          if (label?.nodeType === Node.TEXT_NODE) {
+            const holder = document.createElement("span");
+            link.replaceChild(holder, label);
+            holder.textContent = label.textContent;
+            scramble(holder);
+          } else if (link.firstElementChild instanceof HTMLElement) {
+            scramble(link.firstElementChild);
+          }
+        }, { once: true });
+      });
+    }
+
+    /* Reveal-on-intersect. */
+    const revealables = document.querySelectorAll<HTMLElement>(".entry, .band-head, .runtime-lede, .ledger li, .surface-list li, .cta-link, .cta-note");
+    if (reduceMotion) {
+      revealables.forEach((element) => element.classList.add("is-in"));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        for (const item of entries) {
+          if (item.isIntersecting) {
+            (item.target as HTMLElement).classList.add("is-in");
+            if (item.target instanceof HTMLElement && item.target.matches(".band-head")) {
+              const title = item.target.querySelector<HTMLElement>("[data-scramble]");
+              if (title) scramble(title);
+            }
+            observer.unobserve(item.target);
+          }
+        }
+      }, { threshold: 0.2 });
+      revealables.forEach((element) => observer.observe(element));
+    }
   </script>
 </BaseLayout>

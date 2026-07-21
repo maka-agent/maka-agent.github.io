@@ -49,12 +49,12 @@ for (const [label, width, height] of VIEWPORTS) {
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
-  if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
-    throw new Error(`${label}: unexpected h1`);
-  }
-  if ((await page.locator("[data-view-panel]").count()) !== 3) throw new Error(`${label}: expected 3 views`);
-  if ((await page.locator("img").count()) !== 4) throw new Error(`${label}: expected 4 product images`);
-  if ((await page.locator(".product-detail img").count()) !== 1) throw new Error(`${label}: artifact detail is missing`);
+  const heroText = (await page.locator("#hero-title").innerText())
+    .replaceAll("\n", " ")
+    .replaceAll(" ", " ");
+  if (heroText !== "YOUR WORK. YOUR AGENT.") throw new Error(`${label}: unexpected h1 "${heroText}"`);
+  if ((await page.locator("[data-section]").count()) !== 6) throw new Error(`${label}: expected 6 sections`);
+  if ((await page.locator("main img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
   if ((await page.locator("a:not([href])").count()) !== 0) throw new Error(`${label}: anchor missing href`);
 
@@ -72,23 +72,11 @@ for (const [label, width, height] of VIEWPORTS) {
   if (geometry.scrollWidth > geometry.viewport + 1 || geometry.bodyWidth > geometry.viewport + 1) {
     throw new Error(`${label}: horizontal overflow ${JSON.stringify(geometry)}`);
   }
-  if (width < 768 && geometry.scrollHeight > height + 1) {
-    throw new Error(`${label}: stage is clipped vertically ${JSON.stringify(geometry)}`);
+  if (geometry.scrollHeight < height * 3) {
+    throw new Error(`${label}: page is unexpectedly short ${JSON.stringify(geometry)}`);
   }
   if (geometry.field !== "ready" || !geometry.canvas?.width || !geometry.canvas.height) {
     throw new Error(`${label}: WebGL field did not initialize ${JSON.stringify(geometry)}`);
-  }
-  if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
-    throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
-  }
-
-  for (const image of await page.locator("img").all()) {
-    await image.evaluate((element) => element.complete && element.naturalWidth > 0
-      ? true
-      : new Promise((resolve, reject) => {
-          element.addEventListener("load", () => resolve(true), { once: true });
-          element.addEventListener("error", reject, { once: true });
-        }));
   }
 
   await page.keyboard.press("Tab");
@@ -97,75 +85,67 @@ for (const [label, width, height] of VIEWPORTS) {
   }
   await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur());
 
-  if (label === "desktop") {
-    await page.goto(new URL("#overview", BASE_URL).href, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
-    await page.waitForFunction(() => document.documentElement.dataset.field === "ready" && scrollY === 0);
+  /* Nav click scrolls to the WORK section and telemetry follows. */
+  await page.locator('.shell-nav [data-nav="work"]').click();
+  await page.waitForFunction(() => {
+    const work = document.querySelector("#work");
+    return work && Math.abs(work.getBoundingClientRect().top) < innerHeight * 0.5;
+  }, undefined, { timeout: 10_000 });
+  await page.waitForFunction(
+    () => document.querySelector("#section-label")?.textContent?.includes("WORK"),
+    undefined,
+    { timeout: 10_000 },
+  );
 
-    await page.locator('.view-nav [data-view-target="product"]').click();
-    const transitionMarker = await page.locator(".stage").getAttribute("data-transitioning");
-    if (transitionMarker !== "overview-to-product") {
-      throw new Error(`desktop: missing Product transition lifecycle marker (${transitionMarker})`);
-    }
-    const productTransitionConfig = await page.locator(".product-shot--main").evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { property: style.transitionProperty, duration: style.transitionDuration };
+  /* Keyboard command R jumps to Runtime. */
+  await page.keyboard.press("r");
+  await page.waitForFunction(() => {
+    const runtime = document.querySelector("#runtime");
+    return runtime && Math.abs(runtime.getBoundingClientRect().top) < innerHeight * 0.5;
+  }, undefined, { timeout: 10_000 });
+
+  /* The statement fill is scroll-driven. */
+  await page.evaluate(() => document.getElementById("statement")?.scrollIntoView({ behavior: "auto", block: "center" }));
+  await page.waitForTimeout(400);
+  const fill = await page.evaluate(() => Number.parseFloat(
+    document.getElementById("statement")?.style.getPropertyValue("--fill") || "0",
+  ));
+  if (!(fill > 0)) throw new Error(`${label}: statement fill did not advance (${fill})`);
+
+  /* All proof imagery (including lazy frames passed during the scroll journey)
+     must decode successfully. */
+  for (const image of await page.locator("main img").all()) {
+    await image.evaluate((element) => {
+      element.scrollIntoView({ behavior: "auto", block: "center" });
+      if (element.complete && element.naturalWidth > 0) return true;
+      return Promise.race([
+        new Promise((resolve, reject) => {
+          element.addEventListener("load", () => resolve(true), { once: true });
+          element.addEventListener("error", () => reject(new Error("image failed")), { once: true });
+        }),
+        new Promise((_resolve, reject) => setTimeout(() => reject(new Error("image load timeout")), 20000)),
+      ]);
     });
-    if (!productTransitionConfig.property.includes("clip-path") || !productTransitionConfig.property.includes("filter") || productTransitionConfig.duration.split(",").every((value) => value.trim() === "0s")) {
-      throw new Error(`desktop: Product transition CSS is inactive ${JSON.stringify(productTransitionConfig)}`);
-    }
-    await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
-    const productFinalState = await page.locator(".product-shot--main").evaluate((element) => {
-      const style = getComputedStyle(element);
-      return { opacity: Number(style.opacity), clipPath: style.clipPath, filter: style.filter };
-    });
-    if (productFinalState.opacity !== 1 || productFinalState.clipPath !== "inset(0px)" || productFinalState.filter !== "none") {
-      throw new Error(`desktop: Product transition did not settle ${JSON.stringify(productFinalState)}`);
-    }
-    await page.locator('.view-nav [data-view-target="overview"]').click();
-    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
   }
-
-  for (const [index, view] of ["overview", "product", "runtime"].entries()) {
-    await page.locator(`[data-view-target="${view}"]`).first().click();
-    await page.waitForFunction((expected) => document.querySelector(".stage")?.getAttribute("data-view") === expected, view);
-    if ((await page.locator("[data-view-panel].is-active").count()) !== 1) throw new Error(`${label}: multiple active views`);
-    if ((await page.locator(`[data-view-panel="${view}"]`).getAttribute("aria-hidden")) !== "false") {
-      throw new Error(`${label}: active view is hidden from accessibility tree`);
-    }
-    const footerIndex = await page.locator(".stage-status em").innerText();
-    if (footerIndex !== `0${index + 1} / 03`) throw new Error(`${label}: footer state mismatch`);
-    if (view === "product" && (label === "phone-390" || label === "desktop")) {
-      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
-      await page.screenshot({ path: `${RESULTS}/${label}-product.png` });
-    }
-  }
-
-  await page.keyboard.press("ArrowLeft");
-  if ((await page.locator(".stage").getAttribute("data-view")) !== "product") throw new Error(`${label}: keyboard view navigation failed`);
-  await page.locator('[data-view-target="overview"]').first().click();
 
   if (width < 768) {
-    for (const view of ["overview", "product", "runtime"]) {
-      await page.locator(`[data-view-target="${view}"]`).first().click();
-      const smallTargets = await page.locator("a").evaluateAll((elements) => elements
-        .filter((element) => {
-          const rect = element.getBoundingClientRect();
-          const style = getComputedStyle(element);
-          return style.visibility !== "hidden" && style.display !== "none" && rect.width > 0 && rect.height > 0
-            && rect.right > 0 && rect.bottom > 0 && rect.left < innerWidth && rect.top < innerHeight;
-        })
-        .map((element) => {
-          const rect = element.getBoundingClientRect();
-          return { text: element.getAttribute("aria-label") || element.textContent?.trim(), width: rect.width, height: rect.height };
-        })
-        .filter((item) => item.width < 44 || item.height < 44));
-      if (smallTargets.length) throw new Error(`${label}/${view}: small targets ${JSON.stringify(smallTargets)}`);
-    }
-    await page.locator('[data-view-target="overview"]').first().click();
+    const smallTargets = await page.locator("a").evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden" && style.display !== "none" && rect.width > 0 && rect.height > 0;
+      })
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return { text: element.getAttribute("aria-label") || element.textContent?.trim(), width: rect.width, height: rect.height };
+      })
+      .filter((item) => item.width < 44 || item.height < 44));
+    if (smallTargets.length) throw new Error(`${label}: small touch targets ${JSON.stringify(smallTargets)}`);
   }
 
   if (label === "phone-320" || label === "desktop") {
-    await page.waitForTimeout(1000);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(800);
     await page.addScriptTag({ path: AXE });
     const violations = await page.evaluate(async () => {
       const result = await globalThis.axe.run(document, {
@@ -182,12 +162,13 @@ for (const [label, width, height] of VIEWPORTS) {
     if (violations.length) throw new Error(`${label}: axe violations ${JSON.stringify(violations)}`);
   }
 
-  report.viewports[label] = geometry;
-  await page.waitForTimeout(250);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(600);
   await page.screenshot({ path: `${RESULTS}/${label}.png` });
   await context.close();
 }
 
+/* Reduced motion: page settles without continuous animation. */
 const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
 const reducedPage = await reduced.newPage();
 await reducedPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
@@ -195,10 +176,14 @@ await reducedPage.waitForFunction(() => document.documentElement.dataset.field =
 if (!(await reducedPage.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches))) {
   throw new Error("Reduced-motion media query did not apply");
 }
-await reducedPage.locator('[data-view-target="runtime"]').first().click();
+const reducedFill = await reducedPage.evaluate(() => getComputedStyle(document.getElementById("statement")).backgroundImage);
+if (!reducedFill.includes("linear-gradient")) throw new Error("Reduced motion: statement styling missing");
+await reducedPage.evaluate(() => document.querySelector("#runtime")?.scrollIntoView({ behavior: "auto" }));
+await reducedPage.waitForTimeout(500);
 await reducedPage.screenshot({ path: `${RESULTS}/reduced-motion.png` });
 await reduced.close();
 
+/* WebGL unavailable: semantic story and CSS sky remain. */
 const fallback = await browser.newContext({ viewport: { width: 1280, height: 720 } });
 await fallback.addInitScript(() => {
   const original = HTMLCanvasElement.prototype.getContext;
@@ -209,17 +194,18 @@ await fallback.addInitScript(() => {
 const fallbackPage = await fallback.newPage();
 await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
-if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
-if ((await fallbackPage.locator(".fallback-wordmark").textContent())?.trim() !== "Maka") throw new Error("Static Maka wordmark is incomplete");
+if (!(await fallbackPage.locator("#hero-title").isVisible())) throw new Error("Hero is hidden without WebGL");
+if (!(await fallbackPage.locator(".execution-field").isVisible())) throw new Error("CSS sky fallback is not visible");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
 await fallback.close();
 
+/* Renderer chunk blocked: the document still tells the whole story. */
 const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-await noRenderer.route(/\/src\/components\/ExecutionField\.astro(?:\?|$)|\/_astro\/ExecutionField\./, (route) => route.abort());
+await noRenderer.route(/execution[-_]?field/i, (route) => route.abort());
 const noRendererPage = await noRenderer.newPage();
 await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
-if (!(await noRendererPage.locator("#overview-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
-if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
+if (!(await noRendererPage.locator("#hero-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
+if ((await noRendererPage.locator("main img").count()) !== 3) throw new Error("Product proof is missing while renderer code is unavailable");
 await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });
 await noRenderer.close();
 
