@@ -328,6 +328,7 @@ for (const [label, width, height] of VIEWPORTS) {
     }
     await page.reload({ waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
     await page.waitForFunction(() => document.documentElement.dataset.field === "ready", undefined, { timeout: NAVIGATION_TIMEOUT });
+    await page.waitForFunction(() => document.documentElement.dataset.boot === "complete", undefined, { timeout: NAVIGATION_TIMEOUT });
     if ((await page.evaluate(() => document.documentElement.dataset.theme)) !== "night") {
       throw new Error(`${label}: night theme did not persist across reload`);
     }

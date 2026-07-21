@@ -1440,9 +1440,19 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .view-nav a::after { right: 0.4rem; left: 0.4rem; }
   .source-link { width: 44px; justify-content: center; }
   .source-link span { display: none; }
-  .shell-commands { gap: 0.2rem; }
-  .theme-command { font-size: 0.56rem; }
+  .shell-commands { gap: 0.1rem; }
+  .theme-command { width: 44px; justify-content: center; }
+  .theme-command span,
   .theme-command small { display: none; }
+  .theme-command::before {
+    content: "";
+    width: 0.85rem;
+    height: 0.85rem;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    background: linear-gradient(90deg, currentColor 50%, transparent 50%);
+  }
+  .view-nav a { padding: 0 0.42rem; }
 
   .overview-note--identity { top: 2.4%; }
   .overview-note--identity strong { margin: 0 0 0.3rem; font-size: 0.74rem; }
