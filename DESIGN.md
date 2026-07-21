@@ -20,6 +20,10 @@ colors:
   night-control: "oklch(0.42 0.006 286)"
   night-code: "oklch(0.84 0.006 286)"
   night-hover: "oklch(0.24 0.008 286)"
+  scene-blue-pearlescent: "#78b9f4"
+  scene-blue-signal: "#2e83de"
+  scene-blue-ring: "#285e91"
+  scene-blue-particle: "#2b5d8d"
 typography:
   display:
     fontFamily: "Geist Variable, system-ui, sans-serif"
