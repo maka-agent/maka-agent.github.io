@@ -2,9 +2,9 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import shellCurrent from "../assets/maka-shell-current.png";
-import shellStreaming from "../assets/maka-shell-streaming.png";
-import shellEmpty from "../assets/maka-shell-empty.png";
+import shellCurrent from "../assets/maka-shell-fresh.png";
+import permissionCurrent from "../assets/maka-permission-fresh.png";
+import questionCurrent from "../assets/maka-question-fresh.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -16,18 +16,16 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 >
   <div class="stage" data-view="overview" id="top">
     <ExecutionField />
+    <div class="light-field" aria-hidden="true"><i></i><i></i><i></i></div>
 
     <div class="measurement-grid" aria-hidden="true">
       <i class="rule rule--v rule--v1"></i>
       <i class="rule rule--v rule--v2"></i>
       <i class="rule rule--v rule--v3"></i>
-      <i class="rule rule--v rule--v4"></i>
       <i class="rule rule--h rule--h1"></i>
-      <i class="rule rule--h rule--h2"></i>
       <i class="cross cross--a"></i>
       <i class="cross cross--b"></i>
       <i class="cross cross--c"></i>
-      <i class="cross cross--d"></i>
     </div>
 
     <header class="stage-header" aria-label="Primary navigation">
@@ -54,93 +52,95 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     <main id="main-content" class="stage-main">
       <section class="view view--overview is-active" id="overview" data-view-panel="overview" aria-labelledby="overview-title" aria-hidden="false">
         <div class="overview-note overview-note--identity">
-          <strong>A local-first<br />Agent workspace.</strong>
-          <p>Built for real work,<br />not disposable chat.</p>
+          <strong>LOCAL-FIRST<br />AGENT WORKSPACE</strong>
+          <p>Work on your machine.<br />Keep every decision visible.</p>
         </div>
 
         <div class="overview-note overview-note--model">
           <span class="signal-dot"></span>
           <p>Task → Tool Call → Artifact</p>
-          <p>Every step stays inspectable.</p>
+          <p>One continuous execution record.</p>
         </div>
 
         <div class="overview-note overview-note--trust">
-          <p>Your machine. Your connections.<br />Your permission boundary.</p>
+          <p>Your connections.<br />Your permission boundary.</p>
           <a href={architectureUrl} target="_blank" rel="noreferrer">Read architecture ↗</a>
         </div>
 
         <div class="hero-copy">
-          <p class="hero-copy__signal"><span>●</span> EXECUTION READY</p>
+          <p class="hero-copy__signal"><span></span> EXECUTION, MADE TANGIBLE</p>
           <h1 id="overview-title"><span>YOUR WORK.</span><span>YOUR AGENT.</span></h1>
           <div class="hero-copy__footer">
-            <p>Maka turns agent conversations into<br />visible, recoverable execution.</p>
+            <p>Maka turns agent conversations into<br />inspectable, recoverable local work.</p>
             <a class="primary-action" href="#product" data-view-target="product">
-              See Maka work
+              Enter workspace
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
             </a>
           </div>
         </div>
 
         <ol class="object-index" aria-label="Maka execution objects">
-          <li><span>01</span><b>Task</b></li>
-          <li><span>02</span><b>Tool</b></li>
-          <li><span>03</span><b>Artifact</b></li>
-          <li><span>04</span><b>Recovery</b></li>
+          <li><span>01</span><b>Task</b><small>intent</small></li>
+          <li><span>02</span><b>Tool</b><small>action</small></li>
+          <li><span>03</span><b>Artifact</b><small>proof</small></li>
         </ol>
       </section>
 
       <section class="view view--product" id="product" data-view-panel="product" aria-labelledby="product-title" aria-hidden="true" inert>
         <div class="product-copy">
-          <p class="section-signal"><span></span>REAL PRODUCT / CURRENT SOURCE</p>
-          <h2 id="product-title">The work<br />stays visible.</h2>
-          <p>Conversation, Tool Calls, permissions, and output live on the same working plane—so you can understand what happened without reconstructing it from chat.</p>
+          <p class="section-signal"><span></span>REAL MAKA / CURRENT SOURCE</p>
+          <h2 id="product-title">See the work,<br />not the theatre.</h2>
+          <p>Conversation, Tool Calls, permissions, and output remain attached to one task. Nothing important disappears behind an animation.</p>
           <div class="product-facts" aria-label="Product facts">
-            <p><b>LOCAL</b><span>Records stay on your machine by default.</span></p>
-            <p><b>VISIBLE</b><span>Execution remains attached to the turn.</span></p>
-            <p><b>DURABLE</b><span>Interrupted work can be recovered.</span></p>
+            <p><b>LOCAL</b><span>Your machine remains the boundary.</span></p>
+            <p><b>VISIBLE</b><span>Every action stays with the turn.</span></p>
+            <p><b>DURABLE</b><span>Interrupted work can be resumed.</span></p>
           </div>
         </div>
 
         <div class="product-gallery" aria-label="Current Maka interface previews">
           <figure class="product-shot product-shot--main">
-            <div class="product-shot__bar"><span>maka-agent / task workspace</span><i></i></div>
+            <div class="product-shot__bar">
+              <span>maka-agent / live task</span>
+              <i>LOCAL</i>
+            </div>
             <Image
               src={shellCurrent}
               alt="Current Maka desktop workspace with task sidebar, real conversation, model controls, and composer."
-              widths={[960, 1280, 1600]}
-              sizes="(max-width: 760px) 94vw, 70vw"
+              widths={[960, 1280, 1600, 1920]}
+              sizes="(max-width: 760px) 96vw, 72vw"
               format="webp"
-              quality={88}
+              quality={92}
               loading="eager"
               fetchpriority="high"
             />
-            <figcaption><span>01</span>Conversation + workspace</figcaption>
+            <figcaption><span>REAL PRODUCT</span><b>Conversation + workspace</b></figcaption>
           </figure>
 
-          <figure class="product-shot product-shot--streaming">
+          <figure class="product-proof product-proof--streaming">
             <Image
-              src={shellStreaming}
-              alt="Current Maka desktop workspace while an agent turn is streaming."
-              widths={[640, 960]}
-              sizes="(max-width: 760px) 44vw, 25vw"
+              src={permissionCurrent}
+              alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
+              widths={[480, 720]}
+              sizes="18vw"
               format="webp"
-              quality={84}
+              quality={86}
               loading="eager"
             />
-            <figcaption><span>02</span>Live turn</figcaption>
+            <figcaption><span>PERMISSION</span><b>02</b></figcaption>
           </figure>
 
-          <figure class="product-shot product-shot--empty">
+          <figure class="product-proof product-proof--empty">
             <Image
-              src={shellEmpty}
-              alt="Current Maka empty workspace with a direct task composer and suggested starting points."
-              widths={[640, 960]}
-              sizes="(max-width: 760px) 44vw, 25vw"
+              src={questionCurrent}
+              alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
+              widths={[480, 720]}
+              sizes="18vw"
               format="webp"
-              quality={84}
+              quality={86}
               loading="eager"
             />
-            <figcaption><span>03</span>Ready state</figcaption>
+            <figcaption><span>CLARIFICATION</span><b>03</b></figcaption>
           </figure>
         </div>
       </section>
@@ -148,18 +148,24 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <section class="view view--runtime" id="runtime" data-view-panel="runtime" aria-labelledby="runtime-title" aria-hidden="true" inert>
         <div class="runtime-copy">
           <p class="section-signal section-signal--light"><span></span>APPEND-ONLY EXECUTION</p>
-          <h2 id="runtime-title">The log is<br />the runtime.</h2>
+          <h2 id="runtime-title">Progress has<br />a memory.</h2>
           <p>Messages, Tool Calls, Tool Results, and termination facts enter one Event Log. Context, UI, and recovery are projections over the same recorded execution.</p>
           <a href={architectureUrl} target="_blank" rel="noreferrer">Inspect the architecture ↗</a>
         </div>
 
-        <ol class="runtime-orbit" aria-label="Maka runtime event flow">
-          <li style="--i: 0"><span>01</span><b>Request</b><small>A Turn begins</small></li>
-          <li style="--i: 1"><span>02</span><b>AgentRun</b><small>Model + tools advance</small></li>
-          <li style="--i: 2"><span>03</span><b>Event Log</b><small>Facts are appended</small></li>
-          <li style="--i: 3"><span>04</span><b>Projection</b><small>UI + context read</small></li>
-          <li style="--i: 4"><span>05</span><b>Recovery</b><small>Progress survives</small></li>
-        </ol>
+        <div class="runtime-map" aria-label="Maka runtime event flow">
+          <svg viewBox="0 0 800 520" aria-hidden="true">
+            <path d="M80 280C150 90 350 80 430 230C510 380 650 410 735 235" />
+            <path d="M92 310C250 480 565 440 710 180" />
+          </svg>
+          <ol>
+            <li style="--x: 8%; --y: 49%"><span>01</span><b>Request</b><small>Turn begins</small></li>
+            <li style="--x: 27%; --y: 17%"><span>02</span><b>AgentRun</b><small>Model + tools</small></li>
+            <li style="--x: 49%; --y: 42%"><span>03</span><b>Event Log</b><small>Facts append</small></li>
+            <li style="--x: 68%; --y: 70%"><span>04</span><b>Projection</b><small>UI + context</small></li>
+            <li style="--x: 88%; --y: 33%"><span>05</span><b>Recovery</b><small>Work survives</small></li>
+          </ol>
+        </div>
 
         <div class="runtime-code" aria-label="Architecture summary">
           <p><span>surface</span> Desktop / TUI / Headless</p>
@@ -171,7 +177,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     </main>
 
     <footer class="stage-footer">
-      <p class="pointer-readout" aria-hidden="true"><span>X <b id="telemetry-x">0000</b></span><span>Y <b id="telemetry-y">0000</b></span></p>
+      <p class="stage-caption">LOCAL EXECUTION / OPEN SOURCE</p>
       <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 03</em></p>
       <p class="local-time" aria-label="Local time"><span>LOCAL</span> <b id="local-time">--:--:--</b></p>
       <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
@@ -186,10 +192,9 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-view-panel]"));
     const statusLabel = document.querySelector<HTMLElement>("#telemetry-view");
     const statusIndex = document.querySelector<HTMLElement>(".stage-status em");
-    const xReadout = document.querySelector<HTMLElement>("#telemetry-x");
-    const yReadout = document.querySelector<HTMLElement>("#telemetry-y");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const probe = document.querySelector<HTMLElement>(".cursor-probe");
+    const lightField = document.querySelector<HTMLElement>(".light-field");
     const views = ["overview", "product", "runtime"] as const;
 
     const setView = (requested: string, updateHash = true) => {
@@ -214,12 +219,10 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
     };
 
-    links.forEach((link) => {
-      link.addEventListener("click", (event) => {
-        event.preventDefault();
-        setView(link.dataset.viewTarget ?? "overview");
-      });
-    });
+    links.forEach((link) => link.addEventListener("click", (event) => {
+      event.preventDefault();
+      setView(link.dataset.viewTarget ?? "overview");
+    }));
 
     window.addEventListener("keydown", (event) => {
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
@@ -228,14 +231,11 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       setView(views[next]);
     });
 
-    let pointerX = window.innerWidth / 2;
-    let pointerY = window.innerHeight / 2;
     window.addEventListener("pointermove", (event) => {
-      pointerX = event.clientX;
-      pointerY = event.clientY;
-      if (xReadout) xReadout.textContent = String(Math.round(pointerX)).padStart(4, "0");
-      if (yReadout) yReadout.textContent = String(Math.round(pointerY)).padStart(4, "0");
-      if (probe) probe.style.transform = `translate3d(${pointerX}px, ${pointerY}px, 0)`;
+      const x = event.clientX / innerWidth - 0.5;
+      const y = event.clientY / innerHeight - 0.5;
+      if (probe) probe.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
+      if (lightField) lightField.style.transform = `translate3d(${x * -18}px, ${y * -12}px, 0)`;
     }, { passive: true });
 
     const updateTime = () => {

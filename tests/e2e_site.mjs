@@ -49,7 +49,7 @@ for (const [label, width, height] of VIEWPORTS) {
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
-  if ((await page.locator("h1").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
+  if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 3) throw new Error(`${label}: expected 3 views`);
@@ -129,6 +129,7 @@ for (const [label, width, height] of VIEWPORTS) {
   }
 
   if (label === "phone-320" || label === "desktop") {
+    await page.waitForTimeout(1000);
     await page.addScriptTag({ path: AXE });
     const violations = await page.evaluate(async () => {
       const result = await globalThis.axe.run(document, {
@@ -177,10 +178,10 @@ await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
 await fallback.close();
 
 const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 720 } });
-await noRenderer.route("**/ExecutionField*.js", (route) => route.abort());
+await noRenderer.route(/\/src\/components\/ExecutionField\.astro(?:\?|$)|\/_astro\/ExecutionField\./, (route) => route.abort());
 const noRendererPage = await noRenderer.newPage();
 await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
-if (!(await noRendererPage.locator("h1").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
+if (!(await noRendererPage.locator("#overview-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
 if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
 await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });
 await noRenderer.close();

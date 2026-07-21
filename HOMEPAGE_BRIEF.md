@@ -10,7 +10,7 @@ Understand that Maka turns agent conversations into inspectable, recoverable wor
 
 ## 3. Design Direction
 
-- **Color strategy:** Restrained. Cool neutrals carry the working plane; Maka blue is a scarce live-state signal below 10% of the surface.
+- **Color strategy:** Three-state. Daylight blue carries the spatial Overview, achromatic paper carries Product proof, and near-black carries Runtime. Saturated Maka blue remains a scarce live-state signal inside each state.
 - **Scene sentence:** A developer reviews an agent's work at a daylight desk, with the calm focus of an instrument panel where every action, permission, and output can be inspected.
 - **Anchor references:** Maka's official desktop workspace and Design System; `haoqi.design` for measured spatial grammar and DOM/WebGL cooperation; technical architecture drawings for signal paths and evidence labels.
 - **Selected visual probe:** Direction A. It keeps an open 12-column plane, places a real Artifact screenshot beside the claim, and uses an original execution field rather than a fixed portfolio sidebar. Direction B's near-black architecture band is retained as a later pacing change; its sidebar is rejected as too reference-literal.

@@ -133,16 +133,16 @@ components:
 
 ## 1. Overview
 
-**Creative North Star: "The Executable Working Plane"**
+**Creative North Star: "The Execution Organism"**
 
-The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument laid open in daylight: a cool white plane, stable measurements, compact controls, and one live blue signal that makes execution legible. The visual system borrows no mascot or artificial personality; humanity comes from clear language, recoverable progress, and honest boundaries.
+The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument opened in daylight, with one continuous pearlescent form connecting task, tool, artifact, and recovery. The sculpture is not a mascot: it is a spatial diagram of durable execution, surrounded by real product proof and explicit boundaries.
 
 The measured grid, edge telemetry, and DOM/WebGL cooperation come from the reference study, but the content model is Maka's own: task, turn, Tool Call, permission, artifact, Event Log, and recovery. Generic AI tool marketing, fake terminal theatre, and card-grid SaaS composition are prohibited.
 
 **Key Characteristics:**
 
-- One connected working plane instead of stacked marketing cards.
-- Restrained blue signals against cool achromatic structure.
+- One connected execution organism instead of stacked marketing cards or literal 3D lettering.
+- A committed daylight-blue Overview, a proof-first paper Product state, and a near-black Runtime state.
 - Large exact typography paired with compact runtime evidence.
 - Real product screenshots integrated into the spatial narrative.
 - One purposeful execution-field motion system with a complete static fallback.
@@ -171,7 +171,7 @@ Cool achromatic surfaces carry the page; blue appears only when something is act
 
 **The Signal, Not Texture Rule.** Blue communicates action or runtime state. It never becomes a background flood, gradient, glow, or decorative atmosphere.
 
-**The Restrained Strategy Rule.** Blue stays below 10% of a viewport. If a screenshot makes the page feel blue, the surrounding canvas gets quieter rather than adding another color.
+**The Three-State Color Rule.** Overview commits to daylight blue as atmosphere, Product removes it so real UI evidence dominates, and Runtime moves to near-black. Saturated signal blue remains scarce inside controls and evidence labels.
 
 ## 3. Typography
 
