@@ -60,7 +60,8 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
   if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
   if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
-  if ((await page.locator("img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
+  if ((await page.locator("img").count()) !== 5) throw new Error(`${label}: expected 5 product images`);
+  if ((await page.locator("[data-evidence-command]").count()) !== 3) throw new Error(`${label}: evidence index needs three entries`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
   const runtimePhases = await page.locator("[data-runtime-phase]").evaluateAll((elements) => elements.map((element) => element.dataset.runtimePhase));
@@ -252,8 +253,21 @@ for (const [label, width, height] of VIEWPORTS) {
     }
     const footerIndex = await page.locator(".stage-status em").innerText();
     if (footerIndex !== `0${index + 1} / 04`) throw new Error(`${label}: footer state mismatch`);
-    if (view === "product" && (label === "phone-390" || label === "desktop")) {
-      await page.screenshot({ path: `${RESULTS}/${label}-product.png`, timeout: NAVIGATION_TIMEOUT });
+    if (view === "product") {
+      await page.locator('[data-evidence-command="first-run"]').click({ timeout: 15_000 });
+      if ((await page.locator("[data-product-inspector]").getAttribute("data-evidence")) !== "first-run") {
+        throw new Error(`${label}: evidence switch did not activate first-run`);
+      }
+      if ((await page.locator('[data-evidence-command="first-run"]').getAttribute("aria-pressed")) !== "true") {
+        throw new Error(`${label}: evidence command state did not update`);
+      }
+      await page.locator('[data-evidence-command="artifact"]').click({ timeout: 15_000 });
+      if ((await page.locator("[data-product-inspector]").getAttribute("data-evidence")) !== "artifact") {
+        throw new Error(`${label}: evidence switch did not return to artifact`);
+      }
+      if (label === "phone-390" || label === "desktop") {
+        await page.screenshot({ path: `${RESULTS}/${label}-product.png`, timeout: NAVIGATION_TIMEOUT });
+      }
     }
     if (view === "runtime") {
       if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {

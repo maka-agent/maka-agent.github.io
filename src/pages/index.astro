@@ -5,6 +5,8 @@ import ExecutionField from "../components/ExecutionField.astro";
 import artifactCurrent from "../assets/maka-artifact-pane.png";
 import permissionCurrent from "../assets/maka-permission-fresh.png";
 import questionCurrent from "../assets/maka-question-fresh.png";
+import firstRunCurrent from "../assets/maka-first-run.png";
+import errorsCurrent from "../assets/maka-artifact-errors.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -114,7 +116,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
               <span>maka-agent / artifact task</span>
               <i>LOCAL <span class="product-shot__mode">· INSPECT</span></i>
             </div>
-            <div class="product-shot__visual" data-product-inspector tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
+            <div class="product-shot__visual" data-product-inspector data-evidence="artifact" tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
               <Image
                 src={artifactCurrent}
                 alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
@@ -124,10 +126,39 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
                 quality={92}
                 loading="eager"
                 fetchpriority="high"
+                data-evidence-panel="artifact"
+              />
+              <Image
+                src={firstRunCurrent}
+                alt="Maka first-run provider setup: a three-step flow for choosing an AI provider, completing authentication, and testing the default connection."
+                widths={[960, 1280, 1600]}
+                sizes="(max-width: 760px) 132vw, 65vw"
+                format="webp"
+                quality={88}
+                loading="eager"
+                data-evidence-panel="first-run"
+              />
+              <Image
+                src={errorsCurrent}
+                alt="Maka artifact task showing an interrupted Tool Call and a deleted generated file surfaced as an explicit unreadable-file error."
+                widths={[960, 1280, 1600]}
+                sizes="(max-width: 760px) 132vw, 65vw"
+                format="webp"
+                quality={88}
+                loading="eager"
+                data-evidence-panel="errors"
               />
               <canvas id="product-hover-field" aria-hidden="true" data-hover-state="loading"></canvas>
             </div>
-            <figcaption><span>REAL PRODUCT</span><b>Tool Call → Artifact</b></figcaption>
+            <figcaption>
+              <span>REAL PRODUCT</span>
+              <span class="evidence-index" role="group" aria-label="Switch product evidence">
+                <button type="button" data-evidence-command="artifact" aria-pressed="true">01 Artifact</button>
+                <button type="button" data-evidence-command="first-run" aria-pressed="false">02 First run</button>
+                <button type="button" data-evidence-command="errors" aria-pressed="false">03 Errors</button>
+              </span>
+              <b data-evidence-caption>Tool Call → Artifact</b>
+            </figcaption>
           </figure>
 
           <figure class="product-proof product-proof--streaming">
@@ -335,6 +366,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     links.forEach((link) => link.addEventListener("click", (event) => {
       event.preventDefault();
       setView(link.dataset.viewTarget ?? "overview");
+    }));
+
+    const evidenceCaptions: Record<string, string> = {
+      artifact: "Tool Call → Artifact",
+      "first-run": "First run → Providers",
+      errors: "Failure → Visible",
+    };
+    const evidenceHost = document.querySelector<HTMLElement>("[data-product-inspector]");
+    const evidenceCaption = document.querySelector<HTMLElement>("[data-evidence-caption]");
+    const evidenceCommands = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-evidence-command]"));
+    evidenceCommands.forEach((command) => command.addEventListener("click", () => {
+      const key = command.dataset.evidenceCommand ?? "artifact";
+      if (evidenceHost) evidenceHost.dataset.evidence = key;
+      if (evidenceCaption) evidenceCaption.textContent = evidenceCaptions[key] ?? evidenceCaptions.artifact;
+      evidenceCommands.forEach((other) => other.setAttribute("aria-pressed", String(other === command)));
     }));
 
     const themeCommand = document.querySelector<HTMLButtonElement>("[data-theme-command]");
