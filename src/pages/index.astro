@@ -162,7 +162,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         <div class="runtime-copy">
           <p class="section-signal section-signal--light"><span></span>APPEND-ONLY EXECUTION</p>
           <h2 id="runtime-title">Progress has<br />a memory.</h2>
-          <p>Messages, Tool Calls, Tool Results, and termination facts enter one Event Log. Context, UI, and recovery are projections over the same recorded execution.</p>
+          <p>Messages, Tool Calls, Tool Results, permission decisions, and termination facts enter one Event Log. Context, UI, and recovery are projections over the same recorded execution.</p>
           <a href={architectureUrl} target="_blank" rel="noreferrer">Inspect the architecture ↗</a>
         </div>
 
@@ -178,7 +178,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             <li class="runtime-step runtime-step--hub" data-runtime-phase="event-log" data-runtime-hub>
               <span>03 / APPEND ONLY</span>
               <strong><i>Event</i><i>Log</i></strong>
-              <small>Messages · Tool Calls · Results · Termination</small>
+              <small>Messages · Tool Calls · Results · Permissions · Termination</small>
             </li>
             <li class="runtime-step runtime-step--projection" data-runtime-phase="projection">
               <span>04 / PROJECT</span><b>Projection</b><small>Context and interface</small>
