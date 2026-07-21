@@ -61,6 +61,14 @@ use original copy, composition, assets, and shaders.
   replaces the hero scaffold in the first sampled transition frame, and reveals
   the leading project image from a low-contrast wash to full contrast within
   roughly the first 400ms. The structure arrives before the image finish.
+- `SOURCE` — Fixed-time sampling supports a staged-owner handoff rather than a
+  simultaneous dual-owner crossfade: the destination scaffold can become
+  legible while the outgoing visual resolves, without producing a full-frame
+  blank interval.
+- `PARTIAL` — Maka translates that cadence with destination-specific readiness
+  windows (Overview 900ms, Product 1450ms, Runtime 1900ms) because its three
+  compositions have different longest motion chains. Those values are
+  Maka-owned timing, not copied source constants.
 - `SOURCE` — At 1440 × 900, the settled leading Work image begins at x≈506 and
   owns about 65% of the viewport width, leaving the upper-left 35% as open
   field. The next row exposes two equal images at about 37% width each with an

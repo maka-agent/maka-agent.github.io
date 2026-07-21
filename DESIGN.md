@@ -260,6 +260,8 @@ Product follows a single-dominant proof hierarchy. The current Artifact task own
 
 The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the equal Permission and Clarification proofs rise last as the next row. Runtime uses the same lifecycle for its rail, phase labels, and central Event Log ring. `prefers-reduced-motion` removes both duration and delay so every state settles immediately.
 
+Transition readiness follows the destination composition rather than one generic timeout: Overview clears at 900ms, Product at 1450ms, and Runtime at 1900ms. These markers cover the complete authored sequence and are removed immediately under `prefers-reduced-motion`. The visual rule is staged ownership: an outgoing owner may remain while the destination scaffold arrives, but two dominant owners and full-frame dead time are both prohibited.
+
 ## 6. Do's and Don'ts
 
 ### Do:

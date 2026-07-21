@@ -113,6 +113,9 @@ for (const [label, width, height] of VIEWPORTS) {
     if (transitionMarker !== "overview-to-product") {
       throw new Error(`desktop: missing Product transition lifecycle marker (${transitionMarker})`);
     }
+    if ((await page.locator(".stage").getAttribute("data-transition-duration")) !== "1450") {
+      throw new Error("desktop: Product readiness marker does not cover the full proof stagger");
+    }
     const productTransitionConfig = await page.locator(".product-shot--main").evaluate((element) => {
       const style = getComputedStyle(element);
       return { property: style.transitionProperty, duration: style.transitionDuration };
@@ -148,11 +151,27 @@ for (const [label, width, height] of VIEWPORTS) {
     }
     await page.locator('.view-nav [data-view-target="overview"]').click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
+    await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
   }
 
+  const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900" };
   for (const [index, view] of ["overview", "product", "runtime"].entries()) {
+    const outgoing = await page.locator(".stage").getAttribute("data-view");
     await page.locator(`[data-view-target="${view}"]`).first().click();
     await page.waitForFunction((expected) => document.querySelector(".stage")?.getAttribute("data-view") === expected, view);
+    if (outgoing !== view) {
+      const lifecycle = await page.locator(".stage").evaluate((element) => ({
+        transitioning: element.dataset.transitioning,
+        duration: element.dataset.transitionDuration,
+      }));
+      if (lifecycle.transitioning !== `${outgoing}-to-${view}` || lifecycle.duration !== expectedTransitionDurations[view]) {
+        throw new Error(`${label}/${view}: incomplete transition lifecycle ${JSON.stringify(lifecycle)}`);
+      }
+      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+      if (await page.locator(".stage").getAttribute("data-transition-duration")) {
+        throw new Error(`${label}/${view}: stale transition duration marker`);
+      }
+    }
     if ((await page.locator("[data-view-panel].is-active").count()) !== 1) throw new Error(`${label}: multiple active views`);
     if ((await page.locator(`[data-view-panel="${view}"]`).getAttribute("aria-hidden")) !== "false") {
       throw new Error(`${label}: active view is hidden from accessibility tree`);
@@ -160,11 +179,9 @@ for (const [label, width, height] of VIEWPORTS) {
     const footerIndex = await page.locator(".stage-status em").innerText();
     if (footerIndex !== `0${index + 1} / 03`) throw new Error(`${label}: footer state mismatch`);
     if (view === "product" && (label === "phone-390" || label === "desktop")) {
-      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
       await page.screenshot({ path: `${RESULTS}/${label}-product.png` });
     }
     if (view === "runtime") {
-      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
       if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {
         throw new Error(`${label}: WebGL sculpture still competes with the Runtime stage`);
       }

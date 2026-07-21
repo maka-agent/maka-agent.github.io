@@ -201,6 +201,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
     const views = ["overview", "product", "runtime"] as const;
+    const transitionDurations = { overview: 900, product: 1450, runtime: 1900 } as const;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let transitionToken = 0;
 
@@ -212,9 +213,11 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       if (!reduceMotion.matches) {
         stage.dataset.entering = view;
         stage.dataset.transitioning = `${outgoing}-to-${view}`;
+        stage.dataset.transitionDuration = String(transitionDurations[view as keyof typeof transitionDurations]);
       } else {
         delete stage.dataset.entering;
         delete stage.dataset.transitioning;
+        delete stage.dataset.transitionDuration;
       }
       stage.dataset.view = view;
       panels.forEach((panel) => {
@@ -243,8 +246,10 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             if (token !== transitionToken || !stage) return;
             delete stage.dataset.entering;
             window.setTimeout(() => {
-              if (token === transitionToken && stage) delete stage.dataset.transitioning;
-            }, 1250);
+              if (token !== transitionToken || !stage) return;
+              delete stage.dataset.transitioning;
+              delete stage.dataset.transitionDuration;
+            }, transitionDurations[view as keyof typeof transitionDurations]);
           });
         });
       }
