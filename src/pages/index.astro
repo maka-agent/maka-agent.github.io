@@ -191,7 +191,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
     </footer>
 
-    <div class="cursor-probe" aria-hidden="true"><i></i><span>RUN</span></div>
   </div>
 
   <script>
@@ -201,7 +200,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const statusLabel = document.querySelector<HTMLElement>("#telemetry-view");
     const statusIndex = document.querySelector<HTMLElement>(".stage-status em");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
-    const probe = document.querySelector<HTMLElement>(".cursor-probe");
     const lightField = document.querySelector<HTMLElement>(".light-field");
     const views = ["overview", "product", "runtime"] as const;
 
@@ -242,7 +240,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     window.addEventListener("pointermove", (event) => {
       const x = event.clientX / innerWidth - 0.5;
       const y = event.clientY / innerHeight - 0.5;
-      if (probe) probe.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
       if (lightField) lightField.style.transform = `translate3d(${x * -18}px, ${y * -12}px, 0)`;
     }, { passive: true });
 

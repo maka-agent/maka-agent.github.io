@@ -21,6 +21,8 @@ colors:
   night-code: "oklch(0.84 0.006 286)"
   night-hover: "oklch(0.24 0.008 286)"
   scene-blue-pearlescent: "#78b9f4"
+  scene-blue-loop: "#1f70b8"
+  scene-blue-glass: "#2f83ce"
   scene-blue-signal: "#2e83de"
   scene-blue-ring: "#285e91"
   scene-blue-particle: "#2b5d8d"
@@ -243,7 +245,7 @@ The fixed desktop navigation uses a compact wordmark, two evidence-led destinati
 
 ### Execution Field
 
-A fixed WebGL2 canvas draws an original route-and-node system representing task flow. Section visibility changes topology; pointer input moves a coordinate probe; scroll advances a single active path. The renderer is decorative enhancement only: semantic labels and a static SVG/CSS map carry the same meaning when WebGL, JavaScript, or motion is unavailable.
+A fixed WebGL2 canvas draws one continuous execution loop connecting Task, Tool, Artifact, Permission, and Recovery objects. Each object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a restrained blue-white light field, and briefly advances foreground objects in depth. A low-amplitude normal perturbation moves highlights across the loop without deforming its silhouette. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a static SVG/CSS map carry the same meaning when WebGL, JavaScript, or motion is unavailable.
 
 ### Product Proof Frame
 

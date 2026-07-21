@@ -17,7 +17,7 @@ if (canvas) {
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.18;
+    renderer.toneMappingExposure = 0.92;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -34,7 +34,65 @@ if (canvas) {
     const satellites = new THREE.Group();
     const foreground = new THREE.Group();
     world.add(organism, satellites, foreground);
-    scene.add(world);
+
+    const atmosphereUniforms = {
+      uMakaTime: { value: 0 },
+      uMakaAspect: { value: 1 },
+      uMakaPointer: { value: new THREE.Vector2() },
+      uMakaVelocity: { value: new THREE.Vector2() },
+      uMakaIntensity: { value: 1 },
+    };
+    const atmosphereMaterial = new THREE.ShaderMaterial({
+      uniforms: atmosphereUniforms,
+      vertexShader: `
+        varying vec2 vMakaUv;
+        void main() {
+          vMakaUv = uv;
+          gl_Position = vec4(position.xy, 0.999, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uMakaTime;
+        uniform float uMakaAspect;
+        uniform float uMakaIntensity;
+        uniform vec2 uMakaPointer;
+        uniform vec2 uMakaVelocity;
+        varying vec2 vMakaUv;
+
+        float makaBand(vec2 point, float slope, float offset, float width, float phase) {
+          float wave = sin(point.x * 2.1 + phase + uMakaTime * 0.18) * 0.085;
+          float distanceToBand = abs(point.y - (point.x * slope + offset + wave));
+          return 1.0 - smoothstep(width, width + 0.34, distanceToBand);
+        }
+
+        void main() {
+          vec2 point = vMakaUv - 0.5;
+          point.x *= uMakaAspect;
+          point += vec2(uMakaPointer.x * -0.2, uMakaPointer.y * -0.12);
+          float velocity = min(1.0, length(uMakaVelocity) * 0.12);
+          float lean = uMakaVelocity.x * 0.012;
+          float whiteBand = makaBand(point, 0.42 + lean, 0.12, 0.10, 0.0);
+          float pearlBand = makaBand(point, -0.54 + lean * 0.6, -0.18, 0.13, 2.4);
+          float blueBand = makaBand(point, 0.12 - lean, -0.42, 0.2, 4.8);
+          float centerBloom = exp(-dot(point - vec2(0.18, 0.02), point - vec2(0.18, 0.02)) * 1.7);
+          vec3 whiteLight = vec3(1.0, 0.995, 0.96) * whiteBand;
+          vec3 pearlLight = vec3(0.87, 0.95, 1.0) * pearlBand;
+          vec3 blueLight = vec3(0.38, 0.68, 0.96) * blueBand;
+          vec3 color = whiteLight * 0.78 + pearlLight * 0.54 + blueLight * 0.24;
+          color += vec3(0.82, 0.93, 1.0) * centerBloom * (0.08 + velocity * 0.055);
+          float alpha = clamp((whiteBand * 0.24 + pearlBand * 0.16 + blueBand * 0.1 + centerBloom * 0.04) * uMakaIntensity, 0.0, 0.32);
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const atmosphere = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), atmosphereMaterial);
+    atmosphere.frustumCulled = false;
+    atmosphere.renderOrder = -100;
+    scene.add(atmosphere, world);
 
     class ExecutionCurve extends THREE.Curve<THREE.Vector3> {
       constructor() {
@@ -51,31 +109,63 @@ if (canvas) {
     }
 
     const pearl = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#d9efff"),
-      metalness: 0.02,
-      roughness: 0.11,
-      clearcoat: 1,
-      clearcoatRoughness: 0.055,
-      transmission: 0.06,
-      thickness: 1.1,
-      iridescence: 0.82,
+      color: new THREE.Color("#1f70b8"),
+      metalness: 0.12,
+      roughness: 0.36,
+      clearcoat: 0.72,
+      clearcoatRoughness: 0.09,
+      transmission: 0,
+      thickness: 1.35,
+      iridescence: 0.36,
       iridescenceIOR: 1.34,
-      sheen: 0.5,
+      sheen: 0.18,
       sheenColor: new THREE.Color("#ffffff"),
+      anisotropy: 0.28,
     });
 
+    // Keep the silhouette stable while letting the pearl surface catch light like
+    // a living material. This is intentionally a normal perturbation, not a
+    // geometry wobble, so the execution loop remains legible at every state.
+    let pearlShader: Parameters<typeof pearl.onBeforeCompile>[0] | null = null;
+    pearl.onBeforeCompile = (shader) => {
+      pearlShader = shader;
+      shader.uniforms.uMakaTime = { value: 0 };
+      shader.uniforms.uMakaDistortion = { value: 0.036 };
+      shader.vertexShader = `varying vec3 vMakaLocalPosition;\n${shader.vertexShader}`;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvMakaLocalPosition = position;",
+      );
+      shader.fragmentShader = `
+        uniform float uMakaTime;
+        uniform float uMakaDistortion;
+        varying vec3 vMakaLocalPosition;
+        ${shader.fragmentShader}
+      `;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <normal_fragment_maps>",
+        `#include <normal_fragment_maps>
+        float makaWaveA = sin(vMakaLocalPosition.x * 3.4 + vMakaLocalPosition.z * 2.1 + uMakaTime * 0.42);
+        float makaWaveB = sin(vMakaLocalPosition.y * 4.8 - vMakaLocalPosition.x * 1.7 - uMakaTime * 0.31);
+        float makaWaveC = cos(vMakaLocalPosition.z * 5.2 + vMakaLocalPosition.y * 1.9 + uMakaTime * 0.24);
+        vec3 makaSurface = vec3(makaWaveA, makaWaveB, makaWaveC) * uMakaDistortion;
+        normal = normalize(normal + makaSurface);`,
+      );
+    };
+    pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
+
     const glass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#b9dcff"),
+      color: new THREE.Color("#2f83ce"),
       metalness: 0,
-      roughness: 0.08,
-      transmission: 0.58,
-      thickness: 1.25,
+      roughness: 0.2,
+      transmission: 0.08,
+      thickness: 0.9,
       ior: 1.36,
       dispersion: 0.32,
       clearcoat: 1,
       clearcoatRoughness: 0.04,
       transparent: true,
-      opacity: 0.86,
+      opacity: 0.82,
     });
 
     const cobalt = new THREE.MeshPhysicalMaterial({
@@ -127,9 +217,9 @@ if (canvas) {
       new THREE.TorusKnotGeometry(2.08, 0.42, 260, 24, 2, 3),
       glass,
     );
-    glassLoop.scale.set(1.28, 0.92, 1);
+    glassLoop.scale.set(0.48, 0.38, 0.45);
     glassLoop.rotation.set(0.22, 0.28, 0.58);
-    glassLoop.position.set(0.2, 0.12, 0.85);
+    glassLoop.position.set(0.06, 0.12, 0.82);
     glassLoop.castShadow = true;
     organism.add(glassLoop);
 
@@ -231,6 +321,7 @@ if (canvas) {
     cursor.scale.setScalar(0.78);
     cursor.rotation.set(0.12, -0.16, 0.05);
     cursor.position.set(6.2, -0.2, 3.1);
+    cursor.visible = false;
     cursor.castShadow = true;
     foreground.add(cursor);
 
@@ -252,9 +343,9 @@ if (canvas) {
     shadow.receiveShadow = true;
     organism.add(shadow);
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x6a83a4, 2.5));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x6a83a4, 1.45));
 
-    const key = new THREE.DirectionalLight(0xffffff, 5.8);
+    const key = new THREE.DirectionalLight(0xffffff, 3.25);
     key.position.set(-4, 8, 9);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -264,16 +355,19 @@ if (canvas) {
     key.shadow.camera.bottom = -6;
     scene.add(key);
 
-    const rim = new THREE.DirectionalLight(0x5fafff, 4.8);
+    const rim = new THREE.DirectionalLight(0x5fafff, 2.6);
     rim.position.set(8, -1, 7);
     scene.add(rim);
 
-    const pointerLight = new THREE.PointLight(0xd9efff, 11, 26, 1.5);
+    const pointerLight = new THREE.PointLight(0xd9efff, 5.5, 26, 1.5);
     pointerLight.position.set(0, 1, 7);
     scene.add(pointerLight);
 
     const pointer = new THREE.Vector2();
     const pointerTarget = new THREE.Vector2();
+    const previousPointerTarget = new THREE.Vector2();
+    const pointerVelocity = new THREE.Vector2();
+    const pointerVelocityTarget = new THREE.Vector2();
     const worldPosition = new THREE.Vector3(0.75, 0.28, 0);
     const worldPositionTarget = worldPosition.clone();
     const worldScaleTarget = new THREE.Vector3(1, 1, 1);
@@ -283,11 +377,43 @@ if (canvas) {
     const intersection = new THREE.Vector3();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const startedAt = performance.now();
+    let lastFrameAt = startedAt;
     let stateIndex = 0;
     let frame = 0;
     let visible = true;
+    let pointerEngaged = false;
+    let pointerOverControl = true;
 
-    const materialTargets = { pearl: 1, glass: 0.86, cobalt: 1, ink: 1, amber: 1, green: 1 };
+    const updateCursorVisibility = () => {
+      cursor.visible = pointerEngaged && !pointerOverControl && window.innerWidth >= 768 && stateIndex !== 1;
+    };
+
+    const materialTargets = { pearl: 1, glass: 0.82, cobalt: 1, ink: 1, amber: 1, green: 1, atmosphere: 1 };
+
+    const parallaxObjects = [
+      { object: task, depth: 1.08, x: 0.62, y: 0.38, drift: 0.10, phase: 0.2 },
+      { object: tool, depth: 0.72, x: -0.46, y: 0.31, drift: 0.07, phase: 1.4 },
+      { object: artifact, depth: 1.28, x: 0.82, y: -0.48, drift: 0.12, phase: 2.1 },
+      { object: recovery, depth: 0.54, x: -0.34, y: -0.26, drift: 0.08, phase: 3.2 },
+      { object: permission, depth: 1.5, x: -0.88, y: 0.56, drift: 0.13, phase: 4.1 },
+      { object: success, depth: 0.92, x: 0.5, y: -0.4, drift: 0.09, phase: 5.3 },
+      ...nodes.map((object, index) => ({
+        object,
+        depth: 0.26 + (index % 3) * 0.2,
+        x: (index % 2 ? -1 : 1) * (0.14 + (index % 3) * 0.05),
+        y: (index % 2 ? 1 : -1) * 0.12,
+        drift: 0.025,
+        phase: index * 0.72,
+      })),
+    ].map((item) => ({ ...item, base: item.object.position.clone() }));
+
+    const desiredObjectPosition = new THREE.Vector3();
+    const desiredWorldRotation = new THREE.Vector2();
+    const dampVector3 = (current: THREE.Vector3, target: THREE.Vector3, lambda: number, delta: number) => {
+      current.x = THREE.MathUtils.damp(current.x, target.x, lambda, delta);
+      current.y = THREE.MathUtils.damp(current.y, target.y, lambda, delta);
+      current.z = THREE.MathUtils.damp(current.z, target.z, lambda, delta);
+    };
 
     const applyState = (index: number) => {
       stateIndex = index;
@@ -295,20 +421,22 @@ if (canvas) {
         worldPositionTarget.set(0.75, 0.28, 0);
         worldScaleTarget.setScalar(1);
         materialTargets.pearl = 1;
-        materialTargets.glass = 0.86;
+        materialTargets.glass = 0.82;
         materialTargets.cobalt = 1;
         materialTargets.ink = 1;
         materialTargets.amber = 1;
         materialTargets.green = 1;
+        materialTargets.atmosphere = 1;
       } else if (index === 1) {
-        worldPositionTarget.set(-10.2, 2.3, -3.4);
+        worldPositionTarget.set(-13.2, 2.8, -4.4);
         worldScaleTarget.setScalar(0.34);
-        materialTargets.pearl = 0.04;
-        materialTargets.glass = 0.03;
-        materialTargets.cobalt = 0.05;
-        materialTargets.ink = 0.04;
-        materialTargets.amber = 0.04;
-        materialTargets.green = 0.04;
+        materialTargets.pearl = 0;
+        materialTargets.glass = 0;
+        materialTargets.cobalt = 0;
+        materialTargets.ink = 0;
+        materialTargets.amber = 0;
+        materialTargets.green = 0;
+        materialTargets.atmosphere = 0;
       } else {
         worldPositionTarget.set(1.8, 0.1, -1.3);
         worldScaleTarget.setScalar(0.78);
@@ -318,9 +446,11 @@ if (canvas) {
         materialTargets.ink = 0.78;
         materialTargets.amber = 0.72;
         materialTargets.green = 0.82;
+        materialTargets.atmosphere = 0.08;
       }
 
       for (const material of [pearl, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
+      updateCursorVisibility();
       if (reduceMotion) {
         world.position.copy(worldPositionTarget);
         world.scale.copy(worldScaleTarget);
@@ -330,6 +460,7 @@ if (canvas) {
         ink.opacity = materialTargets.ink;
         permissionAmber.opacity = materialTargets.amber;
         successGreen.opacity = materialTargets.green;
+        atmosphereUniforms.uMakaIntensity.value = materialTargets.atmosphere;
         renderer.render(scene, camera);
       }
     };
@@ -339,6 +470,9 @@ if (canvas) {
     }) as EventListener);
 
     window.addEventListener("pointermove", (event) => {
+      if (event.pointerType !== "touch") pointerEngaged = true;
+      pointerOverControl = event.target instanceof Element && Boolean(event.target.closest("a, button, nav, header, footer"));
+      updateCursorVisibility();
       pointerTarget.set(
         (event.clientX / window.innerWidth) * 2 - 1,
         -(event.clientY / window.innerHeight) * 2 + 1,
@@ -352,36 +486,70 @@ if (canvas) {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 768 ? 1.35 : 1.7));
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
+      atmosphereUniforms.uMakaAspect.value = width / height;
       camera.fov = width < 768 ? 43 : width < 1100 ? 36 : 30;
       camera.position.z = width < 768 ? 20 : 18;
       camera.updateProjectionMatrix();
       organism.scale.setScalar(width < 768 ? 0.69 : 1);
       satellites.scale.setScalar(width < 768 ? 0.72 : 1);
+      updateCursorVisibility();
       renderer.render(scene, camera);
     };
 
-    const animate = () => {
+    const animate = (now = performance.now()) => {
       if (!visible) {
         frame = 0;
+        lastFrameAt = now;
         return;
       }
       frame = requestAnimationFrame(animate);
-      const elapsed = (performance.now() - startedAt) / 1000;
-      pointer.lerp(pointerTarget, 0.06);
-      world.position.lerp(worldPositionTarget, 0.055);
-      world.scale.lerp(worldScaleTarget, 0.055);
+      const elapsed = (now - startedAt) / 1000;
+      const delta = Math.min(1 / 30, Math.max(1 / 240, (now - lastFrameAt) / 1000));
+      lastFrameAt = now;
 
-      world.rotation.x = THREE.MathUtils.lerp(world.rotation.x, pointer.y * 0.09, 0.045);
-      world.rotation.y = THREE.MathUtils.lerp(world.rotation.y, pointer.x * 0.16, 0.045);
-      organism.position.set(pointer.x * 0.22, pointer.y * 0.13 + Math.sin(elapsed * 0.55) * 0.08, 0);
-      satellites.position.set(pointer.x * -0.58, pointer.y * -0.38, 0);
-      foreground.position.set(pointer.x * 0.72, pointer.y * 0.52, 0);
+      pointerVelocityTarget.copy(pointerTarget).sub(previousPointerTarget).multiplyScalar(1 / delta);
+      pointerVelocityTarget.clampScalar(-7, 7);
+      previousPointerTarget.copy(pointerTarget);
+      pointerVelocity.x = THREE.MathUtils.damp(pointerVelocity.x, pointerVelocityTarget.x, 10, delta);
+      pointerVelocity.y = THREE.MathUtils.damp(pointerVelocity.y, pointerVelocityTarget.y, 10, delta);
+      pointer.x = THREE.MathUtils.damp(pointer.x, pointerTarget.x, 7, delta);
+      pointer.y = THREE.MathUtils.damp(pointer.y, pointerTarget.y, 7, delta);
+      dampVector3(world.position, worldPositionTarget, 6.4, delta);
+      dampVector3(world.scale, worldScaleTarget, 6.4, delta);
 
-      pointerLight.position.set(pointer.x * 7, pointer.y * 4.5, 7);
+      desiredWorldRotation.set(pointer.y * 0.075, pointer.x * 0.13);
+      world.rotation.x = THREE.MathUtils.damp(world.rotation.x, desiredWorldRotation.x, 5.2, delta);
+      world.rotation.y = THREE.MathUtils.damp(world.rotation.y, desiredWorldRotation.y, 5.2, delta);
+      organism.position.x = THREE.MathUtils.damp(organism.position.x, pointer.x * 0.2, 5.5, delta);
+      organism.position.y = THREE.MathUtils.damp(organism.position.y, pointer.y * 0.12 + Math.sin(elapsed * 0.55) * 0.07, 5.5, delta);
+      foreground.position.x = THREE.MathUtils.damp(foreground.position.x, pointer.x * 0.24, 8, delta);
+      foreground.position.y = THREE.MathUtils.damp(foreground.position.y, pointer.y * 0.18, 8, delta);
+
+      const velocityDepth = Math.min(1, pointerVelocity.length() * 0.12);
+      for (const item of parallaxObjects) {
+        desiredObjectPosition.set(
+          item.base.x + pointer.x * item.x,
+          item.base.y + pointer.y * item.y + Math.sin(elapsed * (0.32 + item.depth * 0.035) + item.phase) * item.drift,
+          item.base.z + pointer.x * pointer.y * item.depth * 0.08 + velocityDepth * item.depth * 0.15,
+        );
+        dampVector3(item.object.position, desiredObjectPosition, 4.1 + item.depth * 1.2, delta);
+      }
+
+      pointerLight.position.x = THREE.MathUtils.damp(pointerLight.position.x, pointer.x * 7, 9, delta);
+      pointerLight.position.y = THREE.MathUtils.damp(pointerLight.position.y, pointer.y * 4.5, 9, delta);
       raycaster.setFromCamera(pointer, camera);
-      if (raycaster.ray.intersectPlane(pointerPlane, intersection)) cursorTarget.lerp(intersection, 0.13);
-      cursor.position.lerp(cursorTarget, 0.08);
-      cursor.position.z = 3.1;
+      if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
+        cursorTarget.copy(intersection);
+        cursorTarget.z = 3.1;
+      }
+      dampVector3(cursor.position, cursorTarget, 9.5, delta);
+      cursor.rotation.x = THREE.MathUtils.damp(cursor.rotation.x, 0.12 + pointerVelocity.y * 0.018, 12, delta);
+      cursor.rotation.y = THREE.MathUtils.damp(cursor.rotation.y, -0.16 - pointerVelocity.x * 0.025, 12, delta);
+      cursor.rotation.z = THREE.MathUtils.damp(cursor.rotation.z, 0.05 - pointerVelocity.x * 0.045, 12, delta);
+      const cursorSpeed = Math.min(1, pointerVelocity.length() * 0.18);
+      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.78 * (1 + cursorSpeed * 0.13), 13, delta);
+      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.78 * (1 - cursorSpeed * 0.09), 13, delta);
+      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.78, 13, delta);
 
       loop.rotation.z = -0.08 + Math.sin(elapsed * 0.28) * 0.035;
       glassLoop.rotation.y = 0.28 + elapsed * (stateIndex === 2 ? 0.12 : 0.045);
@@ -396,12 +564,23 @@ if (canvas) {
       success.rotation.z = 0.13 - Math.sin(elapsed * 0.4) * 0.11;
       nodes.forEach((node, index) => node.scale.setScalar(1 + Math.sin(elapsed * 1.4 + index) * 0.2));
 
-      pearl.opacity = THREE.MathUtils.lerp(pearl.opacity, materialTargets.pearl, 0.065);
-      glass.opacity = THREE.MathUtils.lerp(glass.opacity, materialTargets.glass, 0.065);
-      cobalt.opacity = THREE.MathUtils.lerp(cobalt.opacity, materialTargets.cobalt, 0.065);
-      ink.opacity = THREE.MathUtils.lerp(ink.opacity, materialTargets.ink, 0.065);
-      permissionAmber.opacity = THREE.MathUtils.lerp(permissionAmber.opacity, materialTargets.amber, 0.065);
-      successGreen.opacity = THREE.MathUtils.lerp(successGreen.opacity, materialTargets.green, 0.065);
+      if (pearlShader) pearlShader.uniforms.uMakaTime.value = elapsed;
+      atmosphereUniforms.uMakaTime.value = elapsed;
+      atmosphereUniforms.uMakaPointer.value.copy(pointer);
+      atmosphereUniforms.uMakaVelocity.value.copy(pointerVelocity);
+      atmosphereUniforms.uMakaIntensity.value = THREE.MathUtils.damp(
+        atmosphereUniforms.uMakaIntensity.value,
+        materialTargets.atmosphere,
+        6,
+        delta,
+      );
+
+      pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
+      glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
+      cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);
+      ink.opacity = THREE.MathUtils.damp(ink.opacity, materialTargets.ink, 7, delta);
+      permissionAmber.opacity = THREE.MathUtils.damp(permissionAmber.opacity, materialTargets.amber, 7, delta);
+      successGreen.opacity = THREE.MathUtils.damp(successGreen.opacity, materialTargets.green, 7, delta);
 
       renderer.render(scene, camera);
     };
