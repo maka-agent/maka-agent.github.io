@@ -707,6 +707,17 @@ html[data-field="unavailable"] .execution-field canvas {
 }
 
 .product-shot__bar i { color: var(--blue-deep); font-style: normal; }
+.product-shot__visual {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  outline: none;
+}
+.product-shot__visual:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: -2px;
+}
 .product-shot--main img {
   width: 100%;
   height: 100%;
@@ -715,6 +726,21 @@ html[data-field="unavailable"] .execution-field canvas {
   background: white;
   box-shadow: none;
 }
+
+#product-hover-field {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+#product-hover-field[data-renderer="webgl2"] { opacity: 1; }
+#product-hover-field[data-hover-state="disabled"],
+#product-hover-field[data-hover-state="unavailable"] { display: none; }
 
 .product-shot--main figcaption,
 .product-proof figcaption {
@@ -1139,6 +1165,7 @@ html.js .stage-footer > :nth-child(5) { animation-delay: 280ms; }
     grid-template-rows: 1.55rem minmax(0, 1fr) 1.55rem;
   }
   .product-shot__bar { height: 1.55rem; font-size: 0.46rem; }
+  .product-shot__mode { display: none; }
   .product-shot--main img {
     width: 132%;
     max-width: none;
@@ -1250,4 +1277,5 @@ html.js .stage-footer > :nth-child(5) { animation-delay: 280ms; }
 
 @media (pointer: coarse) {
   .pointer-readout { display: none; }
+  #product-hover-field { display: none; }
 }

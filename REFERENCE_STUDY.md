@@ -82,6 +82,15 @@ use original copy, composition, assets, and shaders.
   owns about 65% of the viewport width, leaving the upper-left 35% as open
   field. The next row exposes two equal images at about 37% width each with an
   8.9% viewport gap; it does not add a third floating crop or annotation layer.
+- `SOURCE` — Project hover uses `uHoverRevealProgress` to grow square cells
+  across the image. Progress advances with clamped frame delta over 420ms and
+  is converted through half-cosine easing; `pointerenter`/`pointerleave` and
+  `focusin`/`focusout` share ownership. Below 0.001 coverage the shader skips
+  the hover texture sample.
+- `PARTIAL` — Maka retains the cell topology, 420ms cadence, and pointer/focus
+  parity but resamples the same authentic Artifact screenshot with an
+  inspection-contrast treatment. It does not fabricate a hover-only product
+  state or promote the contained proof canvas into a second page owner.
 - `PARTIAL` — Maka should translate this as one dominant authentic task and two
   equal next proofs. The exact ratios remain Maka-owned layout values rather
   than copied constants, and compact viewports crop the image inside a stable

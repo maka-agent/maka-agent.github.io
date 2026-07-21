@@ -102,18 +102,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           <figure class="product-shot product-shot--main">
             <div class="product-shot__bar">
               <span>maka-agent / artifact task</span>
-              <i>LOCAL</i>
+              <i>LOCAL <span class="product-shot__mode">· INSPECT</span></i>
             </div>
-            <Image
-              src={artifactCurrent}
-              alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
-              widths={[960, 1280, 1600, 1920]}
-              sizes="(max-width: 760px) 132vw, 65vw"
-              format="webp"
-              quality={92}
-              loading="eager"
-              fetchpriority="high"
-            />
+            <div class="product-shot__visual" data-product-inspector tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
+              <Image
+                src={artifactCurrent}
+                alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
+                widths={[960, 1280, 1600, 1920]}
+                sizes="(max-width: 760px) 132vw, 65vw"
+                format="webp"
+                quality={92}
+                loading="eager"
+                fetchpriority="high"
+              />
+              <canvas id="product-hover-field" aria-hidden="true" data-hover-state="loading"></canvas>
+            </div>
             <figcaption><span>REAL PRODUCT</span><b>Tool Call → Artifact</b></figcaption>
           </figure>
 
@@ -193,6 +196,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
   </div>
 
+  <script src="../scripts/product-hover-field.ts"></script>
   <script>
     const stage = document.querySelector<HTMLElement>(".stage");
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-view-target]"));

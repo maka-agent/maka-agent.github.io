@@ -95,6 +95,14 @@ for (const [label, width, height] of VIEWPORTS) {
   if (initialPointer !== expectedCenter) throw new Error(`${label}: pointer telemetry is not initialized from the viewport center (${initialPointer})`);
   if (width < 768 && await page.locator(".pointer-readout").isVisible()) throw new Error(`${label}: pointer-only telemetry competes with the touch layout`);
   if (label === "desktop" && !(await page.locator(".pointer-readout").isVisible())) throw new Error("desktop: pointer telemetry is not visible");
+  const productHoverField = page.locator("#product-hover-field");
+  if (width < 768) {
+    if ((await productHoverField.getAttribute("data-hover-state")) !== "disabled") throw new Error(`${label}: Product hover GPU work is not disabled for coarse pointers`);
+  } else {
+    await page.waitForFunction(() => document.querySelector("#product-hover-field")?.getAttribute("data-renderer") === "webgl2");
+    const hoverBacking = await productHoverField.evaluate((element) => ({ width: element.width, height: element.height }));
+    if (!hoverBacking.width || !hoverBacking.height) throw new Error(`${label}: Product hover field has no backing surface`);
+  }
 
   for (const image of await page.locator("img").all()) {
     await image.evaluate((element) => element.complete && element.naturalWidth > 0
@@ -144,6 +152,25 @@ for (const [label, width, height] of VIEWPORTS) {
     if (productFinalState.opacity !== 1 || productFinalState.clipPath !== "inset(0px)" || productFinalState.filter !== "none") {
       throw new Error(`desktop: Product transition did not settle ${JSON.stringify(productFinalState)}`);
     }
+    await page.screenshot({ path: `${RESULTS}/desktop-product-before-hover.png`, timeout: NAVIGATION_TIMEOUT });
+    await page.locator("[data-product-inspector]").hover({ position: { x: 650, y: 220 } });
+    await page.waitForFunction(() => Number(document.querySelector("#product-hover-field")?.getAttribute("data-progress")) >= 0.999);
+    const hoverState = await productHoverField.evaluate((element) => ({
+      renderer: element.dataset.renderer,
+      state: element.dataset.hoverState,
+      progress: element.dataset.progress,
+      backing: { width: element.width, height: element.height },
+      display: { width: element.clientWidth, height: element.clientHeight },
+      dpr: Math.min(window.devicePixelRatio || 1, 1.5),
+    }));
+    if (hoverState.renderer !== "webgl2" || hoverState.state !== "active" || hoverState.progress !== "1.000"
+      || Math.abs(hoverState.backing.width / hoverState.dpr - hoverState.display.width) > 2
+      || Math.abs(hoverState.backing.height / hoverState.dpr - hoverState.display.height) > 2) {
+      throw new Error(`desktop: Product hover field did not reach a sharp settled state ${JSON.stringify(hoverState)}`);
+    }
+    await page.screenshot({ path: `${RESULTS}/desktop-product-hover.png`, timeout: NAVIGATION_TIMEOUT });
+    await page.mouse.move(0, 0);
+    await page.waitForFunction(() => document.querySelector("#product-hover-field")?.getAttribute("data-hover-state") === "idle");
     const productHierarchy = await page.evaluate(() => {
       const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect();
       const main = rect(".product-shot--main");
@@ -304,6 +331,10 @@ await reducedPage.waitForFunction(() => document.documentElement.dataset.field =
 if (!(await reducedPage.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches))) {
   throw new Error("Reduced-motion media query did not apply");
 }
+await reducedPage.waitForFunction(() => document.querySelector("#product-hover-field")?.getAttribute("data-renderer") === "webgl2");
+await reducedPage.locator('[data-view-target="product"]').first().click();
+await reducedPage.locator("[data-product-inspector]").focus();
+await reducedPage.waitForFunction(() => document.querySelector("#product-hover-field")?.getAttribute("data-progress") === "1.000");
 await reducedPage.locator('[data-view-target="runtime"]').first().click();
 await reducedPage.screenshot({ path: `${RESULTS}/reduced-motion.png`, timeout: NAVIGATION_TIMEOUT });
 await reduced.close();
@@ -320,6 +351,7 @@ await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATIO
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
 if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
 if ((await fallbackPage.locator(".fallback-wordmark").textContent())?.trim() !== "Maka") throw new Error("Static Maka wordmark is incomplete");
+if ((await fallbackPage.locator("#product-hover-field").getAttribute("data-hover-state")) !== "unavailable") throw new Error("Product proof does not preserve its DOM fallback without WebGL");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png`, timeout: NAVIGATION_TIMEOUT });
 await fallback.close();
 

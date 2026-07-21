@@ -9,7 +9,8 @@
     "check": "astro check",
     "preview": "astro preview",
     "test:e2e": "node tests/e2e_site.mjs",
-    "capture:transitions": "node tests/capture_transition_loop.mjs"
+    "capture:transitions": "node tests/capture_transition_loop.mjs",
+    "capture:hover": "node tests/capture_product_hover.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "3.7.3",
