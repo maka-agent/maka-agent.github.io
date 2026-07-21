@@ -153,25 +153,32 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           <a href={architectureUrl} target="_blank" rel="noreferrer">Inspect the architecture ↗</a>
         </div>
 
-        <div class="runtime-map" aria-label="Maka runtime event flow">
-          <svg viewBox="0 0 800 520" aria-hidden="true">
-            <path d="M80 280C150 90 350 80 430 230C510 380 650 410 735 235" />
-            <path d="M92 310C250 480 565 440 710 180" />
-          </svg>
-          <ol>
-            <li style="--x: 8%; --y: 49%"><span>01</span><b>Request</b><small>Turn begins</small></li>
-            <li style="--x: 27%; --y: 17%"><span>02</span><b>AgentRun</b><small>Model + tools</small></li>
-            <li style="--x: 49%; --y: 42%"><span>03</span><b>Event Log</b><small>Facts append</small></li>
-            <li style="--x: 68%; --y: 70%"><span>04</span><b>Projection</b><small>UI + context</small></li>
-            <li style="--x: 88%; --y: 33%"><span>05</span><b>Recovery</b><small>Work survives</small></li>
+        <div class="runtime-stage" data-runtime-path aria-label="Maka runtime event flow">
+          <div class="runtime-rail" aria-hidden="true"><i></i></div>
+          <ol class="runtime-flow">
+            <li class="runtime-step runtime-step--request" data-runtime-phase="request">
+              <span>01 / INPUT</span><b>Request</b><small>A turn begins</small>
+            </li>
+            <li class="runtime-step runtime-step--run" data-runtime-phase="agent-run">
+              <span>02 / EXECUTE</span><b>AgentRun</b><small>Model and tools advance</small>
+            </li>
+            <li class="runtime-step runtime-step--hub" data-runtime-phase="event-log" data-runtime-hub>
+              <span>03 / APPEND ONLY</span>
+              <strong><i>Event</i><i>Log</i></strong>
+              <small>Messages · Tool Calls · Results · Termination</small>
+            </li>
+            <li class="runtime-step runtime-step--projection" data-runtime-phase="projection">
+              <span>04 / PROJECT</span><b>Projection</b><small>Context and interface</small>
+            </li>
+            <li class="runtime-step runtime-step--recovery" data-runtime-phase="recovery">
+              <span>05 / RESUME</span><b>Recovery</b><small>Interrupted work survives</small>
+            </li>
           </ol>
-        </div>
 
-        <div class="runtime-code" aria-label="Architecture summary">
-          <p><span>surface</span> Desktop / TUI / Headless</p>
-          <p><span>engine</span> SessionManager → AgentRun</p>
-          <p><span>record</span> Runtime Event Log</p>
-          <p><span>result</span> Context / UI / Recovery</p>
+          <div class="runtime-ledger" data-runtime-statement>
+            <span>ONE RECORDED EXECUTION</span>
+            <p>Every surface is rebuilt from what happened—not from hidden state.</p>
+          </div>
         </div>
       </section>
     </main>

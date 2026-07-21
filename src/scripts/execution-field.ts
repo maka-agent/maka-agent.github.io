@@ -457,7 +457,9 @@ if (canvas) {
 
     const applyState = (index: number) => {
       stateIndex = index;
-      recovery.visible = index === 2;
+      world.visible = index === 0;
+      canvas.dataset.sceneState = index === 0 ? "wordmark" : "suppressed";
+      recovery.visible = false;
       if (index === 0) {
         const compact = canvas.clientWidth < 768;
         const compactShort = compact && canvas.clientHeight < 700;
@@ -485,14 +487,14 @@ if (canvas) {
       } else {
         worldPositionTarget.set(1.8, 0.1, -1.3);
         worldScaleTarget.setScalar(0.78);
-        materialTargets.pearl = 0.3;
-        materialTargets.word = 0.32;
-        materialTargets.glass = 0.42;
-        materialTargets.cobalt = 0.88;
-        materialTargets.ink = 0.78;
-        materialTargets.amber = 0.72;
-        materialTargets.green = 0.82;
-        materialTargets.atmosphere = 0.08;
+        materialTargets.pearl = 0;
+        materialTargets.word = 0;
+        materialTargets.glass = 0;
+        materialTargets.cobalt = 0;
+        materialTargets.ink = 0;
+        materialTargets.amber = 0;
+        materialTargets.green = 0;
+        materialTargets.atmosphere = 0;
       }
 
       for (const material of [pearl, wordGlass, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;

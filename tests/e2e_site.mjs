@@ -56,6 +56,12 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("img").count()) !== 3) throw new Error(`${label}: expected 3 product images`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
+  const runtimePhases = await page.locator("[data-runtime-phase]").evaluateAll((elements) => elements.map((element) => element.dataset.runtimePhase));
+  if (JSON.stringify(runtimePhases) !== JSON.stringify(["request", "agent-run", "event-log", "projection", "recovery"])) {
+    throw new Error(`${label}: Runtime event order is incorrect ${JSON.stringify(runtimePhases)}`);
+  }
+  if ((await page.locator("[data-runtime-hub]").count()) !== 1) throw new Error(`${label}: Runtime needs one dominant Event Log hub`);
+  if ((await page.locator(".runtime-map, .runtime-code").count()) !== 0) throw new Error(`${label}: legacy Runtime collage remains`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
   if ((await page.locator("a:not([href])").count()) !== 0) throw new Error(`${label}: anchor missing href`);
 
@@ -156,6 +162,37 @@ for (const [label, width, height] of VIEWPORTS) {
     if (view === "product" && (label === "phone-390" || label === "desktop")) {
       await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
       await page.screenshot({ path: `${RESULTS}/${label}-product.png` });
+    }
+    if (view === "runtime") {
+      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+      if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {
+        throw new Error(`${label}: WebGL sculpture still competes with the Runtime stage`);
+      }
+      const runtimeGeometry = await page.evaluate(() => {
+        const serialize = (element) => {
+          const box = element.getBoundingClientRect();
+          return { left: box.left, top: box.top, right: box.right, bottom: box.bottom, width: box.width, height: box.height };
+        };
+        const stage = document.querySelector("[data-runtime-path]");
+        const hub = document.querySelector("[data-runtime-hub]");
+        const secondary = [...document.querySelectorAll("[data-runtime-phase]:not([data-runtime-hub])")];
+        return {
+          viewport: { width: innerWidth, height: innerHeight },
+          stage: stage ? serialize(stage) : null,
+          hub: hub ? serialize(hub) : null,
+          secondary: secondary.map(serialize),
+          hubFontSize: hub ? Number.parseFloat(getComputedStyle(hub.querySelector("strong")).fontSize) : 0,
+          secondaryFontSizes: secondary.map((element) => Number.parseFloat(getComputedStyle(element.querySelector("b")).fontSize)),
+        };
+      });
+      const boxes = [runtimeGeometry.stage, runtimeGeometry.hub, ...runtimeGeometry.secondary].filter(Boolean);
+      if (!runtimeGeometry.stage || !runtimeGeometry.hub || boxes.some((box) => box.left < -1 || box.right > runtimeGeometry.viewport.width + 1 || box.top < -1 || box.bottom > runtimeGeometry.viewport.height + 1)) {
+        throw new Error(`${label}: Runtime path escapes the viewport ${JSON.stringify(runtimeGeometry)}`);
+      }
+      if (runtimeGeometry.hubFontSize < Math.max(...runtimeGeometry.secondaryFontSizes) * 3) {
+        throw new Error(`${label}: Event Log no longer owns the Runtime hierarchy ${JSON.stringify(runtimeGeometry)}`);
+      }
+      if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png` });
     }
   }
 

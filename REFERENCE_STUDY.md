@@ -69,6 +69,18 @@ use original copy, composition, assets, and shaders.
   equal next proofs. The exact ratios remain Maka-owned layout values rather
   than copied constants, and compact viewports crop the image inside a stable
   frame so labels stay readable.
+- `SOURCE` — The later `HyperSpace` section is approximately eight viewport
+  heights and maps segment pairs `[0,1]`, `[2,3]`, `[4,5]`, and `[6,7]` to four
+  mutually exclusive visual stages. Its source switch returns only the active
+  stage component.
+- `SOURCE` — The first, second, and final HyperSpace stages are each owned by
+  one centered display statement. The intermediate stage uses one central ring
+  and distributes four smaller statements around it; it does not show a grid
+  of equal cards.
+- `PARTIAL` — Maka translates this ownership mechanism into a single Event Log
+  hub with Request and AgentRun as incoming facts and Projection and Recovery
+  as outgoing results. Exact content, geometry, timing, and color remain
+  Maka-original.
 
 ## Renderer findings
 

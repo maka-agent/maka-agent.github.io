@@ -147,6 +147,7 @@ The measured grid, edge telemetry, and DOM/WebGL cooperation come from the refer
 
 - One readable glass `Maka` wordmark instead of an anonymous abstract sculpture or stacked marketing cards.
 - A committed daylight-blue Overview, a proof-first paper Product state, and a near-black Runtime state.
+- One Event Log-led runtime path instead of a simultaneous architecture-node collage.
 - Large exact typography paired with compact runtime evidence.
 - Real product screenshots integrated into the spatial narrative.
 - One purposeful execution-field motion system with a complete static fallback.
@@ -245,7 +246,11 @@ The fixed desktop navigation uses a compact wordmark, two evidence-led destinati
 
 ### Execution Field
 
-A fixed WebGL2 canvas builds the literal `Maka` project name as one beveled `TextGeometry` wordmark with physically based transmission, attenuation, iridescence, and animated glints. The letters share one stable baseline and move as a single identity object so material motion can never collapse the name into an anonymous sculpture; Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each secondary object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a literal static SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
+A fixed WebGL2 canvas builds the literal `Maka` project name as one beveled `TextGeometry` wordmark with physically based transmission, attenuation, iridescence, and animated glints. The letters share one stable baseline and move as a single identity object so material motion can never collapse the name into an anonymous sculpture; Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each secondary object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. The renderer is suppressed outside Overview so authentic Product evidence and the Event Log-led Runtime stage each retain one visual owner. The renderer remains decorative enhancement only: semantic labels and a literal static SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
+
+### Runtime Ledger Stage
+
+Runtime preserves the real `Request → AgentRun → Event Log → Projection → Recovery` order on one ledger rail. `EVENT LOG` is the only display-scale object; incoming execution facts and outgoing projections remain smaller labels distributed around its ring. Five equal cards, multiple competing curves, and the old four-column summary are prohibited because they describe topology without expressing ownership. Desktop uses a horizontal rail and compact layouts rotate the same sequence vertically, keeping every phase inside one viewport. A restrained traveling signal represents append order; reduced motion shows the settled rail immediately.
 
 ### Product Proof Frame
 
@@ -253,7 +258,7 @@ Authentic Maka screenshots retain their original UI text and are cropped only by
 
 Product follows a single-dominant proof hierarchy. The current Artifact task owns the rightmost 65% of the upper working plane; the left field carries concise claim and trust facts. Permission and Clarification appear once each as equal-width next proofs below the fold. Duplicate crops, floating callouts, unequal proof fragments, and decorative rotations are prohibited because they make evidence compete with itself.
 
-The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the equal Permission and Clarification proofs rise last as the next row. Runtime uses the same lifecycle for its circular reveal. `prefers-reduced-motion` bypasses preparation and settles every state immediately.
+The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the equal Permission and Clarification proofs rise last as the next row. Runtime uses the same lifecycle for its rail, phase labels, and central Event Log ring. `prefers-reduced-motion` removes both duration and delay so every state settles immediately.
 
 ## 6. Do's and Don'ts
 
