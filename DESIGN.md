@@ -244,7 +244,9 @@ The system is flat by default. Depth comes from tonal separation, full-perimeter
 
 The fixed desktop navigation uses a compact wordmark, two evidence-led destinations, and one GitHub action. Mobile navigation keeps the GitHub action visible and collapses secondary anchors into a native `<details>` disclosure. All targets remain at least 44×44px.
 
-The active single-viewport site exposes Overview, Product, and Runtime as `[1]`, `[2]`, and `[3]` commands in the fixed shell. The visible hints and keyboard behavior must stay identical; Arrow keys remain a sequential alternative. Initial shell items reveal as one short orchestrated sequence, while `prefers-reduced-motion` renders them immediately.
+The active single-viewport site exposes Overview, Product, Runtime, and Surfaces as `[1]`–`[4]` commands in the fixed shell. The visible hints and keyboard behavior must stay identical; Arrow keys remain a sequential alternative. Initial shell items reveal as one short orchestrated sequence, while `prefers-reduced-motion` renders them immediately.
+
+Surfaces is the closing state. It returns the stage to paper, decodes the "Same runtime. Every surface." statement through a constrained glyph pool as if a recorded execution were being replayed into words, indexes the four real surfaces (Desktop, TUI, CLI, Headless) from the official README, and ends with the final View source action plus a colophon. The decode animation is Maka-original: glyphs resolve left-to-right per character, reduced motion settles the text instantly, and the semantic statement stays available to assistive technology through a static `aria-label`.
 
 ### Persistent Telemetry
 

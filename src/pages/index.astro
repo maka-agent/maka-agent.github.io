@@ -45,6 +45,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         <a href="#overview" data-view-target="overview" aria-current="page"><span>Overview</span><small>[1]</small></a>
         <a href="#product" data-view-target="product"><span>Product</span><small>[2]</small></a>
         <a href="#runtime" data-view-target="runtime"><span>Runtime</span><small>[3]</small></a>
+        <a href="#surfaces" data-view-target="surfaces"><span>Surfaces</span><small>[4]</small></a>
       </nav>
 
       <a class="source-link" href={githubUrl} target="_blank" rel="noreferrer" aria-label="View Maka source on GitHub">
@@ -188,11 +189,60 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           </div>
         </div>
       </section>
+
+      <section class="view view--surfaces" id="surfaces" data-view-panel="surfaces" aria-labelledby="surfaces-title" aria-hidden="true" inert>
+        <div class="surfaces-lede">
+          <p class="section-signal"><span></span>ONE RUNTIME / FOUR SURFACES</p>
+          <h2 id="surfaces-title" class="surfaces-statement" aria-label="Same runtime. Every surface.">
+            <span class="decode-line" data-decode="SAME RUNTIME." aria-hidden="true">SAME RUNTIME.</span>
+            <span class="decode-line" data-decode="EVERY SURFACE." aria-hidden="true">EVERY SURFACE.</span>
+          </h2>
+          <p class="surfaces-sub">
+            Desktop, TUI, CLI, and Headless share one workspace,<br />
+            one set of model connections, and one execution record.
+          </p>
+        </div>
+
+        <ol class="surface-index" aria-label="Maka surfaces">
+          <li>
+            <span>01</span>
+            <b>Desktop</b>
+            <small>Daily interaction, file and Artifact workflows, permission setup.</small>
+          </li>
+          <li>
+            <span>02</span>
+            <b>TUI</b>
+            <small>The same workspace, driven from the current project directory.</small>
+          </li>
+          <li>
+            <span>03</span>
+            <b>CLI</b>
+            <small>One non-interactive turn, scripted with <i>maka run</i>.</small>
+          </li>
+          <li>
+            <span>04</span>
+            <b>Headless</b>
+            <small>Durable TaskRuns that can be interrupted, inspected, and resumed.</small>
+          </li>
+        </ol>
+
+        <div class="surfaces-close">
+          <p class="surfaces-trust">Source-first today. Read it before you run it.</p>
+          <div class="surfaces-actions">
+            <a class="primary-action" href={githubUrl} target="_blank" rel="noreferrer">
+              View source
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+            <a class="surfaces-secondary" href={architectureUrl} target="_blank" rel="noreferrer">Read architecture ↗</a>
+          </div>
+          <p class="surfaces-colophon">OPEN SOURCE · LOCAL-FIRST · MAKA-AGENT.COM</p>
+        </div>
+      </section>
     </main>
 
     <footer class="stage-footer">
       <p class="stage-caption">LOCAL EXECUTION / OPEN SOURCE</p>
-      <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 03</em></p>
+      <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 04</em></p>
       <p class="pointer-readout" aria-label="Pointer coordinates"><b id="pointer-x">0000</b><span>X</span><b id="pointer-y">0000</b><span>Y</span></p>
       <p class="local-time" aria-label="Local time"><span>LOCAL</span> <b id="local-time">--:--:--</b></p>
       <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
@@ -211,8 +261,8 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const pointerY = document.querySelector<HTMLElement>("#pointer-y");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
-    const views = ["overview", "product", "runtime"] as const;
-    const transitionDurations = { overview: 900, product: 1450, runtime: 1900 } as const;
+    const views = ["overview", "product", "runtime", "surfaces"] as const;
+    const transitionDurations = { overview: 900, product: 1450, runtime: 1900, surfaces: 1300 } as const;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let transitionToken = 0;
 
@@ -255,7 +305,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           );
         }
       }
-      if (statusIndex) statusIndex.textContent = `0${index + 1} / 03`;
+      if (statusIndex) statusIndex.textContent = `0${index + 1} / 04`;
       if (updateHash) history.replaceState(null, "", `#${view}`);
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
 
@@ -282,9 +332,56 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       setView(link.dataset.viewTarget ?? "overview");
     }));
 
+    const DECODE_GLYPHS = "·:=+*/<>[]{}|\\01";
+    const decodeLines = Array.from(document.querySelectorAll<HTMLElement>("[data-decode]"));
+    let decodeToken = 0;
+
+    const settleDecode = () => {
+      decodeToken += 1;
+      decodeLines.forEach((line) => { line.textContent = line.dataset.decode ?? ""; });
+    };
+
+    const runDecode = () => {
+      if (reduceMotion.matches) { settleDecode(); return; }
+      const token = ++decodeToken;
+      const started = performance.now();
+      const LINE_DELAY = 260;
+      const CHAR_STEP = 46;
+      const RESOLVE = 320;
+      const frame = (now: number) => {
+        if (token !== decodeToken) return;
+        let unfinished = false;
+        decodeLines.forEach((line, lineIndex) => {
+          const target = line.dataset.decode ?? "";
+          const local = now - started - lineIndex * LINE_DELAY;
+          let output = "";
+          for (let i = 0; i < target.length; i += 1) {
+            const charTime = local - i * CHAR_STEP;
+            if (target[i] === " ") { output += " "; continue; }
+            if (charTime < 0) { output += " "; unfinished = true; continue; }
+            if (charTime < RESOLVE) {
+              output += DECODE_GLYPHS[(i * 7 + Math.floor(charTime / 52)) % DECODE_GLYPHS.length];
+              unfinished = true;
+              continue;
+            }
+            output += target[i];
+          }
+          line.textContent = output;
+        });
+        if (unfinished) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+    };
+
+    window.addEventListener("maka:viewchange", (event) => {
+      const detail = (event as CustomEvent<{ view: string }>).detail;
+      if (detail.view === "surfaces") runDecode();
+      else settleDecode();
+    });
+
     window.addEventListener("keydown", (event) => {
       if (event.metaKey || event.ctrlKey || event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
-      if (["1", "2", "3"].includes(event.key)) {
+      if (["1", "2", "3", "4"].includes(event.key)) {
         setView(views[Number(event.key) - 1]);
         return;
       }

@@ -1135,6 +1135,151 @@ html[data-field="unavailable"] .execution-field canvas {
 .view--runtime.is-active .runtime-ledger { opacity: 1; transform: translate3d(0, 0, 0); }
 .stage[data-entering="runtime"] .view--runtime.is-active .runtime-ledger { opacity: 0; transform: translate3d(0, 1rem, 0); }
 
+.view--surfaces {
+  display: block;
+  padding: 0;
+  background: var(--paper);
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 900ms var(--ease-expo), opacity 250ms ease, visibility 0s linear 900ms;
+}
+
+.view--surfaces.is-active {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 900ms var(--ease-expo), opacity 250ms ease, visibility 0s;
+}
+
+.stage[data-entering="surfaces"] .view--surfaces.is-active {
+  clip-path: inset(100% 0 0 0);
+}
+
+.surfaces-lede {
+  position: absolute;
+  top: 9%;
+  left: var(--gutter);
+  z-index: 3;
+  width: min(72vw, 62rem);
+}
+
+.surfaces-statement {
+  margin: 0.6rem 0 0;
+  font-size: clamp(3.4rem, 8.2vw, 7.6rem);
+  font-weight: 740;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-transform: uppercase;
+  font-kerning: none;
+}
+
+.decode-line {
+  display: block;
+  min-height: 1em;
+  white-space: pre;
+}
+
+.surfaces-sub {
+  max-width: 52ch;
+  margin: 1.1rem 0 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.surface-index {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 27%;
+  left: var(--gutter);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0.85rem 0 0;
+  border-top: 1px solid var(--grid-color);
+  list-style: none;
+}
+
+.surface-index li {
+  display: grid;
+  gap: 0.3rem;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: opacity 340ms ease, transform 640ms var(--ease-expo);
+}
+
+.surface-index li span { color: var(--blue-deep); font-family: var(--mono); font-size: 0.56rem; }
+.surface-index li b { font-size: 1.02rem; font-weight: 660; letter-spacing: -0.01em; }
+.surface-index li small { max-width: 24ch; color: var(--muted); font-size: 0.68rem; line-height: 1.4; }
+.surface-index li small i { font-style: normal; font-family: var(--mono); font-size: 0.62rem; }
+
+.stage[data-entering="surfaces"] .view--surfaces.is-active .surface-index li {
+  opacity: 0;
+  transform: translate3d(0, 1.2rem, 0);
+}
+
+.view--surfaces.is-active .surface-index li:nth-child(1) { transition-delay: 480ms; }
+.view--surfaces.is-active .surface-index li:nth-child(2) { transition-delay: 560ms; }
+.view--surfaces.is-active .surface-index li:nth-child(3) { transition-delay: 640ms; }
+.view--surfaces.is-active .surface-index li:nth-child(4) { transition-delay: 720ms; }
+.stage[data-entering="surfaces"] .view--surfaces.is-active .surface-index li { transition-delay: 0ms; }
+
+.surfaces-close {
+  position: absolute;
+  bottom: 6%;
+  left: var(--gutter);
+  right: var(--gutter);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0.9rem 2rem;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition: opacity 340ms ease 900ms, transform 640ms var(--ease-expo) 860ms;
+}
+
+.stage[data-entering="surfaces"] .view--surfaces.is-active .surfaces-close {
+  opacity: 0;
+  transform: translate3d(0, 1rem, 0);
+  transition-delay: 0ms;
+}
+
+.surfaces-trust {
+  grid-column: 1;
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink);
+}
+
+.surfaces-actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.surfaces-secondary {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--blue-deep);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 620;
+}
+
+.surfaces-colophon {
+  grid-column: 1;
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+}
+
 .stage-footer {
   position: absolute;
   bottom: 0;
@@ -1207,6 +1352,8 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy { width: min(29vw, 23rem); }
   .runtime-stage { left: 31vw; }
   .runtime-step--hub { width: 29vw; }
+  .surfaces-statement { font-size: clamp(3rem, 7.4vw, 6rem); }
+  .surface-index li small { max-width: none; }
 }
 
 @media (max-width: 767px) {
@@ -1302,6 +1449,28 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   }
 
   .view--runtime.is-active { clip-path: circle(130% at 70% 42%); }
+
+  .view--surfaces { padding: 0; }
+  .surfaces-lede { top: 3%; width: calc(100vw - 2rem); }
+  .surfaces-statement { font-size: clamp(2.3rem, 11vw, 3.2rem); line-height: 0.94; }
+  .surfaces-sub { max-width: 40ch; margin-top: 0.7rem; font-size: 0.62rem; }
+  .surface-index {
+    bottom: 30%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1.1rem;
+    padding-top: 0.7rem;
+  }
+  .surface-index li b { font-size: 0.88rem; }
+  .surface-index li small { max-width: none; font-size: 0.6rem; }
+  .surfaces-close {
+    bottom: 4.5%;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0.75rem;
+  }
+  .surfaces-trust { font-size: 0.72rem; }
+  .surfaces-actions { grid-column: 1; grid-row: auto; gap: 1rem; }
+  .surfaces-colophon { font-size: 0.5rem; }
   .runtime-copy { position: absolute; top: 2%; right: var(--gutter); left: var(--gutter); width: auto; max-width: none; }
   .runtime-copy > a { min-height: 44px; margin-top: 0.1rem; font-size: 0.56rem; }
   .runtime-stage { top: 37%; right: 0; bottom: 0; left: 0; }
