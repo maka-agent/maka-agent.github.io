@@ -129,27 +129,29 @@ canvas {
   position: absolute;
   inset: -10%;
   background:
-    radial-gradient(ellipse at 62% 45%, oklch(1 0 0 / 0.65) 0 7%, transparent 32%),
-    radial-gradient(ellipse at 34% 18%, oklch(0.98 0.018 95 / 0.52), transparent 30%),
-    radial-gradient(ellipse at 76% 74%, oklch(0.8 0.1 250 / 0.58), transparent 40%);
-  filter: blur(24px);
+    radial-gradient(ellipse at 58% 44%, oklch(1 0 0 / 0.72) 0 9%, transparent 34%),
+    radial-gradient(ellipse at 30% 20%, oklch(0.985 0.024 90 / 0.62), transparent 32%),
+    radial-gradient(ellipse at 78% 76%, oklch(0.78 0.105 250 / 0.62), transparent 42%);
+  filter: blur(20px);
   transform: rotate(-7deg) scale(1.08);
 }
 
 .light-field i {
   position: absolute;
-  width: 56vw;
-  height: 7vw;
+  width: 66vw;
+  height: 8.5vw;
   border-radius: 50%;
-  background: oklch(1 0 0 / 0.5);
-  filter: blur(17px);
-  transform: rotate(34deg);
+  background: oklch(1 0 0 / 0.66);
+  filter: blur(15px);
+  transform: rotate(37deg);
   animation: drift-light 11s ease-in-out infinite alternate;
 }
 
-.light-field i:nth-child(1) { top: 7%; left: 5%; }
-.light-field i:nth-child(2) { top: 35%; left: 38%; animation-delay: -3.5s; }
-.light-field i:nth-child(3) { top: 59%; left: 3%; animation-delay: -7s; opacity: 0.6; }
+.light-field i:nth-child(1) { top: 3%; left: -8%; }
+.light-field i:nth-child(1),
+.light-field i:nth-child(3) { background: oklch(0.985 0.025 90 / 0.72); }
+.light-field i:nth-child(2) { top: 30%; left: 30%; background: oklch(0.94 0.035 240 / 0.68); animation-delay: -3.5s; }
+.light-field i:nth-child(3) { top: 58%; left: -6%; animation-delay: -7s; opacity: 0.78; }
 
 .stage:not([data-view="overview"]) .light-field {
   opacity: 0;
@@ -203,8 +205,8 @@ html[data-field="unavailable"] .execution-field canvas {
 
 .fallback-wordmark {
   fill: none;
-  stroke: oklch(0.83 0.1 245 / 0.84);
-  stroke-width: 46;
+  stroke: oklch(0.8 0.11 248 / 0.86);
+  stroke-width: 52;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

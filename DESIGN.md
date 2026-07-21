@@ -139,13 +139,13 @@ components:
 
 **Creative North Star: "The Maka Instrument Wordmark"**
 
-The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument opened in daylight, led by a glass `MAKA` wordmark with Task, Tool, Artifact, Permission, and Recovery objects moving around it. The sculpture establishes the project name first; the satellites then explain durable execution through real product concepts.
+The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument opened in daylight, led by an organic glass `Maka` wordmark with Task, Tool, Artifact, Permission, and Recovery objects moving around its perimeter. The sculpture establishes the project name first; the satellites then explain durable execution through real product concepts.
 
 The measured grid, edge telemetry, and DOM/WebGL cooperation come from the reference study, but the content model is Maka's own: task, turn, Tool Call, permission, artifact, Event Log, and recovery. Generic AI tool marketing, fake terminal theatre, and card-grid SaaS composition are prohibited.
 
 **Key Characteristics:**
 
-- One readable glass `MAKA` wordmark instead of an anonymous abstract sculpture or stacked marketing cards.
+- One readable glass `Maka` wordmark instead of an anonymous abstract sculpture or stacked marketing cards.
 - A committed daylight-blue Overview, a proof-first paper Product state, and a near-black Runtime state.
 - Large exact typography paired with compact runtime evidence.
 - Real product screenshots integrated into the spatial narrative.
@@ -245,7 +245,7 @@ The fixed desktop navigation uses a compact wordmark, two evidence-led destinati
 
 ### Execution Field
 
-A fixed WebGL2 canvas builds the `MAKA` name from twelve rounded glass strokes. The four letters retain a stable, readable silhouette while receiving slight independent yaw and depth motion; Task, Tool, Artifact, Permission, and Recovery objects orbit as secondary evidence. Each object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a restrained blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. Deliberately restrained exposure preserves blue midtones and dark silhouettes instead of clipping the wordmark to white. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a static SVG `MAKA` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
+A fixed WebGL2 canvas builds the `Maka` name from original Catmull–Rom tube strokes with physically based transmission, attenuation, iridescence, and animated glints. The four letters retain a stable, readable silhouette while receiving slight independent yaw and depth motion; Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each visible object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. Section state changes the composition and opacity while the semantic DOM remains complete. The renderer is decorative enhancement only: semantic labels and a static curved SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
 
 ### Product Proof Frame
 

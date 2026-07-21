@@ -90,7 +90,7 @@ if (canvas) {
           vec3 color = whiteLight * 0.78 + pearlLight * 0.54 + blueLight * 0.24;
           color += vec3(0.82, 0.93, 1.0) * centerBloom * (0.08 + velocity * 0.055);
           color += vec3(0.3, 0.64, 0.98) * velocityTrail * 0.2;
-          float alpha = clamp((whiteBand * 0.2 + pearlBand * 0.14 + blueBand * 0.1 + centerBloom * 0.035 + velocityTrail * 0.08) * uMakaIntensity, 0.0, 0.28);
+          float alpha = clamp((whiteBand * 0.34 + pearlBand * 0.22 + blueBand * 0.13 + centerBloom * 0.025 + velocityTrail * 0.08) * uMakaIntensity, 0.0, 0.42);
           gl_FragColor = vec4(color, alpha);
         }
       `,
@@ -149,19 +149,29 @@ if (canvas) {
     };
     pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
 
-    const glass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#63b6f6"),
-      metalness: 0,
-      roughness: 0.14,
-      transmission: 0.24,
-      thickness: 1.25,
-      ior: 1.42,
-      dispersion: 0.16,
+    const wordGlass = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#4d8ed5"),
+      metalness: 0.04,
+      roughness: 0.17,
+      transmission: 0.3,
+      thickness: 2,
+      ior: 1.36,
+      dispersion: 0.2,
       clearcoat: 1,
-      clearcoatRoughness: 0.04,
-      transparent: true,
-      opacity: 0.9,
+      clearcoatRoughness: 0.035,
+      attenuationColor: new THREE.Color("#397fca"),
+      attenuationDistance: 1.9,
+      iridescence: 0.22,
+      iridescenceIOR: 1.3,
+      opacity: 1,
     });
+
+    const glass = wordGlass.clone();
+    glass.color.set("#63b6f6");
+    glass.transmission = 0.2;
+    glass.thickness = 1.1;
+    glass.opacity = 0.76;
+    glass.transparent = true;
 
     const cobalt = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color("#176ed3"),
@@ -199,54 +209,71 @@ if (canvas) {
       clearcoatRoughness: 0.09,
     });
 
-    type LetterStroke = readonly [number, number, number, number];
-    const makeStroke = ([x1, y1, x2, y2]: LetterStroke) => {
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const length = Math.hypot(dx, dy);
-      const stroke = new THREE.Mesh(
-        new RoundedBoxGeometry(length, 0.46, 0.54, 5, 0.21),
-        glass,
+    type TubePoint = readonly [number, number, number?];
+    const makeTubeStroke = (points: TubePoint[], radius = 0.27, closed = false) => {
+      const path = new THREE.CatmullRomCurve3(
+        points.map(([x, y, z = 0]) => new THREE.Vector3(x, y, z)),
+        closed,
+        "centripetal",
+        0.42,
       );
-      stroke.position.set((x1 + x2) * 0.5, (y1 + y2) * 0.5, 0);
-      stroke.rotation.z = Math.atan2(dy, dx);
+      const stroke = new THREE.Mesh(
+        new THREE.TubeGeometry(path, Math.max(56, points.length * 18), radius, 24, closed),
+        wordGlass,
+      );
       stroke.castShadow = true;
       stroke.receiveShadow = true;
       return stroke;
     };
 
-    const letterDefinitions: Array<{ x: number; strokes: LetterStroke[] }> = [
+    const letterDefinitions: Array<{ x: number; strokes: Array<{ points: TubePoint[]; radius?: number; closed?: boolean }> }> = [
       {
-        x: -4.05,
+        x: -3.4,
         strokes: [
-          [-0.72, -1.3, -0.72, 1.3],
-          [0.72, -1.3, 0.72, 1.3],
-          [-0.72, 1.3, 0, 0.12],
-          [0, 0.12, 0.72, 1.3],
+          {
+            points: [
+              [-0.92, -1.18, 0], [-0.91, 0.52, 0.04], [-0.76, 1.18, 0.08],
+              [-0.38, 1.28, 0.12], [0.02, 0.05, 0.02], [0.42, 1.23, -0.02],
+              [0.8, 1.08, 0.04], [0.9, 0.24, 0.08], [0.91, -1.18, 0],
+            ],
+            radius: 0.29,
+          },
         ],
       },
       {
-        x: -1.35,
+        x: -1.5,
         strokes: [
-          [-0.82, -1.3, 0, 1.3],
-          [0, 1.3, 0.82, -1.3],
-          [-0.5, -0.18, 0.5, -0.18],
+          {
+            points: [
+              [-0.68, 0.02, 0], [-0.55, 0.6, 0.06], [-0.04, 0.84, 0.1],
+              [0.5, 0.62, 0.06], [0.67, 0.06, 0], [0.46, -0.55, -0.03],
+              [-0.08, -0.78, 0], [-0.59, -0.5, 0.04],
+            ],
+            closed: true,
+          },
+          { points: [[0.59, 0.67, 0.02], [0.61, 0.2, 0.04], [0.62, -0.35, 0], [0.64, -0.86, -0.02]], radius: 0.255 },
         ],
       },
       {
-        x: 1.35,
+        x: 0.2,
         strokes: [
-          [-0.66, -1.3, -0.66, 1.3],
-          [-0.53, 0, 0.74, 1.3],
-          [-0.53, 0, 0.74, -1.3],
+          { points: [[-0.62, -1.15, 0], [-0.64, -0.22, 0.05], [-0.61, 0.62, 0.02], [-0.53, 1.22, -0.04]], radius: 0.27 },
+          { points: [[-0.5, -0.02, 0.05], [-0.08, 0.31, 0.08], [0.38, 0.78, 0.02], [0.72, 1.02, -0.04]], radius: 0.255 },
+          { points: [[-0.45, -0.02, 0.05], [-0.05, -0.3, 0.08], [0.4, -0.72, 0.02], [0.77, -1.02, -0.04]], radius: 0.255 },
         ],
       },
       {
-        x: 4.05,
+        x: 1.95,
         strokes: [
-          [-0.82, -1.3, 0, 1.3],
-          [0, 1.3, 0.82, -1.3],
-          [-0.5, -0.18, 0.5, -0.18],
+          {
+            points: [
+              [-0.68, 0.02, 0], [-0.55, 0.6, -0.02], [-0.04, 0.84, 0.05],
+              [0.5, 0.62, 0.08], [0.67, 0.06, 0.03], [0.46, -0.55, 0],
+              [-0.08, -0.78, -0.02], [-0.59, -0.5, 0.02],
+            ],
+            closed: true,
+          },
+          { points: [[0.59, 0.67, 0.04], [0.61, 0.2, 0.07], [0.62, -0.35, 0.02], [0.64, -0.86, -0.02]], radius: 0.255 },
         ],
       },
     ];
@@ -254,18 +281,56 @@ if (canvas) {
     const wordmark = new THREE.Group();
     const wordLetters = letterDefinitions.map(({ x, strokes }, index) => {
       const letter = new THREE.Group();
-      letter.add(...strokes.map(makeStroke));
+      letter.add(...strokes.map(({ points, radius, closed }) => makeTubeStroke(points, radius, closed)));
       letter.position.set(x, 0, index % 2 === 0 ? 0.08 : -0.04);
       wordmark.add(letter);
       return { letter, baseZ: letter.position.z, phase: index * 0.8 };
     });
-    wordmark.position.set(0.18, 0.28, 0.42);
-    wordmark.rotation.set(-0.08, -0.03, -0.015);
+    const glintCanvas = document.createElement("canvas");
+    glintCanvas.width = 96;
+    glintCanvas.height = 96;
+    const glintContext = glintCanvas.getContext("2d");
+    if (glintContext) {
+      const glow = glintContext.createRadialGradient(48, 48, 0, 48, 48, 48);
+      glow.addColorStop(0, "rgba(255,255,255,1)");
+      glow.addColorStop(0.12, "rgba(255,255,255,0.95)");
+      glow.addColorStop(0.36, "rgba(210,235,255,0.42)");
+      glow.addColorStop(1, "rgba(190,225,255,0)");
+      glintContext.fillStyle = glow;
+      glintContext.fillRect(0, 0, 96, 96);
+    }
+    const glintTexture = new THREE.CanvasTexture(glintCanvas);
+    glintTexture.colorSpace = THREE.SRGBColorSpace;
+    const glintPositions = [
+      new THREE.Vector3(-3.7, 0.86, 0.38),
+      new THREE.Vector3(-1.4, -0.44, 0.34),
+      new THREE.Vector3(0.2, 0.02, 0.36),
+      new THREE.Vector3(2.08, 0.5, 0.36),
+    ];
+    const wordGlints = glintPositions.map((position, index) => {
+      const material = new THREE.SpriteMaterial({
+        map: glintTexture,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.66,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const glint = new THREE.Sprite(material);
+      glint.position.copy(position);
+      glint.scale.setScalar(0.55 + index * 0.04);
+      wordmark.add(glint);
+      return { glint, material, phase: index * 1.35 };
+    });
+    wordmark.position.set(1, -0.68, 0.42);
+    wordmark.rotation.set(-0.065, -0.03, -0.02);
+    wordmark.scale.setScalar(1.2);
     organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
-    task.position.set(-5.15, 2.18, 1.15);
+    task.position.set(-5.6, 0.42, 0.92);
     task.rotation.set(0.42, -0.34, -0.3);
+    task.scale.setScalar(0.58);
     task.castShadow = true;
     satellites.add(task);
 
@@ -273,8 +338,9 @@ if (canvas) {
     const toolRing = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.17, 18, 90), ink);
     const toolPin = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 2), cobalt);
     tool.add(toolRing, toolPin);
-    tool.position.set(5.22, 2.05, 0.45);
+    tool.position.set(5.72, 2.5, 0.18);
     tool.rotation.set(0.25, 0.5, 0.25);
+    tool.scale.setScalar(0.66);
     toolRing.castShadow = true;
     satellites.add(tool);
 
@@ -285,8 +351,9 @@ if (canvas) {
     artifactLineA.position.set(-0.12, 0.26, 0.1);
     artifactLineB.position.set(-0.23, 0.02, 0.1);
     artifact.add(artifactBody, artifactLineA, artifactLineB);
-    artifact.position.set(5.35, -2.35, 1.1);
+    artifact.position.set(5.82, -2.55, 0.72);
     artifact.rotation.set(-0.16, 0.38, 0.14);
+    artifact.scale.setScalar(0.65);
     artifactBody.castShadow = true;
     satellites.add(artifact);
 
@@ -294,8 +361,9 @@ if (canvas) {
       new THREE.TorusGeometry(0.7, 0.17, 20, 90, Math.PI * 1.72),
       pearl,
     );
-    recovery.position.set(-5.1, -2.4, 0.7);
+    recovery.position.set(-5.72, -2.72, 0.38);
     recovery.rotation.set(0.36, 0.26, 0.6);
+    recovery.scale.setScalar(0.7);
     recovery.castShadow = true;
     satellites.add(recovery);
 
@@ -307,8 +375,9 @@ if (canvas) {
     keyHead.position.set(0, 0.1, 0.15);
     keyStem.position.set(0, -0.14, 0.15);
     permission.add(permissionSeal, keyHead, keyStem);
-    permission.position.set(-3.2, 2.85, 1.55);
+    permission.position.set(-3.65, 3.02, 1.18);
     permission.rotation.set(-0.1, 0.24, -0.16);
+    permission.scale.setScalar(0.6);
     permissionSeal.castShadow = true;
     satellites.add(permission);
 
@@ -322,8 +391,9 @@ if (canvas) {
     checkLong.position.set(0.12, 0.03, 0.14);
     checkLong.rotation.z = -0.63;
     success.add(successSeal, checkShort, checkLong);
-    success.position.set(2.9, -2.85, 1.25);
+    success.position.set(3.28, -3.06, 0.8);
     success.rotation.set(0.08, -0.22, 0.13);
+    success.scale.setScalar(0.65);
     successSeal.castShadow = true;
     satellites.add(success);
 
@@ -347,8 +417,8 @@ if (canvas) {
     const cursor = new THREE.Mesh(cursorGeometry, cobalt);
     cursor.scale.setScalar(0.78);
     cursor.rotation.set(0.12, -0.16, 0.05);
-    cursor.position.set(6.2, -0.2, 3.1);
-    cursor.visible = false;
+    cursor.position.set(5.15, -0.38, 3.1);
+    cursor.visible = window.innerWidth >= 768;
     cursor.castShadow = true;
     foreground.add(cursor);
 
@@ -356,14 +426,14 @@ if (canvas) {
     const nodes = Array.from({ length: 9 }, (_, index) => {
       const node = new THREE.Mesh(nodeGeometry, index % 3 === 0 ? cobalt : ink);
       const angle = (index / 9) * Math.PI * 2;
-      node.position.set(Math.cos(angle) * (4.55 + (index % 2) * 0.5), Math.sin(angle) * 2.35, -0.4 + (index % 3) * 0.4);
+      node.position.set(Math.cos(angle) * (5.1 + (index % 2) * 0.55), Math.sin(angle) * 2.7, -0.6 + (index % 3) * 0.35);
       satellites.add(node);
       return node;
     });
 
     const shadow = new THREE.Mesh(
       new THREE.PlaneGeometry(14, 8),
-      new THREE.ShadowMaterial({ color: "#31608d", opacity: 0.18 }),
+      new THREE.ShadowMaterial({ color: "#31608d", opacity: 0.075 }),
     );
     shadow.position.set(0, -3.25, -0.8);
     shadow.rotation.x = -Math.PI / 2;
@@ -409,13 +479,12 @@ if (canvas) {
     let frame = 0;
     let visible = true;
     let pointerEngaged = false;
-    let pointerOverControl = true;
 
     const updateCursorVisibility = () => {
-      cursor.visible = pointerEngaged && !pointerOverControl && window.innerWidth >= 768 && stateIndex !== 1;
+      cursor.visible = window.innerWidth >= 768 && stateIndex !== 1;
     };
 
-    const materialTargets = { pearl: 1, glass: 0.9, cobalt: 1, ink: 1, amber: 1, green: 1, atmosphere: 1 };
+    const materialTargets = { pearl: 1, word: 1, glass: 0.76, cobalt: 0.94, ink: 0.88, amber: 0.9, green: 0.88, atmosphere: 1 };
 
     const parallaxObjects = [
       { object: task, depth: 1.08, x: 0.62, y: 0.38, drift: 0.10, phase: 0.2 },
@@ -444,22 +513,25 @@ if (canvas) {
 
     const applyState = (index: number) => {
       stateIndex = index;
+      recovery.visible = index === 2;
       if (index === 0) {
         const compact = canvas.clientWidth < 768;
         const compactShort = compact && canvas.clientHeight < 700;
-        worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.6 : compact ? 0.38 : 0.28, 0);
+        worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
         worldScaleTarget.setScalar(1);
         materialTargets.pearl = 1;
-        materialTargets.glass = 0.9;
-        materialTargets.cobalt = 1;
-        materialTargets.ink = 1;
-        materialTargets.amber = 1;
-        materialTargets.green = 1;
+        materialTargets.word = 1;
+        materialTargets.glass = 0.76;
+        materialTargets.cobalt = 0.94;
+        materialTargets.ink = 0.88;
+        materialTargets.amber = 0.9;
+        materialTargets.green = 0.88;
         materialTargets.atmosphere = 1;
       } else if (index === 1) {
         worldPositionTarget.set(-13.2, 2.8, -4.4);
         worldScaleTarget.setScalar(0.34);
         materialTargets.pearl = 0;
+        materialTargets.word = 0;
         materialTargets.glass = 0;
         materialTargets.cobalt = 0;
         materialTargets.ink = 0;
@@ -470,6 +542,7 @@ if (canvas) {
         worldPositionTarget.set(1.8, 0.1, -1.3);
         worldScaleTarget.setScalar(0.78);
         materialTargets.pearl = 0.3;
+        materialTargets.word = 0.32;
         materialTargets.glass = 0.42;
         materialTargets.cobalt = 0.88;
         materialTargets.ink = 0.78;
@@ -478,12 +551,13 @@ if (canvas) {
         materialTargets.atmosphere = 0.08;
       }
 
-      for (const material of [pearl, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
+      for (const material of [pearl, wordGlass, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
       updateCursorVisibility();
       if (reduceMotion) {
         world.position.copy(worldPositionTarget);
         world.scale.copy(worldScaleTarget);
         pearl.opacity = materialTargets.pearl;
+        wordGlass.opacity = materialTargets.word;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
@@ -500,7 +574,6 @@ if (canvas) {
 
     window.addEventListener("pointermove", (event) => {
       if (event.pointerType !== "touch") pointerEngaged = true;
-      pointerOverControl = event.target instanceof Element && Boolean(event.target.closest("a, button, nav, header, footer"));
       updateCursorVisibility();
       pointerTarget.set(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -521,9 +594,9 @@ if (canvas) {
       camera.updateProjectionMatrix();
       const compact = width < 768;
       const compactShort = compact && height < 700;
-      organism.scale.setScalar(compactShort ? 0.5 : compact ? 0.58 : 1);
-      satellites.scale.setScalar(compactShort ? 0.64 : compact ? 0.72 : 1);
-      if (stateIndex === 0) worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.6 : compact ? 0.38 : 0.28, 0);
+      organism.scale.setScalar(compactShort ? 0.64 : compact ? 0.62 : 1);
+      satellites.scale.setScalar(compactShort ? 0.58 : compact ? 0.64 : 1);
+      if (stateIndex === 0) worldPositionTarget.set(compact ? -0.55 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
       updateCursorVisibility();
       renderer.render(scene, camera);
     };
@@ -569,10 +642,12 @@ if (canvas) {
 
       pointerLight.position.x = THREE.MathUtils.damp(pointerLight.position.x, pointer.x * 7, 9, delta);
       pointerLight.position.y = THREE.MathUtils.damp(pointerLight.position.y, pointer.y * 4.5, 9, delta);
-      raycaster.setFromCamera(pointer, camera);
-      if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
-        cursorTarget.copy(intersection);
-        cursorTarget.z = 3.1;
+      if (pointerEngaged) {
+        raycaster.setFromCamera(pointer, camera);
+        if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
+          cursorTarget.copy(intersection);
+          cursorTarget.z = 3.1;
+        }
       }
       dampVector3(cursor.position, cursorTarget, 9.5, delta);
       cursor.rotation.x = THREE.MathUtils.damp(cursor.rotation.x, 0.12 + pointerVelocity.y * 0.018, 12, delta);
@@ -586,8 +661,13 @@ if (canvas) {
       wordmark.rotation.x = -0.08 + Math.sin(elapsed * 0.32) * 0.018;
       wordmark.rotation.z = -0.015 + Math.sin(elapsed * 0.24) * 0.012;
       wordLetters.forEach(({ letter, baseZ, phase }) => {
-        letter.rotation.y = Math.sin(elapsed * 0.38 + phase) * 0.075;
-        letter.position.z = baseZ + Math.sin(elapsed * 0.44 + phase) * 0.08;
+        letter.rotation.y = Math.sin(elapsed * 0.34 + phase) * 0.052;
+        letter.position.z = baseZ + Math.sin(elapsed * 0.4 + phase) * 0.055;
+      });
+      wordGlints.forEach(({ glint, material, phase }) => {
+        const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.45 + phase);
+        glint.scale.setScalar(0.38 + pulse * 0.3);
+        material.opacity = 0.26 + pulse * 0.52;
       });
       task.rotation.y = -0.34 + elapsed * 0.22;
       tool.rotation.y = 0.5 - elapsed * 0.2;
@@ -595,7 +675,7 @@ if (canvas) {
       recovery.rotation.z = 0.6 - elapsed * 0.26;
       permission.rotation.z = -0.16 + Math.sin(elapsed * 0.48) * 0.14;
       success.rotation.z = 0.13 - Math.sin(elapsed * 0.4) * 0.11;
-      nodes.forEach((node, index) => node.scale.setScalar(1 + Math.sin(elapsed * 1.4 + index) * 0.2));
+      nodes.forEach((node, index) => node.scale.setScalar(0.64 + Math.sin(elapsed * 1.4 + index) * 0.12));
 
       if (pearlShader) pearlShader.uniforms.uMakaTime.value = elapsed;
       atmosphereUniforms.uMakaTime.value = elapsed;
@@ -609,6 +689,7 @@ if (canvas) {
       );
 
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
+      wordGlass.opacity = THREE.MathUtils.damp(wordGlass.opacity, materialTargets.word, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
       cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);
       ink.opacity = THREE.MathUtils.damp(ink.opacity, materialTargets.ink, 7, delta);
