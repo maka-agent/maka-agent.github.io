@@ -208,6 +208,8 @@ if (canvas) {
       clearcoatRoughness: 0.12,
     });
 
+    let atmosphereNightScale = 1;
+
     const permissionAmber = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color("#ff9f1c"),
       metalness: 0.04,
@@ -588,7 +590,7 @@ if (canvas) {
         ink.opacity = materialTargets.ink;
         permissionAmber.opacity = materialTargets.amber;
         successGreen.opacity = materialTargets.green;
-        atmosphereUniforms.uMakaIntensity.value = materialTargets.atmosphere;
+        atmosphereUniforms.uMakaIntensity.value = materialTargets.atmosphere * atmosphereNightScale;
         renderer.render(scene, camera);
       }
     };
@@ -596,6 +598,20 @@ if (canvas) {
     window.addEventListener("maka:viewchange", ((event: CustomEvent<{ index: number }>) => {
       applyState(event.detail.index);
     }) as EventListener);
+
+    const inkDayColor = ink.color.clone();
+    const inkNightColor = new THREE.Color("#8fa2c4");
+    const applyTheme = (night: boolean) => {
+      renderer.toneMappingExposure = night ? 0.56 : 0.68;
+      scene.environmentIntensity = night ? 0.6 : 0.82;
+      ink.color.copy(night ? inkNightColor : inkDayColor);
+      atmosphereNightScale = night ? 0.55 : 1;
+      if (reduceMotion) renderer.render(scene, camera);
+    };
+    window.addEventListener("maka:themechange", ((event: CustomEvent<{ night: boolean }>) => {
+      applyTheme(event.detail.night);
+    }) as EventListener);
+    applyTheme(root.dataset.theme === "night");
 
     window.addEventListener("maka:pointer", ((event: CustomEvent<{
       x: number;
@@ -712,7 +728,7 @@ if (canvas) {
       atmosphereUniforms.uMakaVelocity.value.copy(pointerVelocity);
       atmosphereUniforms.uMakaIntensity.value = THREE.MathUtils.damp(
         atmosphereUniforms.uMakaIntensity.value,
-        materialTargets.atmosphere,
+        materialTargets.atmosphere * atmosphereNightScale,
         6,
         delta,
       );

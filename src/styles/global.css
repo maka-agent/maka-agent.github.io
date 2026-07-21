@@ -23,6 +23,17 @@
   font-synthesis: none;
 }
 
+html[data-theme="night"] {
+  color-scheme: dark;
+  --sky: oklch(0.21 0.045 264);
+  --sky-light: oklch(0.27 0.04 260);
+  --paper: oklch(0.205 0.004 286);
+  --ink: oklch(0.92 0.004 286);
+  --muted: oklch(0.7 0.012 270);
+  --line: oklch(0.85 0.025 250 / 0.15);
+  --blue-deep: oklch(0.72 0.14 250);
+}
+
 *,
 *::before,
 *::after {
@@ -107,6 +118,17 @@ canvas {
   --grid-color: oklch(0.5 0.018 255 / 0.15);
   background: var(--paper);
 }
+
+html[data-theme="night"] .stage[data-view="product"] {
+  --grid-color: oklch(0.9 0.01 255 / 0.11);
+}
+
+html[data-theme="night"] .light-field { opacity: 0.2; filter: saturate(1.5) brightness(0.72); }
+html[data-theme="night"] .stage:not([data-view="overview"]) .light-field { opacity: 0; }
+html[data-theme="night"] .primary-action { color: oklch(0.17 0.005 286); }
+html[data-theme="night"] .skip-link { color: oklch(0.17 0.005 286); }
+html[data-theme="night"] .boot-loader b { background: oklch(0.85 0.02 250 / 0.28); }
+html[data-theme="night"] ::selection { color: oklch(0.14 0.01 270); }
 
 .stage[data-view="runtime"] {
   --grid-color: oklch(1 0 0 / 0.12);
@@ -494,6 +516,40 @@ html[data-field="unavailable"] .execution-field canvas {
 
 .source-link svg { transition: transform 220ms var(--ease-expo); }
 .source-link:hover svg { transform: translate(2px, -2px); }
+
+.shell-commands {
+  display: inline-flex;
+  justify-self: end;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.theme-command {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 640;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.theme-command small {
+  margin-left: 0.45rem;
+  color: var(--muted);
+  font-size: 0.54rem;
+  font-weight: 520;
+  transition: color 180ms ease;
+}
+
+.theme-command:hover small,
+.theme-command:focus-visible small,
+.theme-command[aria-pressed="true"] small { color: currentColor; }
 
 .stage-main {
   position: absolute;
@@ -1384,6 +1440,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .view-nav a::after { right: 0.4rem; left: 0.4rem; }
   .source-link { width: 44px; justify-content: center; }
   .source-link span { display: none; }
+  .shell-commands { gap: 0.2rem; }
+  .theme-command { font-size: 0.56rem; }
+  .theme-command small { display: none; }
 
   .overview-note--identity { top: 2.4%; }
   .overview-note--identity strong { margin: 0 0 0.3rem; font-size: 0.74rem; }

@@ -48,10 +48,15 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         <a href="#surfaces" data-view-target="surfaces"><span>Surfaces</span><small>[4]</small></a>
       </nav>
 
-      <a class="source-link" href={githubUrl} target="_blank" rel="noreferrer" aria-label="View Maka source on GitHub">
-        <span>View source</span>
-        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
-      </a>
+      <div class="shell-commands">
+        <button class="theme-command" type="button" data-theme-command aria-pressed="false" aria-label="Toggle night theme">
+          <span>Theme</span><small>[T]</small>
+        </button>
+        <a class="source-link" href={githubUrl} target="_blank" rel="noreferrer" aria-label="View Maka source on GitHub">
+          <span>View source</span>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+        </a>
+      </div>
     </header>
 
     <main id="main-content" class="stage-main">
@@ -332,6 +337,22 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       setView(link.dataset.viewTarget ?? "overview");
     }));
 
+    const themeCommand = document.querySelector<HTMLButtonElement>("[data-theme-command]");
+    const syncThemeCommand = () => {
+      const night = document.documentElement.dataset.theme === "night";
+      themeCommand?.setAttribute("aria-pressed", String(night));
+      window.dispatchEvent(new CustomEvent("maka:themechange", { detail: { night } }));
+    };
+    const toggleTheme = () => {
+      const night = document.documentElement.dataset.theme === "night";
+      if (night) delete document.documentElement.dataset.theme;
+      else document.documentElement.dataset.theme = "night";
+      try { localStorage.setItem("maka-theme", night ? "day" : "night"); } catch {}
+      syncThemeCommand();
+    };
+    themeCommand?.addEventListener("click", toggleTheme);
+    syncThemeCommand();
+
     const DECODE_GLYPHS = "·:=+*/<>[]{}|\\01";
     const decodeLines = Array.from(document.querySelectorAll<HTMLElement>("[data-decode]"));
     let decodeToken = 0;
@@ -383,6 +404,10 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       if (event.metaKey || event.ctrlKey || event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
       if (["1", "2", "3", "4"].includes(event.key)) {
         setView(views[Number(event.key) - 1]);
+        return;
+      }
+      if (event.key === "t" || event.key === "T") {
+        toggleTheme();
         return;
       }
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;

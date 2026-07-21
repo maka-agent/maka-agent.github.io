@@ -321,6 +321,31 @@ for (const [label, width, height] of VIEWPORTS) {
 
   await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
 
+  if (label === "desktop") {
+    await page.keyboard.press("t");
+    if ((await page.evaluate(() => document.documentElement.dataset.theme)) !== "night") {
+      throw new Error(`${label}: THEME command did not enter night`);
+    }
+    await page.reload({ waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
+    await page.waitForFunction(() => document.documentElement.dataset.field === "ready", undefined, { timeout: NAVIGATION_TIMEOUT });
+    if ((await page.evaluate(() => document.documentElement.dataset.theme)) !== "night") {
+      throw new Error(`${label}: night theme did not persist across reload`);
+    }
+    await page.screenshot({ path: `${RESULTS}/${label}-night.png`, timeout: NAVIGATION_TIMEOUT });
+    await page.addScriptTag({ path: AXE });
+    const nightViolations = await page.evaluate(async () => {
+      const result = await globalThis.axe.run(document, {
+        runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] },
+      });
+      return result.violations.map(({ id, impact, help }) => ({ id, impact, help }));
+    });
+    if (nightViolations.length) throw new Error(`${label}: night theme accessibility violations ${JSON.stringify(nightViolations)}`);
+    await page.locator("[data-theme-command]").click();
+    if ((await page.evaluate(() => document.documentElement.dataset.theme ?? "day")) !== "day") {
+      throw new Error(`${label}: THEME command did not return to day`);
+    }
+  }
+
   if (label === "phone-320" || label === "desktop") {
     await page.waitForTimeout(1000);
     await page.addScriptTag({ path: AXE });
