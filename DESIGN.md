@@ -244,6 +244,12 @@ The system is flat by default. Depth comes from tonal separation, full-perimeter
 
 The fixed desktop navigation uses a compact wordmark, two evidence-led destinations, and one GitHub action. Mobile navigation keeps the GitHub action visible and collapses secondary anchors into a native `<details>` disclosure. All targets remain at least 44×44px.
 
+The active single-viewport site exposes Overview, Product, and Runtime as `[1]`, `[2]`, and `[3]` commands in the fixed shell. The visible hints and keyboard behavior must stay identical; Arrow keys remain a sequential alternative. Initial shell items reveal as one short orchestrated sequence, while `prefers-reduced-motion` renders them immediately.
+
+### Persistent Telemetry
+
+Desktop and fine-pointer layouts show four-digit viewport coordinates in the bottom shell. The readout initializes from the viewport center and then displays raw pointer pixels; the same pointer event feeds the light field and normalized Three.js input. DOM telemetry never displays the damped scene position, because legibility and physical response are separate consumers of one input. Compact and coarse-pointer layouts remove the coordinate readout instead of compressing the footer.
+
 ### Execution Field
 
 A fixed WebGL2 canvas builds the literal `Maka` project name as one beveled `TextGeometry` wordmark with physically based transmission, attenuation, iridescence, and animated glints. The letters share one stable baseline and move as a single identity object so material motion can never collapse the name into an anonymous sculpture; Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each secondary object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances foreground objects in depth. The renderer is suppressed outside Overview so authentic Product evidence and the Event Log-led Runtime stage each retain one visual owner. The renderer remains decorative enhancement only: semantic labels and a literal static SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.

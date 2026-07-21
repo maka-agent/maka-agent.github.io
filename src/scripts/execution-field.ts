@@ -518,15 +518,21 @@ if (canvas) {
       applyState(event.detail.index);
     }) as EventListener);
 
-    window.addEventListener("pointermove", (event) => {
-      if (event.pointerType !== "touch") pointerEngaged = true;
+    window.addEventListener("maka:pointer", ((event: CustomEvent<{
+      x: number;
+      y: number;
+      normalizedX: number;
+      normalizedY: number;
+      pointerType: string;
+    }>) => {
+      const { x, y, normalizedX, normalizedY, pointerType } = event.detail;
+      if (pointerType !== "touch") pointerEngaged = true;
       updateCursorVisibility();
-      pointerTarget.set(
-        (event.clientX / window.innerWidth) * 2 - 1,
-        -(event.clientY / window.innerHeight) * 2 + 1,
-      );
+      pointerTarget.set(normalizedX, normalizedY);
+      canvas.dataset.pointerX = String(Math.round(x));
+      canvas.dataset.pointerY = String(Math.round(y));
       if (reduceMotion) renderer.render(scene, camera);
-    }, { passive: true });
+    }) as EventListener);
 
     const resize = () => {
       const width = Math.max(1, canvas.clientWidth);

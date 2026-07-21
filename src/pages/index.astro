@@ -38,9 +38,9 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       </a>
 
       <nav class="view-nav" aria-label="Explore Maka">
-        <a href="#overview" data-view-target="overview" aria-current="page">Overview</a>
-        <a href="#product" data-view-target="product">Product</a>
-        <a href="#runtime" data-view-target="runtime">Runtime</a>
+        <a href="#overview" data-view-target="overview" aria-current="page"><span>Overview</span><small>[1]</small></a>
+        <a href="#product" data-view-target="product"><span>Product</span><small>[2]</small></a>
+        <a href="#runtime" data-view-target="runtime"><span>Runtime</span><small>[3]</small></a>
       </nav>
 
       <a class="source-link" href={githubUrl} target="_blank" rel="noreferrer" aria-label="View Maka source on GitHub">
@@ -186,6 +186,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     <footer class="stage-footer">
       <p class="stage-caption">LOCAL EXECUTION / OPEN SOURCE</p>
       <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 03</em></p>
+      <p class="pointer-readout" aria-label="Pointer coordinates"><b id="pointer-x">0000</b><span>X</span><b id="pointer-y">0000</b><span>Y</span></p>
       <p class="local-time" aria-label="Local time"><span>LOCAL</span> <b id="local-time">--:--:--</b></p>
       <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
     </footer>
@@ -198,6 +199,8 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-view-panel]"));
     const statusLabel = document.querySelector<HTMLElement>("#telemetry-view");
     const statusIndex = document.querySelector<HTMLElement>(".stage-status em");
+    const pointerX = document.querySelector<HTMLElement>("#pointer-x");
+    const pointerY = document.querySelector<HTMLElement>("#pointer-y");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
     const views = ["overview", "product", "runtime"] as const;
@@ -232,7 +235,18 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         else link.removeAttribute("aria-current");
       });
       const index = views.indexOf(view as (typeof views)[number]);
-      if (statusLabel) statusLabel.textContent = view.toUpperCase();
+      if (statusLabel) {
+        statusLabel.textContent = view.toUpperCase();
+        if (!reduceMotion.matches) {
+          statusLabel.animate(
+            [
+              { opacity: 0, transform: "translate3d(0, 0.35rem, 0)" },
+              { opacity: 1, transform: "translate3d(0, 0, 0)" },
+            ],
+            { duration: 420, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          );
+        }
+      }
       if (statusIndex) statusIndex.textContent = `0${index + 1} / 03`;
       if (updateHash) history.replaceState(null, "", `#${view}`);
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
@@ -261,16 +275,40 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     }));
 
     window.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+      if (["1", "2", "3"].includes(event.key)) {
+        setView(views[Number(event.key) - 1]);
+        return;
+      }
       if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
       const current = views.indexOf((stage?.dataset.view ?? "overview") as (typeof views)[number]);
       const next = event.key === "ArrowRight" ? Math.min(views.length - 1, current + 1) : Math.max(0, current - 1);
       setView(views[next]);
     });
 
+    const formatCoordinate = (value: number) => String(Math.max(0, Math.round(value))).padStart(4, "0");
+    const renderPointerCoordinates = (clientX: number, clientY: number) => {
+      if (pointerX) pointerX.textContent = formatCoordinate(clientX);
+      if (pointerY) pointerY.textContent = formatCoordinate(clientY);
+    };
+
+    renderPointerCoordinates(innerWidth / 2, innerHeight / 2);
+
     window.addEventListener("pointermove", (event) => {
-      const x = event.clientX / innerWidth - 0.5;
-      const y = event.clientY / innerHeight - 0.5;
-      if (lightField) lightField.style.transform = `translate3d(${x * -18}px, ${y * -12}px, 0)`;
+      const normalizedX = event.clientX / innerWidth - 0.5;
+      const normalizedY = event.clientY / innerHeight - 0.5;
+      renderPointerCoordinates(event.clientX, event.clientY);
+      if (stage && event.pointerType !== "touch") stage.dataset.pointer = "engaged";
+      if (lightField) lightField.style.transform = `translate3d(${normalizedX * -18}px, ${normalizedY * -12}px, 0)`;
+      window.dispatchEvent(new CustomEvent("maka:pointer", {
+        detail: {
+          x: event.clientX,
+          y: event.clientY,
+          normalizedX: normalizedX * 2,
+          normalizedY: normalizedY * -2,
+          pointerType: event.pointerType,
+        },
+      }));
     }, { passive: true });
 
     const updateTime = () => {

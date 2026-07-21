@@ -50,6 +50,15 @@ use original copy, composition, assets, and shaders.
 
 - `SOURCE` — Pointer position becomes live X/Y telemetry in the persistent
   shell.
+- `SOURCE` — At 1440 × 900 the coordinate shell seeds at the exact viewport
+  center, `0720 X 0450 Y`. The target-bound WebGL source separately maintains
+  pointer trail, trail strength, display resolution, and damped effect state,
+  so the readable DOM signal and the physical GPU response are distinct
+  consumers of pointer input.
+- `PARTIAL` — Maka translates the mechanism as a single raw-input event bus:
+  DOM shows four-digit viewport pixels while the light field and Three.js
+  consume normalized coordinates. Exact formatting, keyboard commands, and
+  motion values remain Maka-owned.
 - `SOURCE` — Theme and sound controls behave like compact keyboard-readable
   commands rather than generic toggles.
 - `SOURCE` — Source code contains explicit `prefers-reduced-motion` handling.

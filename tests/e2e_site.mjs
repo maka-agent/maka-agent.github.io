@@ -49,6 +49,8 @@ for (const [label, width, height] of VIEWPORTS) {
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
+  const commandHints = await page.locator(".view-nav small").allTextContents();
+  if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]"])) throw new Error(`${label}: navigation command hints are incomplete`);
   if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
     throw new Error(`${label}: unexpected h1`);
   }
@@ -88,6 +90,11 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
     throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
   }
+  const expectedCenter = `${String(Math.round(width / 2)).padStart(4, "0")}X${String(Math.round(height / 2)).padStart(4, "0")}Y`;
+  const initialPointer = (await page.locator(".pointer-readout").textContent() ?? "").replaceAll("\n", " ").replaceAll(/\s+/g, " ").trim();
+  if (initialPointer !== expectedCenter) throw new Error(`${label}: pointer telemetry is not initialized from the viewport center (${initialPointer})`);
+  if (width < 768 && await page.locator(".pointer-readout").isVisible()) throw new Error(`${label}: pointer-only telemetry competes with the touch layout`);
+  if (label === "desktop" && !(await page.locator(".pointer-readout").isVisible())) throw new Error("desktop: pointer telemetry is not visible");
 
   for (const image of await page.locator("img").all()) {
     await image.evaluate((element) => element.complete && element.naturalWidth > 0
@@ -109,7 +116,7 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.waitForFunction(() => document.documentElement.dataset.field === "ready" && scrollY === 0);
 
     const productLifecycle = await page.locator('.view-nav [data-view-target="product"]').evaluate((element) => {
-      element.click();
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
       const stage = document.querySelector(".stage");
       return {
         transitioning: stage?.getAttribute("data-transitioning"),
@@ -158,6 +165,24 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.locator('.view-nav [data-view-target="overview"]').click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
     await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+
+    await page.mouse.move(123, 456);
+    await page.waitForFunction(() => document.querySelector(".pointer-readout")?.textContent?.replaceAll(/\s+/g, "").trim() === "0123X0456Y");
+    const pointerBus = await page.evaluate(() => ({
+      stage: document.querySelector(".stage")?.getAttribute("data-pointer"),
+      x: document.querySelector("#execution-field")?.getAttribute("data-pointer-x"),
+      y: document.querySelector("#execution-field")?.getAttribute("data-pointer-y"),
+      lightTransform: getComputedStyle(document.querySelector(".light-field")).transform,
+    }));
+    if (pointerBus.stage !== "engaged" || pointerBus.x !== "123" || pointerBus.y !== "456" || pointerBus.lightTransform === "none") {
+      throw new Error(`desktop: DOM, light field, and WebGL do not share one pointer source ${JSON.stringify(pointerBus)}`);
+    }
+
+    await page.keyboard.press("2");
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "product");
+    await page.keyboard.press("1");
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
+    await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
   }
 
   const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900" };
@@ -165,7 +190,7 @@ for (const [label, width, height] of VIEWPORTS) {
     const lifecycle = await page.locator(`[data-view-target="${view}"]`).first().evaluate((element) => {
       const stage = document.querySelector(".stage");
       const outgoing = stage?.getAttribute("data-view");
-      element.click();
+      element.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
       return {
         outgoing,
         current: stage?.getAttribute("data-view"),

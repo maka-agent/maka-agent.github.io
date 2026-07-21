@@ -321,6 +321,21 @@ html[data-field="unavailable"] .execution-field canvas {
   letter-spacing: 0.03em;
 }
 
+.view-nav a small {
+  margin-left: 0.52rem;
+  color: var(--muted);
+  font-size: 0.54rem;
+  font-weight: 520;
+  transition: color 180ms ease, transform 240ms var(--ease-expo);
+}
+
+.view-nav a[aria-current="page"] small,
+.view-nav a:hover small,
+.view-nav a:focus-visible small {
+  color: currentColor;
+  transform: translateY(-0.08rem);
+}
+
 .view-nav a::after {
   content: "";
   position: absolute;
@@ -982,7 +997,7 @@ html[data-field="unavailable"] .execution-field canvas {
   left: 0;
   z-index: var(--z-header);
   display: grid;
-  grid-template-columns: 1fr auto auto 1fr;
+  grid-template-columns: 1fr auto auto auto 1fr;
   align-items: center;
   gap: 2.2rem;
   width: 100%;
@@ -1000,12 +1015,44 @@ html[data-field="unavailable"] .execution-field canvas {
 .stage-status__pulse { width: 0.42rem; height: 0.42rem; border-radius: 50%; background: var(--blue); }
 .stage-status em { margin-left: auto; color: var(--muted); font-style: normal; }
 .stage[data-view="runtime"] .stage-status em { color: oklch(0.7 0.01 250); }
+.pointer-readout {
+  display: flex;
+  justify-self: center;
+  align-items: baseline;
+  gap: 0.42rem;
+  min-width: 9.6rem;
+  font-variant-numeric: tabular-nums;
+}
+.pointer-readout b { width: 4ch; text-align: right; font-weight: 620; }
+.pointer-readout span { color: var(--muted); }
+.stage[data-pointer="engaged"] .pointer-readout span { color: var(--blue-deep); }
+.stage[data-view="runtime"] .pointer-readout span { color: oklch(0.7 0.01 250); }
 .local-time { justify-self: center; }
 .local-time span { color: var(--muted); }
 .stage[data-view="runtime"] .local-time span { color: oklch(0.7 0.01 250); }
 .stage-footer > a { justify-self: end; }
 
+html.js .stage-header > *,
+html.js .stage-footer > * {
+  animation: shell-reveal 720ms var(--ease-expo) both;
+}
+
+html.js .stage-header > :nth-child(2),
+html.js .stage-footer > :nth-child(2) { animation-delay: 70ms; }
+html.js .stage-header > :nth-child(3),
+html.js .stage-footer > :nth-child(3) { animation-delay: 140ms; }
+html.js .stage-footer > :nth-child(4) { animation-delay: 210ms; }
+html.js .stage-footer > :nth-child(5) { animation-delay: 280ms; }
+
+@keyframes shell-reveal {
+  from { opacity: 0; transform: translate3d(0, 0.55rem, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
 @media (max-width: 1100px) {
+  .stage-footer { grid-template-columns: auto 1fr auto; gap: 1rem; }
+  .stage-caption,
+  .local-time { display: none; }
   .overview-note--model { left: 42vw; }
   .overview-note--trust { width: 26vw; }
   .object-index { width: 24vw; }
@@ -1042,6 +1089,7 @@ html[data-field="unavailable"] .execution-field canvas {
   .brand svg { width: 1.65rem; height: 1.65rem; }
   .view-nav { justify-self: center; }
   .view-nav a { min-width: 0; padding: 0 0.48rem; font-size: 0.58rem; }
+  .view-nav a small { display: none; }
   .view-nav a::after { right: 0.4rem; left: 0.4rem; }
   .source-link { width: 44px; justify-content: center; }
   .source-link span { display: none; }
@@ -1150,7 +1198,8 @@ html[data-field="unavailable"] .execution-field canvas {
   }
 
   .stage-caption,
-  .local-time { display: none; }
+  .local-time,
+  .pointer-readout { display: none; }
   .stage-status { min-width: 8.5rem; }
   .stage-footer > a { display: none; }
 }
@@ -1194,5 +1243,11 @@ html[data-field="unavailable"] .execution-field canvas {
   }
 
   .light-field { transform: none !important; }
+  html.js .stage-header > *,
+  html.js .stage-footer > * { animation: none; }
   .runtime-rail i { display: none; }
+}
+
+@media (pointer: coarse) {
+  .pointer-readout { display: none; }
 }
