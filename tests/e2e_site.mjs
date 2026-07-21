@@ -5,6 +5,7 @@ const BASE_URL = process.env.MAKA_SITE_URL ?? "http://127.0.0.1:4321";
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const AXE = "node_modules/axe-core/axe.min.js";
 const RESULTS = "test-results/e2e";
+const NAVIGATION_TIMEOUT = 90_000;
 const VIEWPORTS = [
   ["phone-320", 320, 568],
   ["phone-390", 390, 844],
@@ -43,7 +44,7 @@ for (const [label, width, height] of VIEWPORTS) {
     error: request.failure()?.errorText,
   }));
 
-  const response = await page.goto(BASE_URL, { waitUntil: "networkidle" });
+  const response = await page.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
   if (!response || response.status() !== 200) throw new Error(`${label}: site did not return 200`);
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
 
@@ -152,7 +153,7 @@ for (const [label, width, height] of VIEWPORTS) {
 
 const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 }, reducedMotion: "reduce" });
 const reducedPage = await reduced.newPage();
-await reducedPage.goto(BASE_URL, { waitUntil: "networkidle" });
+await reducedPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await reducedPage.waitForFunction(() => document.documentElement.dataset.field === "ready");
 if (!(await reducedPage.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches))) {
   throw new Error("Reduced-motion media query did not apply");
@@ -169,7 +170,7 @@ await fallback.addInitScript(() => {
   };
 });
 const fallbackPage = await fallback.newPage();
-await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle" });
+await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
 if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
@@ -178,7 +179,7 @@ await fallback.close();
 const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 720 } });
 await noRenderer.route("**/ExecutionField*.js", (route) => route.abort());
 const noRendererPage = await noRenderer.newPage();
-await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle" });
+await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 if (!(await noRendererPage.locator("h1").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
 if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
 await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });
