@@ -47,6 +47,11 @@ use original copy, composition, assets, and shaders.
   and an acid-green selection/accent color.
 - `SOURCE` — Navigation and identity are 16px/24px. The hero statement measured
   71.68px/71.68px at 1280px wide.
+- `PARTIAL` — A fixed-condition audit at 1440×900 found Maka's persistent shell
+  (11.2px nav, 9.3px telemetry) reading one class lighter than the reference's
+  16px instrument shell; Maka's shell scale was raised (≈13/10.5px) to close the
+  density gap. Maka's statement scale (6.2vw, 0.87 line-height) and centered
+  navigation remain intentional Maka-owned divergences.
 - `PARTIAL` — Maka should preserve the three-role typographic contrast, not copy
   the reference's `tiktok`, `mono`, or `tronica-mono` font files.
 
