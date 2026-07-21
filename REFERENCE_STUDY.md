@@ -48,6 +48,8 @@ use original copy, composition, assets, and shaders.
 
 ### Motion and interaction
 
+- `SOURCE` — Cold-start captures at desktop and compact viewports keep one centered horizontal loading owner visible from the first committed frame through every sampled point up to 5.2s. Even when the DOM and two canvases already exist, the reference withholds its shell, 3D identity, and hero copy until the loading controller considers the composed surface ready.
+- `PARTIAL` — Maka translates the ownership rule, not the reference's unbounded wait or exact line treatment: a branded `MAKA` loader yields to the compiled glass wordmark, then the shell, then hero copy. A 3.2s recovery path exposes a complete static `Maka` and semantic DOM if renderer readiness never arrives.
 - `SOURCE` — Pointer position becomes live X/Y telemetry in the persistent
   shell.
 - `SOURCE` — At 1440 × 900 the coordinate shell seeds at the exact viewport
