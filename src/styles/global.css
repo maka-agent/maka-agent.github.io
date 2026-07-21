@@ -901,6 +901,48 @@ html[data-field="unavailable"] .execution-field canvas {
   box-shadow: none;
 }
 
+.product-shot__visual img[data-evidence-panel] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 340ms ease;
+}
+
+.product-shot__visual[data-evidence="artifact"] img[data-evidence-panel="artifact"],
+.product-shot__visual[data-evidence="first-run"] img[data-evidence-panel="first-run"],
+.product-shot__visual[data-evidence="errors"] img[data-evidence-panel="errors"] {
+  opacity: 1;
+}
+
+.product-shot__visual:not([data-evidence="artifact"]) #product-hover-field {
+  display: none;
+}
+
+.evidence-index {
+  display: inline-flex;
+  gap: 1.1rem;
+}
+
+.evidence-index button {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 560;
+  letter-spacing: 0.04em;
+  transition: color 180ms ease;
+}
+
+.evidence-index button:hover,
+.evidence-index button:focus-visible,
+.evidence-index button[aria-pressed="true"] {
+  color: var(--blue-deep);
+}
+
 #product-hover-field {
   position: absolute;
   inset: 0;
@@ -1496,8 +1538,13 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
     left: 0;
     width: 100%;
     height: 58.5%;
-    grid-template-rows: 1.55rem minmax(0, 1fr) 1.55rem;
+    grid-template-rows: 1.55rem minmax(0, 1fr) auto;
   }
+
+  .product-shot--main figcaption { flex-wrap: wrap; row-gap: 0; }
+  .product-shot--main figcaption > b { display: none; }
+  .evidence-index { gap: 0.75rem; }
+  .evidence-index button { font-size: 0.52rem; }
   .product-shot__bar { height: 1.55rem; font-size: 0.46rem; }
   .product-shot__mode { display: none; }
   .product-shot--main img {
