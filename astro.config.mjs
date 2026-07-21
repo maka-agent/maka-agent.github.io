@@ -7,6 +7,6 @@ export default defineConfig({
   compressHTML: true,
   integrations: [sitemap()],
   build: {
-    inlineStylesheets: "auto",
+    inlineStylesheets: "always",
   },
 });

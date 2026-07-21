@@ -175,6 +175,15 @@ if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) thr
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png` });
 await fallback.close();
 
+const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+await noRenderer.route("**/ExecutionField*.js", (route) => route.abort());
+const noRendererPage = await noRenderer.newPage();
+await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle" });
+if (!(await noRendererPage.locator("h1").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
+if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
+await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png` });
+await noRenderer.close();
+
 await browser.close();
 
 if (report.consoleErrors.length || report.pageErrors.length || report.requestFailures.length) {

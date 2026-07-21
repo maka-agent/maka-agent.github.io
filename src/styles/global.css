@@ -979,50 +979,6 @@ html[data-field="unavailable"] .execution-field canvas {
   .stage a { cursor: none; }
 }
 
-.load-indicator {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: grid;
-  place-content: center;
-  gap: 0.8rem;
-  background: var(--sky);
-  transition: opacity 420ms ease, visibility 0s linear 420ms;
-}
-
-.load-indicator span {
-  width: 10rem;
-  height: 2px;
-  overflow: hidden;
-  background: var(--line);
-}
-
-.load-indicator span::after {
-  content: "";
-  display: block;
-  width: 45%;
-  height: 100%;
-  background: var(--blue-deep);
-  animation: load-slide 1.1s var(--ease-expo) infinite;
-}
-
-.load-indicator b {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
-}
-
-html[data-field="ready"] .load-indicator,
-html[data-field="unavailable"] .load-indicator {
-  opacity: 0;
-  visibility: hidden;
-}
-
-@keyframes load-slide {
-  from { transform: translateX(-110%); }
-  to { transform: translateX(245%); }
-}
-
 @media (max-width: 64rem) {
   .stage-header {
     grid-template-columns: auto 1fr auto;
