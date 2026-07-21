@@ -620,6 +620,47 @@ html[data-field="unavailable"] .execution-field canvas {
 .product-shot__bar i { color: var(--blue); font-style: normal; }
 .product-shot--main img { width: 100%; height: auto; }
 
+.product-callout {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  gap: 0.16rem;
+  min-width: 10.5rem;
+  padding: 0.48rem 0.58rem;
+  background: var(--ink);
+  color: white;
+  font-family: var(--mono);
+  pointer-events: none;
+}
+
+.product-callout::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 3.4rem;
+  height: 1px;
+  background: var(--blue);
+}
+
+.product-callout::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 3px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.product-callout span { color: var(--blue); font-size: 0.5rem; letter-spacing: 0.05em; }
+.product-callout b { font-size: 0.56rem; font-weight: 540; }
+.product-callout--turn { top: 24%; right: 3.5%; }
+.product-callout--turn::before { right: 100%; }
+.product-callout--turn::after { right: calc(100% + 3.4rem); }
+.product-callout--composer { bottom: 13%; left: 42%; }
+.product-callout--composer::before { left: 100%; }
+.product-callout--composer::after { left: calc(100% + 3.4rem); }
+
 .product-shot--main figcaption,
 .product-proof figcaption {
   display: flex;
@@ -901,6 +942,7 @@ html[data-field="unavailable"] .execution-field canvas {
   .product-shot--main { top: 4%; right: -26%; width: 122%; border-width: 4px; }
   .product-shot__bar { height: 1.7rem; font-size: 0.46rem; }
   .product-shot--main figcaption { min-height: 1.55rem; font-size: 0.45rem; }
+  .product-callout { display: none; }
   .product-proof { display: none; }
 
   .view--runtime {

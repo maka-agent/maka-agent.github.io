@@ -96,6 +96,24 @@ if (canvas) {
       clearcoatRoughness: 0.12,
     });
 
+    const permissionAmber = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#ff9f1c"),
+      metalness: 0.04,
+      roughness: 0.2,
+      clearcoat: 1,
+      clearcoatRoughness: 0.08,
+      emissive: new THREE.Color("#7d3900"),
+      emissiveIntensity: 0.16,
+    });
+
+    const successGreen = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#47d58a"),
+      metalness: 0.03,
+      roughness: 0.18,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.09,
+    });
+
     const loop = new THREE.Mesh(
       new THREE.TubeGeometry(new ExecutionCurve(), 360, 0.5, 28, true),
       pearl,
@@ -164,10 +182,55 @@ if (canvas) {
     recovery.castShadow = true;
     satellites.add(recovery);
 
-    const cursor = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.3, 3, 1), cobalt);
-    cursor.scale.set(0.82, 1, 0.22);
-    cursor.rotation.set(0.12, 0.25, -0.73);
-    cursor.position.set(6.2, -0.2, 2.5);
+    const permission = new THREE.Group();
+    const permissionSeal = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 8), permissionAmber);
+    const keyHead = new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 20), ink);
+    const keyStem = new THREE.Mesh(new RoundedBoxGeometry(0.14, 0.34, 0.09, 3, 0.045), ink);
+    permissionSeal.rotation.x = Math.PI / 2;
+    keyHead.position.set(0, 0.1, 0.15);
+    keyStem.position.set(0, -0.14, 0.15);
+    permission.add(permissionSeal, keyHead, keyStem);
+    permission.position.set(-3.2, 2.85, 1.55);
+    permission.rotation.set(-0.1, 0.24, -0.16);
+    permissionSeal.castShadow = true;
+    satellites.add(permission);
+
+    const success = new THREE.Group();
+    const successSeal = new THREE.Mesh(new THREE.CylinderGeometry(0.57, 0.57, 0.17, 24), successGreen);
+    const checkShort = new THREE.Mesh(new RoundedBoxGeometry(0.13, 0.42, 0.09, 3, 0.045), ink);
+    const checkLong = new THREE.Mesh(new RoundedBoxGeometry(0.13, 0.7, 0.09, 3, 0.045), ink);
+    successSeal.rotation.x = Math.PI / 2;
+    checkShort.position.set(-0.16, -0.04, 0.14);
+    checkShort.rotation.z = 0.72;
+    checkLong.position.set(0.12, 0.03, 0.14);
+    checkLong.rotation.z = -0.63;
+    success.add(successSeal, checkShort, checkLong);
+    success.position.set(2.9, -2.85, 1.25);
+    success.rotation.set(0.08, -0.22, 0.13);
+    successSeal.castShadow = true;
+    satellites.add(success);
+
+    const cursorShape = new THREE.Shape();
+    cursorShape.moveTo(0.68, 0.68);
+    cursorShape.lineTo(-0.58, 0.2);
+    cursorShape.lineTo(-0.12, -0.05);
+    cursorShape.lineTo(-0.36, -0.58);
+    cursorShape.lineTo(-0.04, -0.72);
+    cursorShape.lineTo(0.2, -0.18);
+    cursorShape.lineTo(0.5, 0.02);
+    cursorShape.closePath();
+    const cursorGeometry = new THREE.ExtrudeGeometry(cursorShape, {
+      depth: 0.2,
+      bevelEnabled: true,
+      bevelSegments: 4,
+      bevelSize: 0.07,
+      bevelThickness: 0.06,
+    });
+    cursorGeometry.center();
+    const cursor = new THREE.Mesh(cursorGeometry, cobalt);
+    cursor.scale.setScalar(0.78);
+    cursor.rotation.set(0.12, -0.16, 0.05);
+    cursor.position.set(6.2, -0.2, 3.1);
     cursor.castShadow = true;
     foreground.add(cursor);
 
@@ -224,7 +287,7 @@ if (canvas) {
     let frame = 0;
     let visible = true;
 
-    const materialTargets = { pearl: 1, glass: 0.86, cobalt: 1, ink: 1 };
+    const materialTargets = { pearl: 1, glass: 0.86, cobalt: 1, ink: 1, amber: 1, green: 1 };
 
     const applyState = (index: number) => {
       stateIndex = index;
@@ -235,6 +298,8 @@ if (canvas) {
         materialTargets.glass = 0.86;
         materialTargets.cobalt = 1;
         materialTargets.ink = 1;
+        materialTargets.amber = 1;
+        materialTargets.green = 1;
       } else if (index === 1) {
         worldPositionTarget.set(-10.2, 2.3, -3.4);
         worldScaleTarget.setScalar(0.34);
@@ -242,6 +307,8 @@ if (canvas) {
         materialTargets.glass = 0.03;
         materialTargets.cobalt = 0.05;
         materialTargets.ink = 0.04;
+        materialTargets.amber = 0.04;
+        materialTargets.green = 0.04;
       } else {
         worldPositionTarget.set(1.8, 0.1, -1.3);
         worldScaleTarget.setScalar(0.78);
@@ -249,9 +316,11 @@ if (canvas) {
         materialTargets.glass = 0.42;
         materialTargets.cobalt = 0.88;
         materialTargets.ink = 0.78;
+        materialTargets.amber = 0.72;
+        materialTargets.green = 0.82;
       }
 
-      for (const material of [pearl, cobalt, ink]) material.transparent = index !== 0;
+      for (const material of [pearl, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
       if (reduceMotion) {
         world.position.copy(worldPositionTarget);
         world.scale.copy(worldScaleTarget);
@@ -259,6 +328,8 @@ if (canvas) {
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
+        permissionAmber.opacity = materialTargets.amber;
+        successGreen.opacity = materialTargets.green;
         renderer.render(scene, camera);
       }
     };
@@ -303,14 +374,14 @@ if (canvas) {
       world.rotation.x = THREE.MathUtils.lerp(world.rotation.x, pointer.y * 0.09, 0.045);
       world.rotation.y = THREE.MathUtils.lerp(world.rotation.y, pointer.x * 0.16, 0.045);
       organism.position.set(pointer.x * 0.22, pointer.y * 0.13 + Math.sin(elapsed * 0.55) * 0.08, 0);
-      satellites.position.set(pointer.x * -0.32, pointer.y * -0.22, 0);
-      foreground.position.set(pointer.x * 0.5, pointer.y * 0.34, 0);
+      satellites.position.set(pointer.x * -0.58, pointer.y * -0.38, 0);
+      foreground.position.set(pointer.x * 0.72, pointer.y * 0.52, 0);
 
       pointerLight.position.set(pointer.x * 7, pointer.y * 4.5, 7);
       raycaster.setFromCamera(pointer, camera);
       if (raycaster.ray.intersectPlane(pointerPlane, intersection)) cursorTarget.lerp(intersection, 0.13);
       cursor.position.lerp(cursorTarget, 0.08);
-      cursor.position.z = 2.5;
+      cursor.position.z = 3.1;
 
       loop.rotation.z = -0.08 + Math.sin(elapsed * 0.28) * 0.035;
       glassLoop.rotation.y = 0.28 + elapsed * (stateIndex === 2 ? 0.12 : 0.045);
@@ -321,12 +392,16 @@ if (canvas) {
       tool.rotation.y = 0.5 - elapsed * 0.2;
       artifact.rotation.y = 0.38 + Math.sin(elapsed * 0.42) * 0.22;
       recovery.rotation.z = 0.6 - elapsed * 0.26;
+      permission.rotation.z = -0.16 + Math.sin(elapsed * 0.48) * 0.14;
+      success.rotation.z = 0.13 - Math.sin(elapsed * 0.4) * 0.11;
       nodes.forEach((node, index) => node.scale.setScalar(1 + Math.sin(elapsed * 1.4 + index) * 0.2));
 
       pearl.opacity = THREE.MathUtils.lerp(pearl.opacity, materialTargets.pearl, 0.065);
       glass.opacity = THREE.MathUtils.lerp(glass.opacity, materialTargets.glass, 0.065);
       cobalt.opacity = THREE.MathUtils.lerp(cobalt.opacity, materialTargets.cobalt, 0.065);
       ink.opacity = THREE.MathUtils.lerp(ink.opacity, materialTargets.ink, 0.065);
+      permissionAmber.opacity = THREE.MathUtils.lerp(permissionAmber.opacity, materialTargets.amber, 0.065);
+      successGreen.opacity = THREE.MathUtils.lerp(successGreen.opacity, materialTargets.green, 0.065);
 
       renderer.render(scene, camera);
     };

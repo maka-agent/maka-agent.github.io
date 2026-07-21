@@ -24,6 +24,8 @@ colors:
   scene-blue-signal: "#2e83de"
   scene-blue-ring: "#285e91"
   scene-blue-particle: "#2b5d8d"
+  scene-permission-amber: "#ff9f1c"
+  scene-success-green: "#47d58a"
 typography:
   display:
     fontFamily: "Geist Variable, system-ui, sans-serif"
@@ -172,6 +174,8 @@ Cool achromatic surfaces carry the page; blue appears only when something is act
 **The Signal, Not Texture Rule.** Blue communicates action or runtime state. It never becomes a background flood, gradient, glow, or decorative atmosphere.
 
 **The Three-State Color Rule.** Overview commits to daylight blue as atmosphere, Product removes it so real UI evidence dominates, and Runtime moves to near-black. Saturated signal blue remains scarce inside controls and evidence labels.
+
+**The Semantic Satellite Rule.** Amber appears only on permission boundaries and green only on completed execution. They stay on small 3D satellites and never become decorative section colors.
 
 ## 3. Typography
 
