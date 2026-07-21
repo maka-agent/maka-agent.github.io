@@ -114,6 +114,124 @@ canvas {
   color: oklch(0.96 0.005 250);
 }
 
+.boot-loader {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-content: center;
+  gap: 0.7rem;
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(0.35rem);
+  transition: opacity 260ms ease, transform 520ms var(--ease-expo), visibility 0s linear 520ms;
+}
+
+.boot-loader span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 680;
+  letter-spacing: 0.16em;
+}
+
+.boot-loader span i {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--blue-deep);
+}
+
+.boot-loader b {
+  position: relative;
+  display: block;
+  width: min(10rem, 42vw);
+  height: 1px;
+  overflow: hidden;
+  background: oklch(0.42 0.025 250 / 0.25);
+}
+
+.boot-loader b::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 42%;
+  background: var(--blue-deep);
+  animation: boot-scan 980ms var(--ease-expo) infinite;
+}
+
+html.js[data-boot="loading"] .boot-loader {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+html.js[data-boot="field"] .boot-loader {
+  visibility: visible;
+}
+
+html.js[data-boot="loading"] .execution-field,
+html.js[data-boot="loading"] .light-field,
+html.js[data-boot="loading"] .measurement-grid {
+  opacity: 0;
+}
+
+html.js[data-boot="loading"] .stage-header > *,
+html.js[data-boot="field"] .stage-header > *,
+html.js[data-boot="loading"] .stage-footer > *,
+html.js[data-boot="field"] .stage-footer > * {
+  opacity: 0;
+  transform: translate3d(0, 0.55rem, 0);
+}
+
+html.js[data-boot="loading"] .overview-note,
+html.js[data-boot="field"] .overview-note,
+html.js[data-boot="shell"] .overview-note,
+html.js[data-boot="loading"] .hero-copy,
+html.js[data-boot="field"] .hero-copy,
+html.js[data-boot="shell"] .hero-copy,
+html.js[data-boot="loading"] .object-index,
+html.js[data-boot="field"] .object-index,
+html.js[data-boot="shell"] .object-index {
+  opacity: 0;
+  filter: blur(10px);
+}
+
+html.js[data-boot="loading"] .overview-note,
+html.js[data-boot="field"] .overview-note,
+html.js[data-boot="shell"] .overview-note { transform: translateY(-2rem); }
+html.js[data-boot="loading"] .hero-copy,
+html.js[data-boot="field"] .hero-copy,
+html.js[data-boot="shell"] .hero-copy { transform: translateY(4rem); }
+html.js[data-boot="loading"] .object-index,
+html.js[data-boot="field"] .object-index,
+html.js[data-boot="shell"] .object-index { transform: translateX(3rem); }
+
+html.js[data-boot="ready"] .overview-note { transition-delay: 40ms; }
+html.js[data-boot="ready"] .hero-copy { transition-delay: 120ms; }
+html.js[data-boot="ready"] .object-index { transition-delay: 210ms; }
+
+html.js[data-boot="loading"] .stage-header,
+html.js[data-boot="field"] .stage-header,
+html.js[data-boot="loading"] .stage-main,
+html.js[data-boot="field"] .stage-main,
+html.js[data-boot="shell"] .stage-main,
+html.js[data-boot="loading"] .stage-footer,
+html.js[data-boot="field"] .stage-footer {
+  pointer-events: none;
+}
+
+@keyframes boot-scan {
+  from { transform: translateX(-110%); }
+  to { transform: translateX(340%); }
+}
+
 .light-field {
   position: absolute;
   inset: -8%;
@@ -1058,17 +1176,17 @@ html[data-field="unavailable"] .execution-field canvas {
 .stage[data-view="runtime"] .local-time span { color: oklch(0.7 0.01 250); }
 .stage-footer > a { justify-self: end; }
 
-html.js .stage-header > *,
-html.js .stage-footer > * {
+html.js[data-boot="shell"] .stage-header > *,
+html.js[data-boot="shell"] .stage-footer > * {
   animation: shell-reveal 720ms var(--ease-expo) both;
 }
 
-html.js .stage-header > :nth-child(2),
-html.js .stage-footer > :nth-child(2) { animation-delay: 70ms; }
-html.js .stage-header > :nth-child(3),
-html.js .stage-footer > :nth-child(3) { animation-delay: 140ms; }
-html.js .stage-footer > :nth-child(4) { animation-delay: 210ms; }
-html.js .stage-footer > :nth-child(5) { animation-delay: 280ms; }
+html.js[data-boot="shell"] .stage-header > :nth-child(2),
+html.js[data-boot="shell"] .stage-footer > :nth-child(2) { animation-delay: 70ms; }
+html.js[data-boot="shell"] .stage-header > :nth-child(3),
+html.js[data-boot="shell"] .stage-footer > :nth-child(3) { animation-delay: 140ms; }
+html.js[data-boot="shell"] .stage-footer > :nth-child(4) { animation-delay: 210ms; }
+html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280ms; }
 
 @keyframes shell-reveal {
   from { opacity: 0; transform: translate3d(0, 0.55rem, 0); }
@@ -1270,8 +1388,8 @@ html.js .stage-footer > :nth-child(5) { animation-delay: 280ms; }
   }
 
   .light-field { transform: none !important; }
-  html.js .stage-header > *,
-  html.js .stage-footer > * { animation: none; }
+  html.js[data-boot="shell"] .stage-header > *,
+  html.js[data-boot="shell"] .stage-footer > * { animation: none; }
   .runtime-rail i { display: none; }
 }
 

@@ -3,6 +3,23 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
+const root = document.documentElement;
+const clearBootFallback = () => {
+  const timeout = Number.parseInt(root.dataset.bootTimeout ?? "", 10);
+  if (Number.isFinite(timeout)) window.clearTimeout(timeout);
+  delete root.dataset.bootTimeout;
+};
+const revealBoot = (reduceMotion: boolean) => {
+  clearBootFallback();
+  if (reduceMotion) {
+    root.dataset.boot = "complete";
+    return;
+  }
+  root.dataset.boot = "field";
+  window.setTimeout(() => { root.dataset.boot = "shell"; }, 80);
+  window.setTimeout(() => { root.dataset.boot = "ready"; }, 800);
+  window.setTimeout(() => { root.dataset.boot = "complete"; }, 1780);
+};
 
 if (canvas) {
   try {
@@ -725,6 +742,7 @@ if (canvas) {
         await renderer.compileAsync(scene, camera);
       } finally {
         document.documentElement.dataset.field = "ready";
+        revealBoot(reduceMotion);
         if (reduceMotion) renderer.render(scene, camera);
         else animate();
       }
@@ -734,5 +752,7 @@ if (canvas) {
   } catch (error) {
     console.warn("Maka execution field unavailable", error);
     document.documentElement.dataset.field = "unavailable";
+    clearBootFallback();
+    document.documentElement.dataset.boot = "complete";
   }
 }

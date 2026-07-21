@@ -270,6 +270,10 @@ The Overview → Product handoff uses an explicit two-frame preparation lifecycl
 
 Transition readiness follows the destination composition rather than one generic timeout: Overview clears at 900ms, Product at 1450ms, and Runtime at 1900ms. These markers cover the complete authored sequence and are removed immediately under `prefers-reduced-motion`. The visual rule is staged ownership: an outgoing owner may remain while the destination scaffold arrives, but two dominant owners and full-frame dead time are both prohibited.
 
+### Initial Load Ownership
+
+JavaScript-capable browsers begin with one compact `MAKA` loading owner instead of exposing the SVG fallback, shell, headline, and unfinished WebGL surface at the same time. Renderer readiness advances through `loading → field → shell → ready → complete`: the glass wordmark takes the plane first, the fixed shell follows, and Overview copy resolves only after the shell has established the coordinate system. A bounded timeout reveals the full semantic page and static SVG if the renderer module never completes. The SVG uses `xMidYMid meet`, so the literal `Maka` name remains complete rather than becoming a cropped oversized fragment on narrow viewports. No-JavaScript, renderer failure, and `prefers-reduced-motion` paths remain immediately understandable and never depend on entrance motion for access to content.
+
 ## 6. Do's and Don'ts
 
 ### Do:

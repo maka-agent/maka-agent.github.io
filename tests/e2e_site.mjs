@@ -47,6 +47,9 @@ for (const [label, width, height] of VIEWPORTS) {
   const response = await page.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
   if (!response || response.status() !== 200) throw new Error(`${label}: site did not return 200`);
   await page.waitForFunction(() => document.documentElement.dataset.field === "ready");
+  await page.waitForFunction(() => document.documentElement.dataset.boot === "complete");
+  if (await page.locator(".boot-loader").isVisible()) throw new Error(`${label}: boot loader still owns the settled stage`);
+  if (!(await page.locator(".hero-copy").isVisible())) throw new Error(`${label}: hero copy did not complete the initial ownership sequence`);
 
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const commandHints = await page.locator(".view-nav small").allTextContents();
@@ -306,6 +309,8 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.locator('[data-view-target="overview"]').first().click();
   }
 
+  await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+
   if (label === "phone-320" || label === "desktop") {
     await page.waitForTimeout(1000);
     await page.addScriptTag({ path: AXE });
@@ -334,6 +339,7 @@ const reduced = await browser.newContext({ viewport: { width: 1280, height: 720 
 const reducedPage = await reduced.newPage();
 await reducedPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await reducedPage.waitForFunction(() => document.documentElement.dataset.field === "ready");
+await reducedPage.waitForFunction(() => document.documentElement.dataset.boot === "complete");
 if (!(await reducedPage.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches))) {
   throw new Error("Reduced-motion media query did not apply");
 }
@@ -355,8 +361,10 @@ await fallback.addInitScript(() => {
 const fallbackPage = await fallback.newPage();
 await fallbackPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
 await fallbackPage.waitForFunction(() => document.documentElement.dataset.field === "unavailable");
+await fallbackPage.waitForFunction(() => document.documentElement.dataset.boot === "complete");
 if (!(await fallbackPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static fallback is not visible");
 if ((await fallbackPage.locator(".fallback-wordmark").textContent())?.trim() !== "Maka") throw new Error("Static Maka wordmark is incomplete");
+if ((await fallbackPage.locator(".execution-field__fallback").getAttribute("preserveAspectRatio")) !== "xMidYMid meet") throw new Error("Static Maka wordmark can be cropped by the viewport");
 if ((await fallbackPage.locator("#product-hover-field").getAttribute("data-hover-state")) !== "unavailable") throw new Error("Product proof does not preserve its DOM fallback without WebGL");
 await fallbackPage.screenshot({ path: `${RESULTS}/webgl-fallback.png`, timeout: NAVIGATION_TIMEOUT });
 await fallback.close();
@@ -365,6 +373,7 @@ const noRenderer = await browser.newContext({ viewport: { width: 1280, height: 7
 await noRenderer.route(/\/src\/components\/ExecutionField\.astro(?:\?|$)|\/_astro\/ExecutionField\./, (route) => route.abort());
 const noRendererPage = await noRenderer.newPage();
 await noRendererPage.goto(BASE_URL, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
+await noRendererPage.waitForFunction(() => document.documentElement.dataset.boot === "complete");
 if (!(await noRendererPage.locator("#overview-title").isVisible())) throw new Error("Core hero is hidden while renderer code is unavailable");
 if (!(await noRendererPage.locator(".execution-field__fallback").isVisible())) throw new Error("Static field is hidden while renderer code is unavailable");
 await noRendererPage.screenshot({ path: `${RESULTS}/renderer-blocked.png`, timeout: NAVIGATION_TIMEOUT });

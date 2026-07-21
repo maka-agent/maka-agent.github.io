@@ -32,6 +32,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:image" content={new URL("/icon-512.png", Astro.site)} />
     <link rel="manifest" href="/site.webmanifest" />
+    <script is:inline>
+      document.documentElement.classList.add("js");
+      document.documentElement.dataset.boot = "loading";
+      document.documentElement.dataset.bootTimeout = String(window.setTimeout(() => {
+        document.documentElement.dataset.boot = "complete";
+        delete document.documentElement.dataset.bootTimeout;
+      }, 3200));
+    </script>
     <title>{title}</title>
   </head>
   <body>

@@ -9,6 +9,7 @@
     "check": "astro check",
     "preview": "astro preview",
     "test:e2e": "node tests/e2e_site.mjs",
+    "capture:initial-load": "node tests/capture_initial_load.mjs",
     "capture:transitions": "node tests/capture_transition_loop.mjs",
     "capture:hover": "node tests/capture_product_hover.mjs"
   },
