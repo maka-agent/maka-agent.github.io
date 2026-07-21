@@ -126,6 +126,14 @@ use original copy, composition, assets, and shaders.
   update `instanceMatrix`, and gate work by scroll/section visibility.
 - `SOURCE` — Glass/refraction captures selected camera layers to an offscreen
   render target and restores the previous target and camera layer mask.
+- `SOURCE` — The hero identity object is a dedicated public
+  `model/hello.gltf` asset exported by `THREE.GLTFExporter`, containing one mesh
+  with 24,020 positions. The page source recenters that mesh and applies its own
+  screen-space refraction `ShaderMaterial`; the visible word is therefore a
+  purpose-built model, not runtime `TextGeometry` with a stock typeface.
+- `PARTIAL` — Maka translates that geometry principle with original
+  Catmull–Rom tube strokes spelling `Maka`. It does not reuse the reference
+  model, mesh data, shader code, or exact material constants.
 - `SOURCE` — The fluid renderer ping-pongs velocity targets and has explicit
   render-target disposal and resize paths.
 - `PARTIAL` — The captured browser remained on the WebGL loading surface, so the
