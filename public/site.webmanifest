@@ -1,0 +1,9 @@
+{
+  "name": "Maka",
+  "short_name": "Maka",
+  "description": "A local-first Agent workspace built for real work.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#f9fafb",
+  "theme_color": "#18181a"
+}

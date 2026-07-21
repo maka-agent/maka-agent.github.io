@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+.astro/
+.venv/
+test-results/
+
+# Local design-research artifacts and project-scoped agent tooling.
+.web-shader-extractor/
+.agents/
+.impeccable/probes/

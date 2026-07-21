@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-20T20:15:37Z",
+  "title": "Design System: Maka Website",
+  "extensions": {
+    "colorMeta": {
+      "maka-blue": {
+        "role": "primary",
+        "displayName": "Maka Signal Blue",
+        "canonical": "oklch(0.70 0.135 250)",
+        "tonalRamp": ["oklch(0.15 0.04 250)", "oklch(0.25 0.07 250)", "oklch(0.35 0.10 250)", "oklch(0.45 0.12 250)", "oklch(0.58 0.135 250)", "oklch(0.70 0.135 250)", "oklch(0.83 0.08 250)", "oklch(0.95 0.025 250)"]
+      },
+      "maka-blue-strong": {
+        "role": "primary",
+        "displayName": "Maka Signal Strong",
+        "canonical": "oklch(0.62 0.15 250)",
+        "tonalRamp": ["oklch(0.15 0.045 250)", "oklch(0.25 0.08 250)", "oklch(0.35 0.11 250)", "oklch(0.45 0.135 250)", "oklch(0.52 0.15 250)", "oklch(0.62 0.15 250)", "oklch(0.80 0.09 250)", "oklch(0.95 0.025 250)"]
+      },
+      "maka-blue-text": {
+        "role": "primary",
+        "displayName": "Maka Text Blue",
+        "canonical": "oklch(0.52 0.16 250)",
+        "tonalRamp": ["oklch(0.15 0.05 250)", "oklch(0.25 0.09 250)", "oklch(0.35 0.13 250)", "oklch(0.45 0.16 250)", "oklch(0.52 0.16 250)", "oklch(0.65 0.14 250)", "oklch(0.80 0.09 250)", "oklch(0.95 0.025 250)"]
+      },
+      "signal-wash": {
+        "role": "secondary",
+        "displayName": "Signal Wash",
+        "canonical": "oklch(0.95 0.025 250)",
+        "tonalRamp": ["oklch(0.15 0.025 250)", "oklch(0.27 0.025 250)", "oklch(0.39 0.025 250)", "oklch(0.51 0.025 250)", "oklch(0.63 0.025 250)", "oklch(0.75 0.025 250)", "oklch(0.87 0.025 250)", "oklch(0.95 0.025 250)"]
+      },
+      "working-plane": {
+        "role": "neutral",
+        "displayName": "Working Plane",
+        "canonical": "oklch(0.985 0.003 250)",
+        "tonalRamp": ["oklch(0.15 0.003 250)", "oklch(0.27 0.003 250)", "oklch(0.39 0.003 250)", "oklch(0.51 0.003 250)", "oklch(0.63 0.003 250)", "oklch(0.75 0.003 250)", "oklch(0.87 0.003 250)", "oklch(0.985 0.003 250)"]
+      },
+      "clear-surface": {
+        "role": "neutral",
+        "displayName": "Clear Surface",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": ["oklch(0.15 0 0)", "oklch(0.27 0 0)", "oklch(0.39 0 0)", "oklch(0.51 0 0)", "oklch(0.63 0 0)", "oklch(0.75 0 0)", "oklch(0.87 0 0)", "oklch(1 0 0)"]
+      },
+      "cool-surface": {
+        "role": "neutral",
+        "displayName": "Cool Surface",
+        "canonical": "oklch(0.96 0.006 250)",
+        "tonalRamp": ["oklch(0.15 0.006 250)", "oklch(0.27 0.006 250)", "oklch(0.39 0.006 250)", "oklch(0.51 0.006 250)", "oklch(0.63 0.006 250)", "oklch(0.75 0.006 250)", "oklch(0.87 0.006 250)", "oklch(0.96 0.006 250)"]
+      },
+      "zinc-ink": {
+        "role": "neutral",
+        "displayName": "Zinc Ink",
+        "canonical": "oklch(0.17 0.005 286)",
+        "tonalRamp": ["oklch(0.15 0.005 286)", "oklch(0.27 0.005 286)", "oklch(0.39 0.005 286)", "oklch(0.51 0.005 286)", "oklch(0.63 0.005 286)", "oklch(0.75 0.005 286)", "oklch(0.87 0.005 286)", "oklch(0.95 0.005 286)"]
+      },
+      "secondary-ink": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "oklch(0.43 0.008 276)",
+        "tonalRamp": ["oklch(0.15 0.008 276)", "oklch(0.27 0.008 276)", "oklch(0.39 0.008 276)", "oklch(0.51 0.008 276)", "oklch(0.63 0.008 276)", "oklch(0.75 0.008 276)", "oklch(0.87 0.008 276)", "oklch(0.95 0.008 276)"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(0.88 0.008 250)",
+        "tonalRamp": ["oklch(0.15 0.008 250)", "oklch(0.27 0.008 250)", "oklch(0.39 0.008 250)", "oklch(0.51 0.008 250)", "oklch(0.63 0.008 250)", "oklch(0.75 0.008 250)", "oklch(0.88 0.008 250)", "oklch(0.95 0.008 250)"]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night Surface",
+        "canonical": "oklch(0.205 0.004 286)",
+        "tonalRamp": ["oklch(0.15 0.004 286)", "oklch(0.205 0.004 286)", "oklch(0.30 0.004 286)", "oklch(0.42 0.004 286)", "oklch(0.55 0.004 286)", "oklch(0.68 0.004 286)", "oklch(0.82 0.004 286)", "oklch(0.95 0.004 286)"]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Night Ink",
+        "canonical": "oklch(0.92 0.004 286)",
+        "tonalRamp": ["oklch(0.15 0.004 286)", "oklch(0.27 0.004 286)", "oklch(0.39 0.004 286)", "oklch(0.51 0.004 286)", "oklch(0.63 0.004 286)", "oklch(0.75 0.004 286)", "oklch(0.87 0.004 286)", "oklch(0.95 0.004 286)"]
+      },
+      "night-secondary": {
+        "role": "neutral",
+        "displayName": "Night Secondary",
+        "canonical": "oklch(0.72 0.006 286)",
+        "tonalRamp": ["oklch(0.15 0.006 286)", "oklch(0.27 0.006 286)", "oklch(0.39 0.006 286)", "oklch(0.51 0.006 286)", "oklch(0.63 0.006 286)", "oklch(0.72 0.006 286)", "oklch(0.84 0.006 286)", "oklch(0.95 0.006 286)"]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Night Muted",
+        "canonical": "oklch(0.64 0.006 286)",
+        "tonalRamp": ["oklch(0.15 0.006 286)", "oklch(0.27 0.006 286)", "oklch(0.39 0.006 286)", "oklch(0.51 0.006 286)", "oklch(0.64 0.006 286)", "oklch(0.76 0.006 286)", "oklch(0.87 0.006 286)", "oklch(0.95 0.006 286)"]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "oklch(0.36 0.006 286)",
+        "tonalRamp": ["oklch(0.15 0.006 286)", "oklch(0.27 0.006 286)", "oklch(0.36 0.006 286)", "oklch(0.48 0.006 286)", "oklch(0.60 0.006 286)", "oklch(0.72 0.006 286)", "oklch(0.84 0.006 286)", "oklch(0.95 0.006 286)"]
+      },
+      "night-control": {
+        "role": "neutral",
+        "displayName": "Night Control",
+        "canonical": "oklch(0.42 0.006 286)",
+        "tonalRamp": ["oklch(0.15 0.006 286)", "oklch(0.27 0.006 286)", "oklch(0.42 0.006 286)", "oklch(0.52 0.006 286)", "oklch(0.64 0.006 286)", "oklch(0.76 0.006 286)", "oklch(0.87 0.006 286)", "oklch(0.95 0.006 286)"]
+      },
+      "night-code": {
+        "role": "neutral",
+        "displayName": "Night Code",
+        "canonical": "oklch(0.84 0.006 286)",
+        "tonalRamp": ["oklch(0.15 0.006 286)", "oklch(0.27 0.006 286)", "oklch(0.39 0.006 286)", "oklch(0.51 0.006 286)", "oklch(0.63 0.006 286)", "oklch(0.75 0.006 286)", "oklch(0.84 0.006 286)", "oklch(0.95 0.006 286)"]
+      },
+      "night-hover": {
+        "role": "neutral",
+        "displayName": "Night Hover",
+        "canonical": "oklch(0.24 0.008 286)",
+        "tonalRamp": ["oklch(0.15 0.008 286)", "oklch(0.24 0.008 286)", "oklch(0.36 0.008 286)", "oklch(0.48 0.008 286)", "oklch(0.60 0.008 286)", "oklch(0.72 0.008 286)", "oklch(0.84 0.008 286)", "oklch(0.95 0.008 286)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero statement only." },
+      "headline": { "displayName": "Headline", "purpose": "Section-level claims." },
+      "title": { "displayName": "Title", "purpose": "Proof and concept titles." },
+      "body": { "displayName": "Body", "purpose": "Primary explanatory copy." },
+      "label": { "displayName": "Label", "purpose": "Runtime evidence and navigation." },
+      "caption": { "displayName": "Caption", "purpose": "Compact navigation and product captions." },
+      "evidence": { "displayName": "Evidence", "purpose": "Paths, sequence labels, and runtime facts." },
+      "micro": { "displayName": "Micro", "purpose": "Edge telemetry and compact chrome." },
+      "code-micro": { "displayName": "Code Micro", "purpose": "Product-frame path metadata only." },
+      "body-small": { "displayName": "Body Small", "purpose": "Dense supporting copy on inverse surfaces." },
+      "body-large": { "displayName": "Body Large", "purpose": "Lead explanatory copy." },
+      "title-small": { "displayName": "Title Small", "purpose": "Compact sequence titles." }
+    },
+    "shadows": [
+      { "name": "product-lift", "value": "0 6px 8px oklch(0.17 0.005 286 / 0.08)", "purpose": "Separates authentic product frames from the working plane." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Compact control and canvas reveal transitions." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "Makes all non-essential transitions effectively immediate." }
+    ],
+    "breakpoints": [
+      { "name": "navigation", "value": "768px" },
+      { "name": "wide-grid", "value": "1024px" },
+      { "name": "edge-telemetry", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary route to the public source repository.",
+      "html": "<a class=\"ds-button-primary\" href=\"#\">View source <svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M4 12 12 4M6 4h6v6\"/></svg></a>",
+      "css": ".ds-button-primary { display:inline-flex; align-items:center; gap:.6rem; min-height:2.75rem; padding:.75rem 1rem; border-radius:6px; background:var(--zinc-ink); color:var(--clear-surface); font:500 .75rem/1.4 var(--font-mono); text-decoration:none; transition:background-color 150ms ease,transform 180ms var(--ease-out-expo); } .ds-button-primary svg { width:1rem; height:1rem; fill:none; stroke:currentColor; stroke-width:1.35; } .ds-button-primary:hover { background:var(--night-hover); transform:translateY(-2px); } .ds-button-primary:focus-visible { outline:2px solid var(--maka-blue-strong); outline-offset:3px; }"
+    },
+    {
+      "name": "Signal Button",
+      "kind": "button",
+      "refersTo": "button-signal",
+      "description": "A single emphasized action on the inverse source section.",
+      "html": "<a class=\"ds-button-signal\" href=\"#\">Open GitHub</a>",
+      "css": ".ds-button-signal { display:inline-flex; align-items:center; min-height:2.75rem; padding:.75rem 1rem; border-radius:6px; background:var(--maka-blue); color:var(--zinc-ink); font:500 .75rem/1.4 var(--font-mono); text-decoration:none; transition:background-color 150ms ease,transform 180ms var(--ease-out-expo); } .ds-button-signal:hover { background:var(--maka-blue-strong); color:var(--clear-surface); transform:translateY(-2px); } .ds-button-signal:focus-visible { outline:2px solid var(--maka-blue); outline-offset:3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary route to architecture documentation.",
+      "html": "<a class=\"ds-button-ghost\" href=\"#\">Read architecture</a>",
+      "css": ".ds-button-ghost { display:inline-flex; align-items:center; min-height:2.75rem; padding:.75rem 1rem; border:1px solid var(--hairline); border-radius:6px; background:var(--working-plane); color:var(--zinc-ink); font:500 .75rem/1.4 var(--font-mono); text-decoration:none; transition:border-color 150ms ease,background-color 150ms ease; } .ds-button-ghost:hover { border-color:var(--maka-blue-strong); background:var(--signal-wash); } .ds-button-ghost:focus-visible { outline:2px solid var(--maka-blue-strong); outline-offset:3px; }"
+    },
+    {
+      "name": "Primary Navigation",
+      "kind": "nav",
+      "description": "Opaque command-bar navigation with a compact Maka wordmark.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-wordmark\" href=\"#\"><svg viewBox=\"0 0 28 28\" aria-hidden=\"true\"><path d=\"M8 4H4v20h4M20 4h4v20h-4\"/><circle cx=\"14\" cy=\"14\" r=\"2.5\"/></svg>MAKA</a><span><a href=\"#\">Work</a><a href=\"#\">Runtime</a><a href=\"#\">Architecture</a></span></nav>",
+      "css": ".ds-nav { display:flex; align-items:center; justify-content:space-between; min-height:4rem; padding:0 1rem; border-bottom:1px solid var(--hairline); background:var(--working-plane); color:var(--zinc-ink); font:500 .75rem/1.4 var(--font-mono); } .ds-nav a { display:inline-flex; align-items:center; min-height:2.75rem; padding:0 .9rem; color:inherit; text-decoration:none; } .ds-nav a:hover { background:var(--signal-wash); } .ds-nav a:focus-visible { outline:2px solid var(--maka-blue-strong); outline-offset:3px; } .ds-wordmark { gap:.6rem; font-weight:650; letter-spacing:.16em; } .ds-wordmark svg { width:1.75rem; fill:none; stroke:currentColor; stroke-width:1.4; } .ds-wordmark circle { fill:var(--maka-blue); stroke:none; }"
+    },
+    {
+      "name": "Product Proof Frame",
+      "kind": "custom",
+      "refersTo": "product-frame",
+      "description": "Authentic product evidence with compact workspace chrome.",
+      "html": "<figure class=\"ds-product-frame\"><div class=\"ds-product-chrome\"><i></i><i></i><i></i><span>MAKA / LOCAL WORKSPACE</span></div><div class=\"ds-product-canvas\">AUTHENTIC PRODUCT IMAGE</div><figcaption>Artifact pane / real visual-test fixture</figcaption></figure>",
+      "css": ".ds-product-frame { margin:0; overflow:hidden; border:1px solid var(--hairline); border-radius:8px; background:var(--clear-surface); box-shadow:0 6px 8px oklch(0.17 0.005 286 / .08); color:var(--secondary-ink); font:500 .625rem/1.4 var(--font-mono); } .ds-product-chrome { display:flex; align-items:center; gap:.35rem; min-height:2rem; padding:0 .75rem; border-bottom:1px solid var(--hairline); } .ds-product-chrome i { width:.35rem; height:.35rem; border:1px solid var(--secondary-ink); border-radius:50%; } .ds-product-chrome span { margin-left:auto; } .ds-product-canvas { display:grid; min-height:12rem; place-content:center; background:var(--cool-surface); color:var(--secondary-ink); } .ds-product-frame figcaption { padding:.5rem .75rem; border-top:1px solid var(--hairline); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Executable Working Plane",
+    "overview": "The website translates Maka's official Companion Command Center into a public, evidence-led brand surface. It feels like a precise work instrument laid open in daylight: a cool white plane, stable measurements, compact controls, and one live blue signal that makes execution legible. The measured grid, edge telemetry, and DOM/WebGL cooperation come from the reference study, but the content model is Maka's own: task, turn, Tool Call, permission, artifact, Event Log, and recovery.",
+    "keyCharacteristics": [
+      "One connected working plane instead of stacked marketing cards.",
+      "Restrained blue signals against cool achromatic structure.",
+      "Large exact typography paired with compact runtime evidence.",
+      "Real product screenshots integrated into the spatial narrative.",
+      "One purposeful execution-field motion system with a complete static fallback."
+    ],
+    "rules": [
+      { "name": "The Signal, Not Texture Rule", "body": "Blue communicates action or runtime state. It never becomes a background flood, gradient, glow, or decorative atmosphere.", "section": "colors" },
+      { "name": "The Restrained Strategy Rule", "body": "Blue stays below 10% of a viewport. If a screenshot makes the page feel blue, the surrounding canvas gets quieter rather than adding another color.", "section": "colors" },
+      { "name": "The Native Evidence Rule", "body": "Mono is reserved for code, paths, coordinates, commands, identifiers, and numeric evidence. Marketing sentences always use the sans voice.", "section": "typography" },
+      { "name": "The One Statement Rule", "body": "Only one text block per viewport earns display scale. Display tracking never goes tighter than -0.04em.", "section": "typography" },
+      { "name": "The One Working Plane Rule", "body": "Dividers express responsibility; shadows never fragment the page into a dashboard.", "section": "elevation" },
+      { "name": "The Honest Glass Rule", "body": "Blur and transparency never substitute for hierarchy. Navigation remains opaque enough to preserve contrast.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do integrate real Maka screenshots beside the claim they prove.",
+      "Do use Maka Blue only for action, focus, selection, and live state.",
+      "Do keep semantic DOM content complete beneath the execution field.",
+      "Do gate renderer work by visibility, cap DPR at 2, and provide reduced-motion and WebGL fallbacks.",
+      "Do re-compose the grid for mobile with 44px touch targets and no horizontal reading scroll."
+    ],
+    "donts": [
+      "Don't use generic AI tool marketing: purple-blue gradients, decorative glow, glassmorphism, sparkle, floating chat bubbles, or fake thinking.",
+      "Don't use fake terminal aesthetics, invented commands, fake metrics, fake dashboards, testimonials, or capability claims unsupported by the official repository.",
+      "Don't use mascots, anime characters, fake emotion, or avatar-led storytelling.",
+      "Don't use identical card grids, hero-metric templates, bento layouts, or repeated tiny uppercase section eyebrows.",
+      "Don't make a surface-level clone of haoqi.design, including its acid green, exact section order, typography ratios, portfolio content, custom fonts, or shader code.",
+      "Don't use gradient text, side-stripe accents, decorative grid wallpaper, cream/sand backgrounds, or card radii above 16px."
+    ]
+  }
+}

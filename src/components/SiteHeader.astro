@@ -1,0 +1,36 @@
+---
+const githubUrl = "https://github.com/maka-agent/maka-agent";
+---
+
+<header class="site-header" aria-label="Primary">
+  <a class="wordmark" href="#top" aria-label="Maka home">
+    <svg class="wordmark__mark" viewBox="0 0 28 28" aria-hidden="true">
+      <path d="M8 4H4v20h4M20 4h4v20h-4" />
+      <circle cx="14" cy="14" r="2.5" />
+    </svg>
+    <span>MAKA</span>
+  </a>
+
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="#work">Work</a>
+    <a href="#runtime">Runtime</a>
+    <a href="#architecture">Architecture</a>
+  </nav>
+
+  <a class="header-github" href={githubUrl} target="_blank" rel="noreferrer">
+    <span>GitHub</span>
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+  </a>
+
+  <details class="mobile-nav">
+    <summary aria-label="Toggle navigation">
+      <span></span><span></span>
+    </summary>
+    <nav aria-label="Mobile navigation">
+      <a href="#work">Work</a>
+      <a href="#runtime">Runtime</a>
+      <a href="#architecture">Architecture</a>
+      <a href={githubUrl} target="_blank" rel="noreferrer">View source</a>
+    </nav>
+  </details>
+</header>

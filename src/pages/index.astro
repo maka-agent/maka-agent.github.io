@@ -1,0 +1,250 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import ExecutionField from "../components/ExecutionField.astro";
+import ProductFrame from "../components/ProductFrame.astro";
+import artifactPane from "../assets/maka-artifact-pane.png";
+import firstRun from "../assets/maka-first-run.png";
+import artifactErrors from "../assets/maka-artifact-errors.png";
+
+const githubUrl = "https://github.com/maka-agent/maka-agent";
+const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
+const securityUrl = `${githubUrl}/blob/main/SECURITY.md`;
+---
+
+<BaseLayout
+  title="Maka — Your work. Your agent."
+  description="A local-first Agent workspace built for real work. Inspect Tool Calls, review artifacts, and recover durable progress on your machine."
+>
+  <div id="top" class="site-shell">
+    <ExecutionField />
+    <SiteHeader />
+
+    <aside class="edge-telemetry edge-telemetry--left" aria-hidden="true">
+      <span>X <b id="telemetry-x">0000</b></span>
+      <span>Y <b id="telemetry-y">0000</b></span>
+    </aside>
+    <aside class="edge-telemetry edge-telemetry--right" aria-hidden="true">
+      <span>MODE <b>LOCAL-FIRST</b></span>
+      <span>STATE <b id="telemetry-section">OVERVIEW</b></span>
+    </aside>
+
+    <main id="main-content">
+      <section class="hero content-grid" data-field-state="0" data-field-label="OVERVIEW" aria-labelledby="hero-title">
+        <div class="hero__identity">
+          <p class="hero__kicker"><span></span>Your work. Your agent.</p>
+          <p>Maka keeps the task, the tools, and the evidence on one inspectable working plane.</p>
+        </div>
+
+        <div class="hero__statement">
+          <h1 id="hero-title"><span>Your work.</span><span>Your agent.</span></h1>
+          <p class="hero__dek">A local-first Agent workspace built for real work—not another disposable chat window.</p>
+          <div class="button-row">
+            <a class="button button--primary" href={githubUrl} target="_blank" rel="noreferrer">
+              View source
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+            <a class="button button--ghost" href={architectureUrl} target="_blank" rel="noreferrer">Read architecture</a>
+          </div>
+        </div>
+
+        <div class="hero__signal" aria-label="Maka execution model">
+          <p>THE EXECUTION FIELD</p>
+          <dl>
+            <div><dt>01</dt><dd>Conversation</dd></div>
+            <div><dt>02</dt><dd>Tool Call</dd></div>
+            <div><dt>03</dt><dd>Artifact</dd></div>
+            <div><dt>04</dt><dd>Recovery</dd></div>
+          </dl>
+        </div>
+
+        <ol class="execution-ledger" aria-label="Execution sequence">
+          <li class="is-active"><span>Local</span><small>on your machine</small></li>
+          <li><span>Tool</span><small>permission-bound</small></li>
+          <li><span>Artifact</span><small>ready to inspect</small></li>
+          <li><span>Recover</span><small>progress preserved</small></li>
+        </ol>
+      </section>
+
+      <section id="work" class="work-section content-grid" data-field-state="1" data-field-label="WORK" aria-labelledby="work-title">
+        <div class="section-copy work-section__copy">
+          <h2 id="work-title">The work stays visible.</h2>
+          <p>Maka connects the request, the Tool Calls, and the generated files in one workspace. You can inspect what happened and review the output beside the conversation that produced it.</p>
+        </div>
+
+        <ProductFrame
+          class="work-section__product"
+          src={artifactPane}
+          alt="Maka workspace showing a Chinese task conversation beside generated Markdown, diff, and HTML files in the Artifact pane."
+          caption="Artifact pane / light theme / real visual-test fixture"
+        />
+
+        <dl class="proof-rail">
+          <div>
+            <dt><span class="proof-shape proof-shape--dot"></span>Conversation</dt>
+            <dd>The task remains the center of the workspace.</dd>
+          </div>
+          <div>
+            <dt><span class="proof-shape proof-shape--square"></span>Tool Call</dt>
+            <dd>Execution and permission state stay attached to the turn.</dd>
+          </div>
+          <div>
+            <dt><span class="proof-shape proof-shape--ring"></span>Artifact</dt>
+            <dd>Generated files appear as real outputs, not chat decoration.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section id="runtime" class="runtime-section" data-field-state="2" data-field-label="RUNTIME" aria-labelledby="runtime-title">
+        <div class="runtime-section__inner content-grid">
+          <div class="runtime-section__lead">
+            <h2 id="runtime-title">The log is the runtime.</h2>
+            <p>Messages, Tool Calls, Tool Results, and termination facts enter an event log. Sessions, UI, model context, and recovery are projections over that recorded execution.</p>
+          </div>
+
+          <ol class="runtime-flow" aria-label="Maka runtime event flow">
+            <li><span>01</span><strong>Request</strong><p>The user's task enters a Turn.</p></li>
+            <li><span>02</span><strong>AgentRun</strong><p>Model and tools advance the work.</p></li>
+            <li><span>03</span><strong>Event Log</strong><p>Execution facts are appended.</p></li>
+            <li><span>04</span><strong>Projections</strong><p>Context and UI read the same record.</p></li>
+            <li><span>05</span><strong>Recovery</strong><p>Interrupted work can be understood.</p></li>
+          </ol>
+
+          <pre class="runtime-diagram" aria-label="Maka backend architecture flow"><code>Desktop / TUI / Headless
+          ↓
+SessionManager → AgentRun → Model + Tool Runtime
+          ↓
+Runtime Event Log → Context / Session / UI projections
+          ↓
+Task Event Log → TaskRun → Self-check / AHE evidence</code></pre>
+        </div>
+      </section>
+
+      <section id="architecture" class="architecture-section content-grid" data-field-state="3" data-field-label="ARCHITECTURE" aria-labelledby="architecture-title">
+        <div class="architecture-section__statement">
+          <h2 id="architecture-title">Context is not history.</h2>
+          <p>Tool Result pruning and model compaction can change what the next inference sees without treating recorded execution as disposable context.</p>
+        </div>
+
+        <div class="architecture-lines" aria-label="Architecture principles">
+          <article>
+            <span>01 / LOCAL-FIRST</span>
+            <h3>Your records stay on your machine by default.</h3>
+            <p>Choose a cloud API, compatible gateway, or local model connection. Maka does not bundle a shared model account.</p>
+          </article>
+          <article>
+            <span>02 / DURABLE TASKS</span>
+            <h3>A task may outlive a Turn.</h3>
+            <p>TaskRun and its event log make long-running work interruptible, inspectable, and exportable.</p>
+          </article>
+          <article>
+            <span>03 / PERMISSIONS</span>
+            <h3>Tools operate behind an explicit boundary.</h3>
+            <p>Schema validation, dynamic availability, watchdogs, abort, and error classification keep execution legible.</p>
+          </article>
+        </div>
+
+        <a class="text-link architecture-section__link" href={architectureUrl} target="_blank" rel="noreferrer">
+          Inspect the complete architecture
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+        </a>
+      </section>
+
+      <section class="connection-section content-grid" data-field-state="4" data-field-label="CONNECTIONS" aria-labelledby="connection-title">
+        <div class="section-copy connection-section__copy">
+          <h2 id="connection-title">Bring the connection you trust.</h2>
+          <p>First run makes the boundary explicit: add an API, local-model, or supported account connection, test it, then choose the default you want Maka to use.</p>
+        </div>
+
+        <ProductFrame
+          class="connection-section__product"
+          src={firstRun}
+          alt="Maka first-run screen in Chinese listing provider connections including Claude, OpenAI, GLM, Kimi, DeepSeek, and Ollama."
+          caption="First run / provider selection / real visual-test fixture"
+        />
+
+        <div class="connection-facts">
+          <p><strong>Configured</strong><span>Connection details exist.</span></p>
+          <p><strong>Send-ready</strong><span>The runtime can actually use it.</span></p>
+          <p><strong>Experimental</strong><span>Preview paths stay labeled as such.</span></p>
+        </div>
+      </section>
+
+      <section class="honesty-section content-grid" data-field-state="5" data-field-label="BOUNDARIES" aria-labelledby="honesty-title">
+        <div class="honesty-section__statement">
+          <h2 id="honesty-title">Failure stays part of the record.</h2>
+          <p>Missing files, unsupported previews, interrupted tools, and provider errors do not disappear behind a success animation. The interface names the boundary and keeps recovery possible.</p>
+          <a class="text-link" href={securityUrl} target="_blank" rel="noreferrer">
+            Read the security boundary
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+          </a>
+        </div>
+
+        <ProductFrame
+          class="honesty-section__product"
+          src={artifactErrors}
+          alt="Maka Artifact pane showing a deleted file and a clear Chinese error message explaining that the generated file can no longer be read."
+          caption="Artifact error state / explicit boundary / real visual-test fixture"
+        />
+      </section>
+
+      <section class="surfaces-section" data-field-state="6" data-field-label="SURFACES" aria-labelledby="surfaces-title">
+        <div class="surfaces-section__inner content-grid">
+          <h2 id="surfaces-title">One runtime. Three ways in.</h2>
+          <ul class="surface-list">
+            <li>
+              <span>01</span>
+              <h3>Desktop</h3>
+              <p>Daily interaction, generated files, provider setup, permissions, search, branching, and recovery.</p>
+              <small>Electron + React</small>
+            </li>
+            <li>
+              <span>02</span>
+              <h3>TUI / CLI</h3>
+              <p>Work from the current project directory or run one non-interactive Turn with the same connections.</p>
+              <small>maka / maka run</small>
+            </li>
+            <li>
+              <span>03</span>
+              <h3>Headless</h3>
+              <p>Advance durable tasks with budgets, continuation, evidence export, and failed-task retry.</p>
+              <small>maka eval</small>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="final-section content-grid" data-field-state="7" data-field-label="SOURCE" aria-labelledby="final-title">
+        <div class="final-section__copy">
+          <h2 id="final-title">Built in the open.<br />Ready to inspect.</h2>
+          <p>Maka is under active development and currently targets people running from source or contributing to the project. Start with the code, the architecture, and the boundaries as they exist today.</p>
+          <div class="button-row">
+            <a class="button button--signal" href={githubUrl} target="_blank" rel="noreferrer">
+              Open GitHub
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+            <a class="button button--dark-ghost" href={`${githubUrl}#quick-start`} target="_blank" rel="noreferrer">Run from source</a>
+          </div>
+        </div>
+        <p class="final-section__path">github.com / maka-agent / maka-agent</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="wordmark wordmark--footer" href="#top" aria-label="Maka — back to top">
+        <svg class="wordmark__mark" viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M8 4H4v20h4M20 4h4v20h-4" />
+          <circle cx="14" cy="14" r="2.5" />
+        </svg>
+        <span>MAKA</span>
+      </a>
+      <p>A local-first Agent workspace built for real work.</p>
+      <nav aria-label="Footer navigation">
+        <a href={githubUrl} target="_blank" rel="noreferrer">GitHub</a>
+        <a href={architectureUrl} target="_blank" rel="noreferrer">Architecture</a>
+        <a href={securityUrl} target="_blank" rel="noreferrer">Security</a>
+      </nav>
+      <p class="site-footer__meta">Open source · Source-first · No fabricated proof</p>
+    </footer>
+  </div>
+</BaseLayout>
