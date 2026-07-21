@@ -217,10 +217,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
     const views = ["overview", "product", "runtime"] as const;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let transitionToken = 0;
 
     const setView = (requested: string, updateHash = true) => {
       const view = views.includes(requested as (typeof views)[number]) ? requested : "overview";
       if (!stage || stage.dataset.view === view) return;
+      const outgoing = stage.dataset.view ?? "overview";
+      const token = ++transitionToken;
+      if (!reduceMotion.matches) {
+        stage.dataset.entering = view;
+        stage.dataset.transitioning = `${outgoing}-to-${view}`;
+      } else {
+        delete stage.dataset.entering;
+        delete stage.dataset.transitioning;
+      }
       stage.dataset.view = view;
       panels.forEach((panel) => {
         const active = panel.dataset.viewPanel === view;
@@ -238,6 +249,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       if (statusIndex) statusIndex.textContent = `0${index + 1} / 03`;
       if (updateHash) history.replaceState(null, "", `#${view}`);
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
+
+      if (!reduceMotion.matches) {
+        requestAnimationFrame(() => {
+          if (token !== transitionToken || !stage) return;
+          const activePanel = stage.querySelector<HTMLElement>(`[data-view-panel="${view}"]`);
+          activePanel?.getBoundingClientRect();
+          requestAnimationFrame(() => {
+            if (token !== transitionToken || !stage) return;
+            delete stage.dataset.entering;
+            window.setTimeout(() => {
+              if (token === transitionToken && stage) delete stage.dataset.transitioning;
+            }, 1250);
+          });
+        });
+      }
     };
 
     links.forEach((link) => link.addEventListener("click", (event) => {

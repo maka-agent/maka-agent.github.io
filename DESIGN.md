@@ -253,6 +253,8 @@ Authentic Maka screenshots retain their original aspect ratio and UI text. A fra
 
 One source image may appear once as the complete task context and once as a clearly labeled detail crop when the crop reveals otherwise unreadable product evidence. The detail never rearranges or redraws the underlying interface, and its entrance follows the main frame so the relationship remains legible.
 
+The Overview → Product handoff uses an explicit two-frame preparation lifecycle so the hidden panel cannot skip its CSS transition. The paper scaffold and primary screenshot arrive first from the right in a low-saturation state; copy resolves from blur and offset next; the Artifact detail and smaller permission/clarification proofs rise last. Runtime uses the same lifecycle for its circular reveal. `prefers-reduced-motion` bypasses preparation and settles every state immediately.
+
 ## 6. Do's and Don'ts
 
 ### Do:

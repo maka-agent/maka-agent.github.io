@@ -97,6 +97,29 @@ for (const [label, width, height] of VIEWPORTS) {
   if (label === "desktop") {
     await page.goto(new URL("#overview", BASE_URL).href, { waitUntil: "networkidle", timeout: NAVIGATION_TIMEOUT });
     await page.waitForFunction(() => document.documentElement.dataset.field === "ready" && scrollY === 0);
+
+    await page.locator('.view-nav [data-view-target="product"]').click();
+    const transitionMarker = await page.locator(".stage").getAttribute("data-transitioning");
+    if (transitionMarker !== "overview-to-product") {
+      throw new Error(`desktop: missing Product transition lifecycle marker (${transitionMarker})`);
+    }
+    const productTransitionConfig = await page.locator(".product-shot--main").evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { property: style.transitionProperty, duration: style.transitionDuration };
+    });
+    if (!productTransitionConfig.property.includes("clip-path") || !productTransitionConfig.property.includes("filter") || productTransitionConfig.duration.split(",").every((value) => value.trim() === "0s")) {
+      throw new Error(`desktop: Product transition CSS is inactive ${JSON.stringify(productTransitionConfig)}`);
+    }
+    await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+    const productFinalState = await page.locator(".product-shot--main").evaluate((element) => {
+      const style = getComputedStyle(element);
+      return { opacity: Number(style.opacity), clipPath: style.clipPath, filter: style.filter };
+    });
+    if (productFinalState.opacity !== 1 || productFinalState.clipPath !== "inset(0px)" || productFinalState.filter !== "none") {
+      throw new Error(`desktop: Product transition did not settle ${JSON.stringify(productFinalState)}`);
+    }
+    await page.locator('.view-nav [data-view-target="overview"]').click();
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
   }
 
   for (const [index, view] of ["overview", "product", "runtime"].entries()) {
@@ -108,6 +131,10 @@ for (const [label, width, height] of VIEWPORTS) {
     }
     const footerIndex = await page.locator(".stage-status em").innerText();
     if (footerIndex !== `0${index + 1} / 03`) throw new Error(`${label}: footer state mismatch`);
+    if (view === "product" && (label === "phone-390" || label === "desktop")) {
+      await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+      await page.screenshot({ path: `${RESULTS}/${label}-product.png` });
+    }
   }
 
   await page.keyboard.press("ArrowLeft");

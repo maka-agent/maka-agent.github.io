@@ -381,6 +381,17 @@ html[data-field="unavailable"] .execution-field canvas {
   transition: opacity 520ms ease, visibility 0s;
 }
 
+.stage[data-entering="overview"] .view--overview.is-active .overview-note,
+.stage[data-entering="overview"] .view--overview.is-active .hero-copy,
+.stage[data-entering="overview"] .view--overview.is-active .object-index {
+  opacity: 0;
+  filter: blur(10px);
+}
+
+.stage[data-entering="overview"] .view--overview.is-active .overview-note { transform: translateY(-2rem); }
+.stage[data-entering="overview"] .view--overview.is-active .hero-copy { transform: translateY(4rem); }
+.stage[data-entering="overview"] .view--overview.is-active .object-index { transform: translateX(3rem); }
+
 .overview-note {
   position: absolute;
   z-index: 2;
@@ -530,11 +541,34 @@ html[data-field="unavailable"] .execution-field canvas {
   transition: clip-path 900ms var(--ease-expo), opacity 260ms ease, visibility 0s;
 }
 
+.stage[data-entering="product"] .view--product.is-active {
+  clip-path: inset(0 0 0 100%);
+}
+
 .product-copy {
   z-index: 3;
   align-self: center;
   max-width: 27rem;
   padding: 1rem clamp(1.5rem, 3vw, 3rem) 1rem 0;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(-2.4rem, 0, 0);
+  transition:
+    transform 780ms var(--ease-expo) 180ms,
+    opacity 360ms ease 180ms,
+    filter 560ms ease 180ms;
+}
+
+.view--product.is-active .product-copy {
+  opacity: 1;
+  filter: none;
+  transform: translate3d(0, 0, 0);
+}
+
+.stage[data-entering="product"] .view--product.is-active .product-copy {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(-2.4rem, 0, 0);
 }
 
 .section-signal { display: flex; align-items: center; }
@@ -593,7 +627,12 @@ html[data-field="unavailable"] .execution-field canvas {
   bottom: 7%;
   left: 8%;
   background: var(--cool-surface);
+  clip-path: inset(0 0 0 100%);
+  transition: clip-path 720ms var(--ease-expo);
 }
+
+.view--product.is-active .product-gallery::before { clip-path: inset(0); }
+.stage[data-entering="product"] .view--product.is-active .product-gallery::before { clip-path: inset(0 0 0 100%); }
 
 .product-shot,
 .product-detail,
@@ -611,16 +650,26 @@ html[data-field="unavailable"] .execution-field canvas {
   clip-path: inset(0 0 0 100%);
   transform: translate3d(7vw, 2vh, 0) scale(0.97);
   transform-origin: right center;
+  filter: saturate(0.22) contrast(0.82) brightness(1.1);
   transition:
     clip-path 920ms var(--ease-expo) 80ms,
     transform 980ms var(--ease-expo) 80ms,
-    opacity 260ms ease 80ms;
+    opacity 260ms ease 80ms,
+    filter 720ms ease 80ms;
 }
 
 .view--product.is-active .product-shot--main {
   opacity: 1;
   clip-path: inset(0);
   transform: translate3d(0, 0, 0) scale(1);
+  filter: none;
+}
+
+.stage[data-entering="product"] .view--product.is-active .product-shot--main {
+  opacity: 0;
+  clip-path: inset(0 0 0 100%);
+  transform: translate3d(7vw, 2vh, 0) scale(0.97);
+  filter: saturate(0.22) contrast(0.82) brightness(1.1);
 }
 
 .product-shot__bar {
@@ -727,6 +776,11 @@ html[data-field="unavailable"] .execution-field canvas {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
+.stage[data-entering="product"] .view--product.is-active .product-detail {
+  opacity: 0;
+  transform: translate3d(0, 110%, 0) scale(0.94);
+}
+
 .product-detail__crop {
   height: calc(100% - 1.8rem);
   overflow: hidden;
@@ -762,6 +816,9 @@ html[data-field="unavailable"] .execution-field canvas {
 .view--product.is-active .product-proof { opacity: 1; }
 .view--product.is-active .product-proof--streaming { transform: translateY(0) rotate(-2.4deg); }
 .view--product.is-active .product-proof--empty { transform: translateY(0) rotate(1.7deg); }
+.stage[data-entering="product"] .view--product.is-active .product-proof { opacity: 0; }
+.stage[data-entering="product"] .view--product.is-active .product-proof--streaming { transform: translateY(120%) rotate(-2.4deg); }
+.stage[data-entering="product"] .view--product.is-active .product-proof--empty { transform: translateY(120%) rotate(1.7deg); }
 
 .view--runtime {
   display: grid;
@@ -780,8 +837,25 @@ html[data-field="unavailable"] .execution-field canvas {
   transition: clip-path 950ms var(--ease-expo), opacity 250ms ease, visibility 0s;
 }
 
+.stage[data-entering="runtime"] .view--runtime.is-active {
+  clip-path: circle(0% at 72% 48%);
+}
+
 .section-signal--light span { background: var(--blue); }
-.runtime-copy { z-index: 3; align-self: center; }
+.runtime-copy {
+  z-index: 3;
+  align-self: center;
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(-2.2rem, 0, 0);
+  transition: transform 760ms var(--ease-expo) 180ms, opacity 360ms ease 180ms, filter 520ms ease 180ms;
+}
+.view--runtime.is-active .runtime-copy { opacity: 1; filter: none; transform: translate3d(0, 0, 0); }
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-copy {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(-2.2rem, 0, 0);
+}
 .runtime-copy > p:not(.section-signal) { color: oklch(0.76 0.012 250); }
 
 .runtime-copy > a {
@@ -807,6 +881,7 @@ html[data-field="unavailable"] .execution-field canvas {
 }
 
 .view--runtime.is-active .runtime-map { opacity: 1; transform: scale(1) rotate(0); }
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-map { opacity: 0; transform: scale(0.72) rotate(-7deg); }
 
 .runtime-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .runtime-map svg path { fill: none; stroke: oklch(0.73 0.1 250 / 0.5); stroke-width: 1.2; vector-effect: non-scaling-stroke; }

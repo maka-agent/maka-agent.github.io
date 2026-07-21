@@ -57,6 +57,10 @@ use original copy, composition, assets, and shaders.
   are not rendered continuously.
 - `SOURCE` — The canvas is page-coupled through `sectionPosition`, `domImages`,
   scroll state, pointer state, and route/loading controllers.
+- `SOURCE` — Activating `WORK` preserves the same URL and persistent grid/header,
+  replaces the hero scaffold in the first sampled transition frame, and reveals
+  the leading project image from a low-contrast wash to full contrast within
+  roughly the first 400ms. The structure arrives before the image finish.
 
 ## Renderer findings
 
