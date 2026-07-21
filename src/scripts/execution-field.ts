@@ -237,7 +237,7 @@ if (canvas) {
         0.42,
       );
       const stroke = new THREE.Mesh(
-        new THREE.TubeGeometry(path, Math.max(64, points.length * 20), radius, 28, closed),
+        new THREE.TubeGeometry(path, Math.max(48, points.length * 12), radius, 18, closed),
         wordGlass,
       );
       stroke.castShadow = true;
@@ -357,7 +357,7 @@ if (canvas) {
     satellites.add(task);
 
     const tool = new THREE.Group();
-    const toolRing = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.17, 18, 90), ink);
+    const toolRing = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.17, 14, 56), ink);
     const toolPin = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 2), cobalt);
     tool.add(toolRing, toolPin);
     tool.position.set(5.72, 2.5, 0.18);
@@ -380,7 +380,7 @@ if (canvas) {
     satellites.add(artifact);
 
     const recovery = new THREE.Mesh(
-      new THREE.TorusGeometry(0.7, 0.17, 20, 90, Math.PI * 1.72),
+      new THREE.TorusGeometry(0.7, 0.17, 14, 56, Math.PI * 1.72),
       pearl,
     );
     recovery.position.set(-5.72, -2.72, 0.38);
@@ -391,7 +391,7 @@ if (canvas) {
 
     const permission = new THREE.Group();
     const permissionSeal = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.18, 8), permissionAmber);
-    const keyHead = new THREE.Mesh(new THREE.SphereGeometry(0.14, 20, 20), ink);
+    const keyHead = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), ink);
     const keyStem = new THREE.Mesh(new RoundedBoxGeometry(0.14, 0.34, 0.09, 3, 0.045), ink);
     permissionSeal.rotation.x = Math.PI / 2;
     keyHead.position.set(0, 0.1, 0.15);
@@ -444,7 +444,7 @@ if (canvas) {
     cursor.castShadow = true;
     scene.add(cursor);
 
-    const nodeGeometry = new THREE.SphereGeometry(0.115, 20, 20);
+    const nodeGeometry = new THREE.SphereGeometry(0.115, 14, 14);
     const nodes = Array.from({ length: 9 }, (_, index) => {
       const node = new THREE.Mesh(nodeGeometry, index % 3 === 0 ? cobalt : ink);
       const angle = (index / 9) * Math.PI * 2;
@@ -750,7 +750,7 @@ if (canvas) {
     });
 
     new ResizeObserver(resize).observe(canvas);
-    applyState(document.querySelector<HTMLElement>(".stage")?.dataset.view === "product" ? 1 : document.querySelector<HTMLElement>(".stage")?.dataset.view === "runtime" ? 2 : 0);
+    applyState(Math.max(0, ["overview", "product", "runtime", "surfaces"].indexOf(document.querySelector<HTMLElement>(".stage")?.dataset.view ?? "overview")));
     resize();
 
     const ready = async () => {
