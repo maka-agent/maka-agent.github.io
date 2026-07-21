@@ -427,7 +427,7 @@ html[data-field="unavailable"] .execution-field canvas {
   align-items: center;
   justify-self: start;
   gap: 0.65rem;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 720;
   letter-spacing: 0.16em;
 }
@@ -456,7 +456,7 @@ html[data-field="unavailable"] .execution-field canvas {
   justify-content: center;
   min-width: 6.5rem;
   padding: 0 1rem;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 540;
   letter-spacing: 0.03em;
 }
@@ -500,7 +500,7 @@ html[data-field="unavailable"] .execution-field canvas {
   align-items: center;
   justify-self: end;
   gap: 0.55rem;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 580;
 }
 
@@ -533,7 +533,7 @@ html[data-field="unavailable"] .execution-field canvas {
   background: none;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: 0.74rem;
   font-weight: 640;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1350,7 +1350,7 @@ html[data-field="unavailable"] .execution-field canvas {
   padding: 0 var(--gutter);
   border-top: 1px solid var(--grid-color);
   font-family: var(--mono);
-  font-size: 0.58rem;
+  font-size: 0.66rem;
   letter-spacing: 0.04em;
 }
 
