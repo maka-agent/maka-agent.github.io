@@ -2,6 +2,8 @@
 import "@fontsource-variable/geist/wght.css";
 import "@fontsource-variable/geist-mono/wght.css";
 import "../styles/global.css";
+import geistLatinUrl from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import geistMonoLatinUrl from "@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url";
 
 interface Props {
   title: string;
@@ -27,6 +29,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:site_name" content="Maka" />
     <meta name="twitter:card" content="summary" />
     <link rel="canonical" href={canonical} />
+    <link rel="preload" as="font" type="font/woff2" href={geistLatinUrl} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={geistMonoLatinUrl} crossorigin />
     <link rel="icon" href="/favicon.png" type="image/png" sizes="48x48" />
     <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -43,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       document.documentElement.dataset.bootTimeout = String(window.setTimeout(() => {
         document.documentElement.dataset.boot = "complete";
         delete document.documentElement.dataset.bootTimeout;
-      }, 3200));
+      }, 2400));
     </script>
     <title>{title}</title>
   </head>
