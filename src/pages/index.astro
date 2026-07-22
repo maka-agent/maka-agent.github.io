@@ -346,20 +346,29 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
 
       if (!reduceMotion.matches) {
+        const duration = transitionDurations[view as keyof typeof transitionDurations];
+        const clearEntering = () => {
+          if (token !== transitionToken || !stage) return;
+          delete stage.dataset.entering;
+        };
+        const clearTransitioning = () => {
+          if (token !== transitionToken || !stage) return;
+          delete stage.dataset.transitioning;
+          delete stage.dataset.transitionDuration;
+        };
+        // rAF path plays the entrance animation on a visible page: a forced
+        // reflow commits the entering styles before the flag is removed.
         requestAnimationFrame(() => {
           if (token !== transitionToken || !stage) return;
-          const activePanel = stage.querySelector<HTMLElement>(`[data-view-panel="${view}"]`);
-          activePanel?.getBoundingClientRect();
-          requestAnimationFrame(() => {
-            if (token !== transitionToken || !stage) return;
-            delete stage.dataset.entering;
-            window.setTimeout(() => {
-              if (token !== transitionToken || !stage) return;
-              delete stage.dataset.transitioning;
-              delete stage.dataset.transitionDuration;
-            }, transitionDurations[view as keyof typeof transitionDurations]);
-          });
+          stage.querySelector<HTMLElement>(`[data-view-panel="${view}"]`)?.getBoundingClientRect();
+          requestAnimationFrame(clearEntering);
         });
+        // Timer fallback: rAF is paused while the page is hidden, so without
+        // this the entering flag — which gates semantic content opacity —
+        // could stall at 0. Timers still fire when hidden, so content always
+        // reaches its settled, visible state.
+        window.setTimeout(clearEntering, 120);
+        window.setTimeout(clearTransitioning, duration);
       }
     };
 
