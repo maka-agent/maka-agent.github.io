@@ -209,16 +209,16 @@ if (canvas) {
           float micro = 0.5 + 0.5 * sin(vMakaWordPosition.x * 6.2 + vMakaWordPosition.y * 8.7 - uMakaTime * 0.75);
           float motion = min(1.0, uMakaVelocity);
 
-          vec3 body = vec3(0.54, 0.79, 0.97);
-          vec3 edge = vec3(0.12, 0.5, 0.9);
-          vec3 highlight = vec3(1.0, 0.985, 0.92);
-          vec3 color = mix(body, edge, rim * 0.76 + upperEdge * 0.12);
-          color = mix(color, highlight, thinRim * (0.5 + upperEdge * 0.42));
-          color += highlight * sweep * (0.16 + micro * 0.16 + motion * 0.1);
-          color += vec3(0.1, 0.42, 0.88) * lowerEdge * 0.12;
+          vec3 body = vec3(0.32, 0.67, 0.94);
+          vec3 edge = vec3(0.045, 0.34, 0.78);
+          vec3 highlight = vec3(1.0, 0.965, 0.82);
+          vec3 color = mix(body, edge, rim * 0.84 + upperEdge * 0.08);
+          color = mix(color, highlight, thinRim * (0.6 + upperEdge * 0.34));
+          color += highlight * sweep * (0.24 + micro * 0.2 + motion * 0.12);
+          color += vec3(0.04, 0.29, 0.76) * lowerEdge * 0.2;
 
-          float alpha = (0.11 + rim * 0.55 + thinRim * 0.2 + sweep * 0.1) * uMakaOpacity;
-          gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.9));
+          float alpha = (0.24 + rim * 0.58 + thinRim * 0.18 + sweep * 0.14) * uMakaOpacity;
+          gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.96));
         }
       `,
       transparent: true,
@@ -228,9 +228,9 @@ if (canvas) {
     });
 
     const wordCoreMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#62b8f2"),
+      color: new THREE.Color("#2f8ddd"),
       transparent: true,
-      opacity: 0.075,
+      opacity: 0.18,
       depthWrite: false,
       blending: THREE.NormalBlending,
     });
@@ -324,9 +324,9 @@ if (canvas) {
       wordGlass,
     );
     const wordHighlightMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#f6fbff"),
+      color: new THREE.Color("#fff6d8"),
       transparent: true,
-      opacity: 0.32,
+      opacity: 0.5,
       depthWrite: false,
       depthTest: false,
       blending: THREE.AdditiveBlending,
@@ -406,9 +406,11 @@ if (canvas) {
       return { glint, material, phase };
     });
     wordmark.position.set(0.1, -0.02, 0.42);
-    wordmark.rotation.set(-0.07, -0.045, -0.018);
+    // Keep the signature head-on. The material and travelling glints provide
+    // depth; rotating the whole word makes the letterforms harder to read.
+    wordmark.rotation.set(0, 0, 0);
     wordmark.scale.set(1.42, 1.52, 1.4);
-    wordmark.visible = false;
+    wordmark.visible = true;
     organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
@@ -662,8 +664,8 @@ if (canvas) {
         pearl.opacity = materialTargets.pearl;
         wordGlass.opacity = materialTargets.word;
         wordGlass.uniforms.uMakaOpacity.value = materialTargets.word;
-        wordCoreMaterial.opacity = materialTargets.word * 0.075;
-        wordHighlightMaterial.opacity = materialTargets.word * 0.32;
+        wordCoreMaterial.opacity = materialTargets.word * 0.18;
+        wordHighlightMaterial.opacity = materialTargets.word * 0.5;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
@@ -787,9 +789,7 @@ if (canvas) {
       cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
       cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
 
-      wordmark.rotation.x = -0.055 + pointer.y * 0.035 + Math.sin(elapsed * 0.32) * 0.018;
-      wordmark.rotation.y = -0.035 + pointer.x * 0.065 + Math.sin(elapsed * 0.28) * 0.026;
-      wordmark.rotation.z = -0.012 + pointer.x * 0.009 + Math.sin(elapsed * 0.24) * 0.009;
+      wordmark.rotation.set(0, 0, 0);
       wordSparkles.rotation.z = Math.sin(elapsed * 0.18) * 0.006;
       wordGlints.forEach(({ glint, material, phase }) => {
         const progress = (elapsed * 0.072 + phase + pointer.x * 0.025 + 1) % 1;
@@ -829,8 +829,8 @@ if (canvas) {
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
       wordGlass.opacity = THREE.MathUtils.damp(wordGlass.opacity, materialTargets.word, 7, delta);
       wordGlass.uniforms.uMakaOpacity.value = wordGlass.opacity;
-      wordCoreMaterial.opacity = THREE.MathUtils.damp(wordCoreMaterial.opacity, materialTargets.word * 0.075, 7, delta);
-      wordHighlightMaterial.opacity = THREE.MathUtils.damp(wordHighlightMaterial.opacity, materialTargets.word * 0.32, 7, delta);
+      wordCoreMaterial.opacity = THREE.MathUtils.damp(wordCoreMaterial.opacity, materialTargets.word * 0.18, 7, delta);
+      wordHighlightMaterial.opacity = THREE.MathUtils.damp(wordHighlightMaterial.opacity, materialTargets.word * 0.5, 7, delta);
       wordSparkleMaterial.opacity = THREE.MathUtils.damp(wordSparkleMaterial.opacity, materialTargets.word * 0.72, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
       cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);

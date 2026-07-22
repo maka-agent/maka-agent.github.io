@@ -348,6 +348,10 @@ html.js[data-boot="field"] .stage-footer {
   transform: translate(-50%, -54%);
 }
 
+html[data-field="ready"] .execution-field__wordmark {
+  opacity: 0;
+}
+
 html[data-field="ready"] .execution-field canvas {
   opacity: 1;
 }
@@ -1821,14 +1825,14 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   width: min(18vw, 18rem);
   background: oklch(0.98 0.006 250);
   border: 1px solid var(--grid-color);
-  filter: saturate(0.5) contrast(0.92);
+  filter: none;
   transform: translate3d(-1.5rem, 2rem, 0);
 }
 
-.product-proof--streaming { bottom: 42%; left: 29.5%; }
-.product-proof--empty { bottom: 8%; left: 28.5%; }
+.product-proof--streaming { bottom: 8%; left: 34%; }
+.product-proof--empty { bottom: 8%; left: 54%; }
 .view--product.is-active .product-proof { transform: none; }
-.product-proof img { max-height: 19vh; object-fit: cover; object-position: top; }
+.product-proof img { max-height: 19vh; object-fit: contain; object-position: center; }
 
 /* Runtime turns the append-only log into a full-viewport execution tunnel. */
 .runtime-stage {
@@ -1980,9 +1984,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 
 .view--surfaces.is-active .surface-projection { opacity: 1; transform: none; }
 .surface-projection--desktop {
-  bottom: -11%;
-  left: -3%;
-  width: min(47vw, 48rem);
+  bottom: 6%;
+  left: 4.5%;
+  width: min(38vw, 38rem);
   color: var(--ink);
   transition-delay: 430ms;
 }
@@ -2004,9 +2008,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   border: 1px solid oklch(0.7 0.16 250 / 0.45);
   background: oklch(0.13 0.025 263);
 }
-.surface-projection--tui { right: 3.5%; bottom: 25%; width: min(27vw, 27rem); transition-delay: 560ms; transform: translate3d(2rem, 1rem, 0) rotate(-1deg); }
-.view--surfaces.is-active .surface-projection--tui { transform: translate3d(0, 0, 0) rotate(-1deg); }
-.surface-projection--cli { right: 28%; bottom: 10%; width: min(29vw, 28rem); transition-delay: 680ms; }
+.surface-projection--tui { right: 3.5%; bottom: 29%; width: min(27vw, 27rem); transition-delay: 560ms; transform: translate3d(2rem, 1rem, 0); }
+.view--surfaces.is-active .surface-projection--tui { transform: none; }
+.surface-projection--cli { right: 26%; bottom: 6%; width: min(25vw, 25rem); transition-delay: 680ms; }
 .surface-projection--headless { right: 4%; bottom: 7%; width: min(20vw, 20rem); transition-delay: 790ms; }
 .surface-projection--headless span { display: flex; align-items: center; gap: 0.35rem; }
 .surface-projection--headless i { width: 0.32rem; height: 0.32rem; border-radius: 50%; background: var(--blue); }
@@ -2356,8 +2360,8 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .product-proof {
     z-index: 2;
     width: min(15vw, 14rem);
-    opacity: 0.64;
-    filter: saturate(0.65) contrast(1.05);
+    opacity: 0.86;
+    filter: none;
     transform: translate3d(-1.5rem, 1.5rem, 0);
   }
   .product-proof--streaming { top: 23%; bottom: auto; left: 31%; }
@@ -2369,12 +2373,12 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy {
     top: 22%;
     left: var(--gutter);
-    width: min(25vw, 24rem);
+    width: min(29vw, 27rem);
   }
   .runtime-copy::before { inset: -7rem -8rem -7rem -4rem; }
   .runtime-copy h2 {
-    font-size: clamp(3.2rem, 4.3vw, 4.75rem);
-    line-height: 0.94;
+    font-size: clamp(3rem, 3.7vw, 4rem);
+    line-height: 0.96;
     letter-spacing: -0.04em;
   }
   .runtime-copy > p:not(.section-signal) { max-width: 38ch; font-family: var(--mono); font-size: 0.76rem; line-height: 1.65; }
@@ -2440,10 +2444,10 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .surface-pulse { top: 68%; left: 55.5%; z-index: 4; }
 
   .surface-projection--desktop {
-    bottom: -9%;
-    left: -3%;
-    width: min(47vw, 47rem);
-    overflow: hidden;
+    bottom: 6%;
+    left: 4.5%;
+    width: min(38vw, 38rem);
+    overflow: visible;
     border: 2px solid oklch(0.62 0.16 250 / 0.5);
     background: oklch(0.965 0.024 245);
     box-shadow: 7px 9px 0 oklch(0.71 0.13 250 / 0.24), 0 24px 54px oklch(0.45 0.08 250 / 0.1);
@@ -2458,7 +2462,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .surface-projection--desktop figcaption { display: none; }
 
   .surface-projection--tui {
-    top: 40%;
+    top: 41%;
     right: 2.5%;
     bottom: auto;
     width: min(28vw, 27rem);
@@ -2467,9 +2471,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
     padding: 0;
     border: 1px solid oklch(0.69 0.17 250 / 0.8);
     box-shadow: 7px 7px 0 oklch(0.68 0.15 250 / 0.18);
-    transform: translate3d(2rem, 1rem, 0) rotate(1.5deg);
+    transform: translate3d(2rem, 1rem, 0);
   }
-  .view--surfaces.is-active .surface-projection--tui { transform: translate3d(0, 0, 0) rotate(1.5deg); }
+  .view--surfaces.is-active .surface-projection--tui { transform: none; }
   .surface-terminal__bar { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 0.8rem; border-bottom: 1px solid oklch(0.7 0.12 250 / 0.32); }
   .surface-terminal__bar span { color: oklch(0.73 0.11 240); font-size: 0.48rem; }
   .surface-terminal__body { display: grid; gap: 0.55rem; padding: 0.8rem; }
@@ -2479,18 +2483,18 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 
   .surface-projection--cli {
     right: auto;
-    bottom: 0.5%;
-    left: 49%;
-    width: min(27vw, 26rem);
+    bottom: 5%;
+    left: 47%;
+    width: min(25vw, 24rem);
     border-color: oklch(0.68 0.16 250 / 0.74);
     box-shadow: 5px 5px 0 oklch(0.68 0.15 250 / 0.16);
-    transform: translate3d(0, 2rem, 0) rotate(-0.5deg);
+    transform: translate3d(0, 2rem, 0);
   }
-  .view--surfaces.is-active .surface-projection--cli { transform: translate3d(0, 0, 0) rotate(-0.5deg); }
+  .view--surfaces.is-active .surface-projection--cli { transform: none; }
   .surface-projection--headless {
     right: 2.5%;
-    bottom: 0.5%;
-    width: min(23vw, 22rem);
+    bottom: 5%;
+    width: min(21vw, 20rem);
     color: var(--ink);
     border-color: oklch(0.64 0.12 250 / 0.42);
     background: oklch(0.99 0.004 250 / 0.94);

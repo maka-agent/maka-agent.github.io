@@ -290,6 +290,13 @@ for (const [label, width, height] of VIEWPORTS) {
       if ((await page.locator("[data-product-inspector]").getAttribute("data-evidence")) !== "artifact") {
         throw new Error(`${label}: evidence switch did not return to artifact`);
       }
+      const productProjection = await page.locator(".product-shot img, .product-proof img").evaluateAll((elements) => elements.map((element) => {
+        const style = getComputedStyle(element);
+        return { transform: style.transform, objectFit: style.objectFit };
+      }));
+      if (productProjection.some(({ transform, objectFit }) => transform !== "none" || objectFit !== "contain")) {
+        throw new Error(`${label}: Product evidence is tilted, stretched, or cropped ${JSON.stringify(productProjection)}`);
+      }
       if (label === "phone-390" || label === "desktop") {
         await page.screenshot({ path: `${RESULTS}/${label}-product.png`, timeout: NAVIGATION_TIMEOUT });
       }
@@ -348,6 +355,22 @@ for (const [label, width, height] of VIEWPORTS) {
       }));
       if (!surfaceFieldBacking.width || !surfaceFieldBacking.height || surfaceFieldBacking.active !== "true") {
         throw new Error(`${label}: Surfaces field is not rendering the active execution network ${JSON.stringify(surfaceFieldBacking)}`);
+      }
+      const surfaceProjection = await page.locator(".surface-projection").evaluateAll((elements) => elements.map((element) => {
+        const box = element.getBoundingClientRect();
+        return {
+          transform: getComputedStyle(element).transform,
+          left: box.left,
+          top: box.top,
+          right: box.right,
+          bottom: box.bottom,
+        };
+      }));
+      if (surfaceProjection.some(({ transform }) => transform !== "none")) {
+        throw new Error(`${label}: Surfaces evidence is tilted or skewed ${JSON.stringify(surfaceProjection)}`);
+      }
+      if (width >= 768 && surfaceProjection.some(({ left, top, right, bottom }) => left < -1 || top < -1 || right > width + 1 || bottom > height + 1)) {
+        throw new Error(`${label}: a Surfaces projection is visibly cropped ${JSON.stringify(surfaceProjection)}`);
       }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-surfaces.png`, timeout: NAVIGATION_TIMEOUT });
     }
