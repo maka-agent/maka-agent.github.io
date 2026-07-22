@@ -203,13 +203,21 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
         <div class="runtime-stage" data-runtime-path aria-label="Maka runtime event flow">
           <canvas id="runtime-field" aria-hidden="true"></canvas>
+          <div class="runtime-rings" aria-hidden="true">
+            <i style="--ring-width: 56%; --ring-y: -5.8rem"></i>
+            <i style="--ring-width: 74%; --ring-y: -3rem"></i>
+            <i style="--ring-width: 84%; --ring-y: 0rem"></i>
+            <i style="--ring-width: 74%; --ring-y: 3rem"></i>
+            <i style="--ring-width: 56%; --ring-y: 5.8rem"></i>
+            <b></b>
+          </div>
           <div class="runtime-signal-cloud" aria-hidden="true">
-            <span class="runtime-signal runtime-signal--message">MESSAGE</span>
-            <span class="runtime-signal runtime-signal--tool">TOOL CALL</span>
-            <span class="runtime-signal runtime-signal--result">TOOL RESULT</span>
-            <span class="runtime-signal runtime-signal--permission">PERMISSION</span>
-            <span class="runtime-signal runtime-signal--artifact">ARTIFACT</span>
-            <span class="runtime-signal runtime-signal--recovery">RECOVERY</span>
+            <span class="runtime-signal runtime-signal--message">EVERY TURN STAYS INSPECTABLE</span>
+            <span class="runtime-signal runtime-signal--tool">TOOL CALLS CROSS VISIBLE BOUNDARIES</span>
+            <span class="runtime-signal runtime-signal--result">RESULTS RETURN TO THE SAME TASK</span>
+            <span class="runtime-signal runtime-signal--permission">PERMISSION STAYS EXPLICIT</span>
+            <span class="runtime-signal runtime-signal--artifact">ARTIFACTS REMAIN ATTACHED</span>
+            <span class="runtime-signal runtime-signal--recovery">INTERRUPTED WORK CAN RESUME</span>
           </div>
           <div class="runtime-rail" aria-hidden="true"><i></i></div>
           <ol class="runtime-flow">
@@ -357,6 +365,14 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     let transitionToken = 0;
     let edgeTimer = 0;
 
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    const resetViewportScroll = () => {
+      if (stage) stage.scrollTop = 0;
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, 0);
+    };
+
     const setView = (requested: string, updateHash = true) => {
       const view = views.includes(requested as (typeof views)[number]) ? requested : "overview";
       if (!stage || stage.dataset.view === view) return;
@@ -402,6 +418,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       }
       if (statusIndex) statusIndex.textContent = `0${index + 1} / 04`;
       if (updateHash) history.replaceState(null, "", `#${view}`);
+      resetViewportScroll();
       window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index, direction: stage.dataset.direction } }));
 
       if (!reduceMotion.matches) {
@@ -634,6 +651,14 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
     const initialView = location.hash.slice(1);
     if (initialView && initialView !== "overview") setView(initialView, false);
-    if (initialView) requestAnimationFrame(() => window.scrollTo(0, 0));
+    if (initialView) {
+      resetViewportScroll();
+      requestAnimationFrame(resetViewportScroll);
+      window.setTimeout(resetViewportScroll, 80);
+    }
+    window.addEventListener("hashchange", () => {
+      setView(location.hash.slice(1), false);
+      resetViewportScroll();
+    });
   </script>
 </BaseLayout>

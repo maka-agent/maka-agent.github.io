@@ -36,7 +36,7 @@ if (canvas) {
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.58;
+    renderer.toneMappingExposure = 0.46;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -230,41 +230,45 @@ if (canvas) {
     // the face carries the letter rhythm, while the deep rounded bevel creates
     // a soft silhouette, side walls, thickness, and readable counters.
     const wordFaceMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#478fce"),
+      color: new THREE.Color("#75b8e8"),
       metalness: 0,
-      roughness: 0.24,
-      transmission: 0.12,
-      thickness: 1.05,
-      ior: 1.24,
-      clearcoat: 0.82,
-      clearcoatRoughness: 0.08,
-      attenuationColor: new THREE.Color("#2e79bd"),
-      attenuationDistance: 1.35,
-      iridescence: 0.07,
+      roughness: 0.3,
+      transmission: 0.34,
+      thickness: 0.92,
+      ior: 1.31,
+      clearcoat: 0.58,
+      clearcoatRoughness: 0.14,
+      attenuationColor: new THREE.Color("#8ed0f5"),
+      attenuationDistance: 1.8,
+      iridescence: 0.04,
       iridescenceIOR: 1.28,
-      specularIntensity: 0.78,
+      specularIntensity: 0.66,
       specularColor: new THREE.Color("#ffffff"),
+      transparent: true,
+      opacity: 0.94,
     });
     const wordEdgeMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#245f98"),
+      color: new THREE.Color("#2f76ad"),
       metalness: 0.02,
-      roughness: 0.2,
-      transmission: 0.04,
-      thickness: 1.7,
-      ior: 1.3,
-      clearcoat: 1,
-      clearcoatRoughness: 0.035,
-      attenuationColor: new THREE.Color("#125f9f"),
-      attenuationDistance: 0.95,
-      iridescence: 0.28,
+      roughness: 0.27,
+      transmission: 0.16,
+      thickness: 1.25,
+      ior: 1.34,
+      clearcoat: 0.76,
+      clearcoatRoughness: 0.09,
+      attenuationColor: new THREE.Color("#2f83c4"),
+      attenuationDistance: 1.25,
+      iridescence: 0.12,
       iridescenceIOR: 1.32,
-      specularIntensity: 0.9,
-      specularColor: new THREE.Color("#fff9e9"),
+      specularIntensity: 0.72,
+      specularColor: new THREE.Color("#f7fcff"),
+      transparent: true,
+      opacity: 0.9,
     });
     const wordRimMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color("#d9f2ff"),
       transparent: true,
-      opacity: 0.1,
+      opacity: 0.045,
       side: THREE.BackSide,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -272,36 +276,38 @@ if (canvas) {
     const wordGlowMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color("#f9fdff"),
       transparent: true,
-      opacity: 0.028,
+      opacity: 0.012,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
     });
 
-    for (const shape of wordShapes) {
+    for (const [shapeIndex, shape] of wordShapes.entries()) {
       const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 15,
-        curveSegments: 18,
+        depth: 12,
+        curveSegments: 20,
         steps: 1,
         bevelEnabled: true,
-        bevelSegments: 12,
-        bevelSize: 9,
-        bevelThickness: 7.4,
-        bevelOffset: -1.2,
+        bevelSegments: 10,
+        bevelSize: 6.6,
+        bevelThickness: 5.4,
+        bevelOffset: -0.8,
       });
       geometry.computeVertexNormals();
       const solid = new THREE.Mesh(geometry, [wordFaceMaterial, wordEdgeMaterial]);
+      const glyphYScale = shapeIndex === 2 ? 0.66 : 1;
+      solid.scale.y = glyphYScale;
       solid.castShadow = true;
       solid.receiveShadow = true;
       solid.renderOrder = 2;
       wordShape.add(solid);
 
       const rimShell = new THREE.Mesh(geometry, wordRimMaterial);
-      rimShell.scale.set(1.006, 1.006, 1.035);
+      rimShell.scale.set(1.004, glyphYScale * 1.004, 1.026);
       rimShell.renderOrder = 3;
       wordShape.add(rimShell);
 
       const innerGlow = new THREE.Mesh(geometry, wordGlowMaterial);
-      innerGlow.scale.set(0.982, 0.982, 0.86);
+      innerGlow.scale.set(0.985, glyphYScale * 0.985, 0.88);
       innerGlow.position.z += 0.8;
       innerGlow.renderOrder = 1;
       wordShape.add(innerGlow);
@@ -309,8 +315,8 @@ if (canvas) {
 
     // The source outline uses SVG coordinates. Flip it upright, center it in
     // world space, and leave enough Z depth for visible beveled side walls.
-    wordShape.scale.set(0.0232, -0.0232, 0.0232);
-    wordShape.position.set(-5.24, -1.74, -0.17);
+    wordShape.scale.set(0.0245, -0.033, 0.027);
+    wordShape.position.set(-4.2, -1.55, -0.12);
     wordmark.add(wordShape);
 
     const dustPositions = new Float32Array(84 * 3);
@@ -365,10 +371,10 @@ if (canvas) {
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
     const glintAnchors = [
-      new THREE.Vector3(-4.1, -0.76, 0.47),
-      new THREE.Vector3(-1.22, -0.48, 0.5),
-      new THREE.Vector3(1.22, 1.22, 0.48),
-      new THREE.Vector3(3.72, -0.38, 0.5),
+      new THREE.Vector3(-3.7, -0.72, 0.39),
+      new THREE.Vector3(-1.35, -0.5, 0.42),
+      new THREE.Vector3(1.05, 0.66, 0.4),
+      new THREE.Vector3(3.2, -0.42, 0.42),
     ];
     const wordGlints = glintAnchors.map((anchor, index) => {
       const material = new THREE.SpriteMaterial({
@@ -387,9 +393,9 @@ if (canvas) {
       return { glint, material, anchor, phase: index * 1.71 };
     });
 
-    wordmark.position.set(-0.72, -0.44, 0.48);
-    wordmark.rotation.set(-0.025, 0.035, -0.015);
-    wordmark.scale.set(0.99, 0.92, 1.02);
+    wordmark.position.set(-0.85, -0.32, 0.48);
+    wordmark.rotation.set(-0.018, 0.028, -0.012);
+    wordmark.scale.set(1, 0.98, 1.02);
     wordmark.visible = true;
     organism.add(wordmark);
 
@@ -586,7 +592,7 @@ if (canvas) {
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x78a8d8, 0.5));
 
-    const key = new THREE.DirectionalLight(0xffffff, 0.72);
+    const key = new THREE.DirectionalLight(0xffffff, 0.48);
     key.position.set(-4, 8, 9);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -596,24 +602,24 @@ if (canvas) {
     key.shadow.camera.bottom = -6;
     scene.add(key);
 
-    const rim = new THREE.DirectionalLight(0x4b9eff, 0.78);
+    const rim = new THREE.DirectionalLight(0x4b9eff, 0.62);
     rim.position.set(8, -1, 7);
     scene.add(rim);
 
-    const warmFill = new THREE.PointLight(0xfff1cf, 0.62, 13, 1.7);
+    const warmFill = new THREE.PointLight(0xfff1cf, 0.46, 13, 1.7);
     warmFill.position.set(-5.5, 3.8, 5.5);
     scene.add(warmFill);
 
-    const frontFill = new THREE.DirectionalLight(0xaedcff, 0.58);
+    const frontFill = new THREE.DirectionalLight(0xaedcff, 0.42);
     frontFill.position.set(-1, -4, 10);
     scene.add(frontFill);
 
-    const pointerLight = new THREE.PointLight(0xd9efff, 1.3, 26, 1.5);
+    const pointerLight = new THREE.PointLight(0xd9efff, 0.86, 28, 1.45);
     pointerLight.position.set(0, 1, 7);
     scene.add(pointerLight);
 
-    const sweepLight = new THREE.PointLight(0xf4fbff, 0.84, 6.5, 1.65);
-    const returnLight = new THREE.PointLight(0x4b9fff, 0.55, 6, 1.8);
+    const sweepLight = new THREE.PointLight(0xf4fbff, 0.72, 8.5, 1.55);
+    const returnLight = new THREE.PointLight(0x4b9fff, 0.46, 8, 1.7);
     sweepLight.position.set(-7, 0.8, 4.8);
     returnLight.position.set(7, -0.4, 3.8);
     scene.add(sweepLight, returnLight);
@@ -640,7 +646,7 @@ if (canvas) {
     let pointerInShell = false;
 
     const updateCursorVisibility = () => {
-      cursor.visible = window.innerWidth >= 768 && stateIndex === 0 && !pointerInShell;
+      cursor.visible = window.innerWidth >= 768 && stateIndex === 0 && pointerEngaged && !pointerInShell;
       canvas.dataset.cursorState = cursor.visible ? "active" : "suppressed";
     };
 
@@ -724,8 +730,8 @@ if (canvas) {
         pearl.opacity = materialTargets.pearl;
         wordFaceMaterial.opacity = materialTargets.word;
         wordEdgeMaterial.opacity = materialTargets.word;
-        wordRimMaterial.opacity = materialTargets.word * 0.1;
-        wordGlowMaterial.opacity = materialTargets.word * 0.028;
+        wordRimMaterial.opacity = materialTargets.word * 0.045;
+        wordGlowMaterial.opacity = materialTargets.word * 0.012;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
@@ -849,17 +855,17 @@ if (canvas) {
       cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
       cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
 
-      wordmark.rotation.x = THREE.MathUtils.damp(wordmark.rotation.x, -0.025 + pointer.y * 0.015, 4.8, delta);
-      wordmark.rotation.y = THREE.MathUtils.damp(wordmark.rotation.y, 0.035 + pointer.x * 0.018, 4.8, delta);
-      wordmark.rotation.z = -0.015;
+      wordmark.rotation.x = THREE.MathUtils.damp(wordmark.rotation.x, -0.018 + pointer.y * 0.014, 4.8, delta);
+      wordmark.rotation.y = THREE.MathUtils.damp(wordmark.rotation.y, 0.028 + pointer.x * 0.016, 4.8, delta);
+      wordmark.rotation.z = -0.012;
       wordDust.rotation.z = Math.sin(elapsed * 0.18) * 0.004;
       wordGlints.forEach(({ glint, material, anchor, phase }, index) => {
         const pulse = Math.pow(0.5 + 0.5 * Math.sin(elapsed * 1.42 + phase), 5.0);
         glint.position.copy(anchor);
-        glint.position.x += Math.sin(elapsed * 0.32 + phase) * 0.035;
-        glint.position.y += Math.cos(elapsed * 0.28 + phase) * 0.025;
-        glint.scale.setScalar((index === 2 ? 0.54 : 0.42) + pulse * 0.66);
-        material.opacity = 0.08 + pulse * 0.78;
+        glint.position.x += Math.sin(elapsed * 0.38 + phase) * 0.48 + pointer.x * 0.16;
+        glint.position.y += Math.cos(elapsed * 0.31 + phase) * 0.12 + pointer.y * 0.08;
+        glint.scale.setScalar((index === 2 ? 0.45 : 0.34) + pulse * 0.54);
+        material.opacity = 0.035 + pulse * 0.62;
       });
       sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
       sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
@@ -889,8 +895,8 @@ if (canvas) {
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
       wordFaceMaterial.opacity = THREE.MathUtils.damp(wordFaceMaterial.opacity, materialTargets.word, 7, delta);
       wordEdgeMaterial.opacity = THREE.MathUtils.damp(wordEdgeMaterial.opacity, materialTargets.word, 7, delta);
-      wordRimMaterial.opacity = THREE.MathUtils.damp(wordRimMaterial.opacity, materialTargets.word * 0.1, 7, delta);
-      wordGlowMaterial.opacity = THREE.MathUtils.damp(wordGlowMaterial.opacity, materialTargets.word * 0.028, 7, delta);
+      wordRimMaterial.opacity = THREE.MathUtils.damp(wordRimMaterial.opacity, materialTargets.word * 0.045, 7, delta);
+      wordGlowMaterial.opacity = THREE.MathUtils.damp(wordGlowMaterial.opacity, materialTargets.word * 0.012, 7, delta);
       wordDustMaterial.opacity = THREE.MathUtils.damp(wordDustMaterial.opacity, materialTargets.word * 0.34, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
       cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);

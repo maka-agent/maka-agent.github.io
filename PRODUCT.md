@@ -42,7 +42,7 @@ Calm, exact, capable. The interface should feel like a well-made command instrum
 - Fake terminal aesthetics, invented commands, fake metrics, fake dashboards, testimonials, or capability claims unsupported by the official repository.
 - Mascots, anime characters, fake emotion, or avatar-led storytelling.
 - Identical card grids, hero-metric templates, bento layouts, and repeated tiny uppercase section eyebrows.
-- A surface-level clone of `haoqi.design`, including its acid green, exact section order, typography ratios, portfolio content, custom fonts, or shader code.
+- Blindly copying another product's claims, identity, or portfolio content. Reference geometry, motion, typography ratios, and rendering techniques may be reproduced when they make Maka more coherent; the meaning shown must remain truthful to Maka.
 
 ## Design Principles
 
@@ -50,7 +50,7 @@ Calm, exact, capable. The interface should feel like a well-made command instrum
 2. **Proof sits beside the claim.** Real product screenshots and repository links carry the story; abstract copy never outruns evidence.
 3. **One working plane.** Conversation, runtime evidence, and artifacts read as one connected workspace rather than a dashboard of disconnected cards.
 4. **Local means legible boundaries.** The page keeps data location, permissions, and recovery visible without fear-based messaging.
-5. **Translate the reference, never imitate it.** Adopt measured spatial grammar, persistent telemetry, and DOM/canvas cooperation while retaining Maka's own palette, content, and execution model.
+5. **Judge by coherence, not distance from the reference.** Reproduce proven spatial grammar, typography ratios, DOM/canvas cooperation, and motion when they improve the result. Adapt only where Maka's content, execution model, or trust semantics require it.
 
 ## Accessibility & Inclusion
 

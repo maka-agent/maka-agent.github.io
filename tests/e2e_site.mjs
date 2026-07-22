@@ -64,7 +64,7 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator(".execution-field img, [data-hero-glass]").count()) !== 0) {
     throw new Error(`${label}: the interactive Hero was replaced by a flattened design image`);
   }
-  if ((await page.locator(".execution-field__wordmark").innerText()) !== "Maka") {
+  if ((await page.locator(".execution-field__wordmark").innerText()).toLowerCase() !== "maka") {
     throw new Error(`${label}: the real Hero wordmark is missing`);
   }
   if ((await page.locator("[data-evidence-command]").count()) !== 3) throw new Error(`${label}: evidence index needs three entries`);
@@ -241,6 +241,19 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "product");
     await page.locator('[data-view-target="overview"]').first().click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
+
+    await page.goto(new URL("#runtime", BASE_URL).href);
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "runtime");
+    const hashLayout = await page.evaluate(() => ({
+      stageScrollTop: document.querySelector(".stage")?.scrollTop,
+      headerTop: document.querySelector(".stage-header")?.getBoundingClientRect().top,
+      windowScrollY: scrollY,
+    }));
+    if (hashLayout.stageScrollTop !== 0 || hashLayout.windowScrollY !== 0 || Math.abs(hashLayout.headerTop ?? -100) > 1) {
+      throw new Error(`desktop: direct hash navigation displaced the fixed shell ${JSON.stringify(hashLayout)}`);
+    }
+    await page.goto(new URL("#overview", BASE_URL).href);
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
   }
 
   const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900", surfaces: "1300" };
@@ -332,6 +345,9 @@ for (const [label, width, height] of VIEWPORTS) {
       const runtimeFieldBacking = await page.locator("#runtime-field").evaluate((element) => ({ width: element.width, height: element.height, active: element.dataset.active }));
       if (!runtimeFieldBacking.width || !runtimeFieldBacking.height || runtimeFieldBacking.active !== "true") {
         throw new Error(`${label}: Runtime field is not rendering the active event tunnel ${JSON.stringify(runtimeFieldBacking)}`);
+      }
+      if ((await page.locator("#runtime-field").getAttribute("data-renderer")) !== "webgl2-polar-shader") {
+        throw new Error(`${label}: Runtime regressed from the source-derived polar shader`);
       }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png`, timeout: NAVIGATION_TIMEOUT });
     }

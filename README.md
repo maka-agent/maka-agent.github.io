@@ -23,4 +23,4 @@ The site is an Astro static build. GitHub Actions publishes `dist/` to GitHub Pa
 - [`PRODUCT.md`](./PRODUCT.md) captures audience, positioning, proof, and accessibility requirements.
 - [`DESIGN.md`](./DESIGN.md) is the website visual-system source of truth.
 - [`HOMEPAGE_BRIEF.md`](./HOMEPAGE_BRIEF.md) records the production homepage contract.
-- [`REFERENCE_STUDY.md`](./REFERENCE_STUDY.md) records transferable findings from the public `haoqi.design` reference without copying its content or implementation.
+- [`REFERENCE_STUDY.md`](./REFERENCE_STUDY.md) records fidelity findings from the public `haoqi.design` reference and distinguishes reusable visual mechanisms from Maka-specific product meaning.

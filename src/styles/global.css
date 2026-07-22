@@ -336,11 +336,12 @@ html.js[data-boot="field"] .stage-footer {
   z-index: 2;
   color: oklch(0.48 0.17 250 / 0.88);
   font-family: "Pacifico", "Brush Script MT", cursive;
-  font-size: clamp(8rem, 25.5vw, 23rem);
+  font-size: clamp(7rem, 20vw, 19rem);
   font-weight: 500;
   line-height: 0.8;
-  letter-spacing: -0.08em;
+  letter-spacing: -0.045em;
   white-space: nowrap;
+  text-transform: lowercase;
   text-shadow: 0 1px 0 oklch(0.98 0.01 245 / 0.9);
   transform: translate(-50%, -50%);
   transition: opacity 520ms ease, transform 760ms var(--ease-expo);
@@ -385,9 +386,10 @@ html[data-field="unavailable"] .execution-field canvas {
   stroke-width: 9;
   paint-order: stroke fill;
   font-family: "Snell Roundhand", "Segoe Script", cursive;
-  font-size: 330px;
+  font-size: 300px;
   font-weight: 600;
-  letter-spacing: -0.075em;
+  letter-spacing: -0.045em;
+  text-transform: lowercase;
 }
 
 .fallback-satellites {
@@ -2599,4 +2601,114 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .surface-projection--headless { display: none; }
   .surface-index { display: none; }
   .surface-pulse { top: 57%; left: 55%; }
+}
+
+/* Final fidelity layer: source-derived hyperspace topology with Maka semantics. */
+.runtime-stage::before,
+.runtime-stage::after { display: none; }
+
+.runtime-rings {
+  position: absolute;
+  top: 43%;
+  left: 55%;
+  z-index: 3;
+  width: min(25vw, 25rem);
+  aspect-ratio: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.82);
+  transition: opacity 480ms ease 560ms, transform 1200ms var(--ease-expo) 420ms;
+}
+
+.view--runtime.is-active .runtime-rings {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-rings {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.82);
+}
+
+.runtime-rings i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--ring-width);
+  height: calc(var(--ring-width) * 0.14);
+  border: 1.5px solid oklch(0.86 0.18 205 / 0.88);
+  border-radius: 50%;
+  box-shadow: 0 0 1.2rem oklch(0.7 0.17 220 / 0.12);
+  transform: translate(-50%, calc(-50% + var(--ring-y)));
+}
+
+.runtime-rings b {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  background: oklch(0.76 0.18 225);
+  box-shadow: 0 0 1.4rem oklch(0.76 0.18 225 / 0.7);
+  transform: translate(-50%, -50%);
+}
+
+#runtime-field {
+  opacity: 1;
+  background: #01030a;
+  mask-image: none;
+}
+
+.runtime-copy::before {
+  inset: -6rem -10rem -6rem -4rem;
+  background: radial-gradient(ellipse at 28% 50%, oklch(0.125 0.018 270 / 0.99) 0 38%, oklch(0.125 0.018 270 / 0.76) 56%, transparent 78%);
+}
+
+.runtime-step--hub strong { text-shadow: none; }
+
+.runtime-signal {
+  max-width: 20rem;
+  color: oklch(0.86 0.12 220);
+  font-size: clamp(0.58rem, 0.7vw, 0.72rem);
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.runtime-signal--permission { color: oklch(0.82 0.16 72); }
+.runtime-signal--artifact { color: oklch(0.93 0.04 220); }
+.runtime-signal--recovery { color: oklch(0.82 0.16 155); }
+
+.hero-copy h1 { letter-spacing: -0.04em; }
+
+@media (min-width: 768px) {
+  .hero-copy { bottom: 2.55rem; width: min(52vw, 56rem); }
+  .hero-copy h1 { font-size: clamp(3.15rem, 4.25vw, 5.15rem); line-height: 0.88; }
+  .runtime-step--hub { z-index: 4; }
+  .runtime-step--hub strong { font-size: clamp(3.6rem, 4.35vw, 4.8rem); }
+  .runtime-signal--message { top: 27%; left: 27%; }
+  .runtime-signal--tool { top: 17%; left: 38%; }
+  .runtime-signal--result { top: 39%; left: 25%; }
+  .runtime-signal--permission { top: 53%; left: 29%; }
+  .runtime-signal--artifact { top: 62%; left: 38%; }
+  .runtime-signal--recovery { top: 61%; left: 68%; }
+}
+
+@media (max-width: 767px) {
+  .runtime-rings { top: 55%; left: 50%; width: min(72vw, 19rem); }
+  .runtime-rings i:nth-child(1) { --ring-y: -4.2rem !important; }
+  .runtime-rings i:nth-child(2) { --ring-y: -2.2rem !important; }
+  .runtime-rings i:nth-child(4) { --ring-y: 2.2rem !important; }
+  .runtime-rings i:nth-child(5) { --ring-y: 4.2rem !important; }
+  #runtime-field { opacity: 0.92; mask-image: linear-gradient(180deg, transparent 0 18%, black 34% 100%); }
+  .runtime-copy::before { inset: -2rem; }
+  .runtime-signal { max-width: 34vw; font-size: 0.48rem; }
+  .runtime-signal--message { top: 38%; left: 4%; }
+  .runtime-signal--tool { top: 34%; left: 60%; }
+  .runtime-signal--result { top: 67%; left: 4%; }
+  .runtime-signal--permission { top: 72%; left: 58%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .runtime-rings,
+  .view--runtime.is-active .runtime-rings { transition: none; transform: translate(-50%, -50%); }
 }

@@ -28,7 +28,17 @@ colors:
   scene-blue-particle: "#2b5d8d"
   scene-permission-amber: "#ff9f1c"
   scene-success-green: "#47d58a"
+  runtime-black: "#01030a"
+  runtime-cyan: "#18dcff"
+  runtime-blue: "#6baeff"
+  runtime-artifact: "#d8f7ff"
 typography:
+  wordmark:
+    fontFamily: "Pacifico, Brush Script MT, cursive"
+    fontSize: "responsive 3D outline"
+    fontWeight: 400
+    lineHeight: 0.8
+    letterSpacing: "-0.04em"
   display:
     fontFamily: "Geist Variable, system-ui, sans-serif"
     fontSize: "clamp(3.25rem, 7vw, 6rem)"
@@ -256,11 +266,11 @@ Desktop and fine-pointer layouts show four-digit viewport coordinates in the bot
 
 ### Execution Field
 
-A fixed WebGL2 canvas builds the literal `Maka` project name from one open Catmull–Rom cursive ribbon rather than a generic font extrusion or four assembled letter parts. Only the global start and end receive shared sphere caps, so no flat-cut intermediate terminals remain. The continuous writing path translates the reference's purpose-built glass-model grammar while preserving Maka's own name, joined counters, and responsive framing. A material shader moves a broad specular/emissive band across the ribbon's full local X range, three glints travel along curve parameters, and two restrained point lights sweep in opposite directions; highlights are no longer tied to fixed letter locations. The word responds as one identity object. Task, Tool, Artifact, Permission, and Recovery objects stay smaller and near the perimeter as secondary evidence. The recovery loop is withheld from Overview so no anonymous shape competes with the name. Each secondary object has its own depth factor and delta-time damping instead of moving as a single group. Pointer velocity tilts and compresses the 3D execution cursor, drives a blue-white light field, creates a short-lived directional light trail, and briefly advances scene objects in depth. The cursor remains behind the word's depth plane, so it can never mask the final `a`, and it yields while the fixed header or footer owns the pointer. The renderer is suppressed outside Overview so authentic Product evidence and the Event Log-led Runtime stage each retain one visual owner. The renderer remains decorative enhancement only: semantic labels and a literal static SVG `Maka` wordmark carry the same identity when WebGL, JavaScript, or motion is unavailable.
+A fixed WebGL2 canvas builds the literal `maka` silhouette from a deterministic Pacifico outline and exposes the project name as `Maka` semantically. Lowercase construction keeps all four letters on one calligraphic rhythm; the `k` ascender is optically shortened so it punctuates the word without splitting it into a dominant initial plus three attachments. The outline becomes one shallow, deeply rounded extruded solid with milky blue transmission, broad soft highlights, restrained rim/glow layers, and four moving glints. Two point lights traverse the full word width, while pointer light and velocity extend the highlight range without changing the readable silhouette. Task, Tool, Artifact, Permission, and Recovery objects remain smaller near the perimeter. The 3D cursor appears only after real pointer engagement, remains behind the word plane, and yields while the fixed header or footer owns the pointer. The renderer is suppressed outside Overview. Semantic labels and a static SVG `Maka` fallback preserve identity when WebGL, JavaScript, or motion is unavailable.
 
 ### Runtime Ledger Stage
 
-Runtime preserves the real `Request → AgentRun → Event Log → Projection → Recovery` order on one ledger rail. `EVENT LOG` is the only display-scale object; incoming execution facts and outgoing projections remain smaller labels distributed around its ring. A dedicated 2D canvas projects hundreds of category-colored Message, Tool Call, Tool Result, Permission, Artifact, Termination, and Recovery streaks from the same Event Log vanishing point. Pointer input bends the field locally and the active-view gate slows inactive rendering. Five equal cards, multiple competing curves, and the old four-column summary are prohibited because they describe topology without expressing ownership. Desktop keeps the ordered phases on a low horizontal rail; compact layouts retain the same horizontal order with secondary descriptions removed before they collide. Reduced motion renders a static deep field and settled rail immediately.
+Runtime preserves the real `Request → AgentRun → Event Log → Projection → Recovery` order on one ledger rail. `EVENT LOG` is the only display-scale object; incoming execution facts and outgoing projections remain smaller labels distributed around five center rings. A dedicated WebGL2 polar fragment shader reproduces the reference's source-derived 100-cell radial topology, deterministic hash distribution, scroll-speed ramp, trail contraction, reveal model, and `gl_FragCoord` coordinate system. Maka maps the streak palette to Tool Call cyan/blue, Permission amber, Artifact blue-white, and Recovery green. Entry animates from sparse to the locked `0.714` target state; compact viewports settle at a quieter density, and reduced motion renders one static field. Pointer input shifts the vanishing point only slightly. Inactive rendering stops rather than running a hidden canvas.
 
 ### Product Proof Frame
 
@@ -294,5 +304,5 @@ JavaScript-capable browsers begin with one compact `MAKA` loading owner instead 
 - **Don't** use fake terminal aesthetics, invented commands, fake metrics, fake dashboards, testimonials, or capability claims unsupported by the official repository.
 - **Don't** use mascots, anime characters, fake emotion, or avatar-led storytelling.
 - **Don't** use identical card grids, hero-metric templates, bento layouts, or repeated tiny uppercase section eyebrows.
-- **Don't** make a surface-level clone of `haoqi.design`, including its acid green, exact section order, typography ratios, portfolio content, custom fonts, or shader code.
+- **Don't** weaken a proven reference treatment merely to appear different. Copying geometry, timing, composition, or shader structure is acceptable; copying unrelated identity claims or portfolio content is not.
 - **Don't** use gradient text, side-stripe accents, decorative grid wallpaper, cream/sand backgrounds, or card radii above 16px.

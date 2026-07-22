@@ -1,8 +1,10 @@
 # Haoqi.design reference study
 
-This document records transferable design and rendering principles observed on
-`https://haoqi.design/`. It is not a cloning specification. Maka's website will
-use original copy, composition, assets, and shaders.
+This document records design and rendering facts observed on
+`https://haoqi.design/` and serves as a fidelity reference. Reproducing proven
+composition, typography ratios, motion, assets, or shader structure is allowed
+when it improves visual coherence. Maka must keep its product claims and
+execution semantics truthful; visual distance from the reference is not a goal.
 
 ## Evidence boundary
 
@@ -52,8 +54,9 @@ use original copy, composition, assets, and shaders.
   16px instrument shell; Maka's shell scale was raised (≈13/10.5px) to close the
   density gap. Maka's statement scale (6.2vw, 0.87 line-height) and centered
   navigation remain intentional Maka-owned divergences.
-- `PARTIAL` — Maka should preserve the three-role typographic contrast, not copy
-  the reference's `tiktok`, `mono`, or `tronica-mono` font files.
+- `PARTIAL` — Maka preserves the three-role typographic contrast. Exact reference
+  font files may be used if licensing and delivery permit; the current build
+  keeps Geist/Geist Mono for product readability and Pacifico for the 3D wordmark.
 
 ### Motion and interaction
 
