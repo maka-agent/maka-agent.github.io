@@ -2,10 +2,12 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import productDesign from "../assets/maka-product-design-v2.png";
-import productSetupDesign from "../assets/maka-product-setup-design-v2.png";
-import productErrorDesign from "../assets/maka-product-error-design-v2.png";
-import surfacesDesktopDesign from "../assets/maka-surfaces-desktop-v2.png";
+import artifactCurrent from "../assets/maka-artifact-pane.png";
+import permissionCurrent from "../assets/maka-permission-fresh.png";
+import questionCurrent from "../assets/maka-question-fresh.png";
+import firstRunCurrent from "../assets/maka-first-run.png";
+import errorsCurrent from "../assets/maka-artifact-errors.png";
+import shellCurrent from "../assets/maka-shell-current.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -114,7 +116,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             </div>
             <div class="product-shot__visual" data-product-inspector data-evidence="artifact" tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
               <Image
-                src={productDesign}
+                src={artifactCurrent}
                 alt="Maka task workspace showing the conversation, visible Tool Call, code change, task metadata, and attached Artifacts."
                 widths={[960, 1280, 1600, 1920]}
                 sizes="(max-width: 760px) 132vw, 65vw"
@@ -125,7 +127,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
                 data-evidence-panel="artifact"
               />
               <Image
-                src={productSetupDesign}
+                src={firstRunCurrent}
                 alt="Maka first-run setup checklist with repository, dependency, permission, and tool verification steps."
                 widths={[225, 450, 675]}
                 sizes="(max-width: 760px) 132vw, 65vw"
@@ -135,7 +137,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
                 data-evidence-panel="first-run"
               />
               <Image
-                src={productErrorDesign}
+                src={errorsCurrent}
                 alt="Maka error state showing a failed Tool Call and the missing permission required to continue."
                 widths={[235, 470, 705]}
                 sizes="(max-width: 760px) 132vw, 65vw"
@@ -159,28 +161,28 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
           <figure class="product-proof product-proof--streaming">
             <Image
-              src={productSetupDesign}
-              alt="Maka first-run setup checklist for connecting a repository, installing dependencies, and configuring permissions."
+              src={permissionCurrent}
+              alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
               widths={[720, 960, 1280]}
               sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"
             />
-            <figcaption><span>FIRST RUN</span><b>02</b></figcaption>
+            <figcaption><span>PERMISSION</span><b>02</b></figcaption>
           </figure>
 
           <figure class="product-proof product-proof--empty">
             <Image
-              src={productErrorDesign}
-              alt="Maka error surface showing a failed Tool Call and the permission required to continue."
+              src={questionCurrent}
+              alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
               widths={[720, 960, 1280]}
               sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"
             />
-            <figcaption><span>ERROR</span><b>03</b></figcaption>
+            <figcaption><span>CLARIFICATION</span><b>03</b></figcaption>
           </figure>
         </div>
       </section>
@@ -248,7 +250,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           <canvas id="surface-field"></canvas>
           <figure class="surface-projection surface-projection--desktop">
             <Image
-              src={surfacesDesktopDesign}
+              src={shellCurrent}
               alt=""
               widths={[960, 1280, 1600]}
               sizes="54vw"
@@ -343,7 +345,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const pointerY = document.querySelector<HTMLElement>("#pointer-y");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
-    const heroGlass = document.querySelector<HTMLElement>("[data-hero-glass]");
     const views = ["overview", "product", "runtime", "surfaces"] as const;
     const transitionDurations = { overview: 900, product: 1450, runtime: 1900, surfaces: 1300 } as const;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -606,12 +607,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       renderPointerCoordinates(event.clientX, event.clientY);
       if (stage && event.pointerType !== "touch") stage.dataset.pointer = "engaged";
       if (lightField) lightField.style.transform = `translate3d(${normalizedX * -18}px, ${normalizedY * -12}px, 0)`;
-      if (heroGlass) {
-        heroGlass.style.setProperty("--maka-x", `${normalizedX * -12}px`);
-        heroGlass.style.setProperty("--maka-y", `${normalizedY * -8}px`);
-        heroGlass.style.setProperty("--maka-glow-x", `${normalizedX * 42}px`);
-        heroGlass.style.setProperty("--maka-glow-y", `${normalizedY * 26}px`);
-      }
       window.dispatchEvent(new CustomEvent("maka:pointer", {
         detail: {
           x: event.clientX,

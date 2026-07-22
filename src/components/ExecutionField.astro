@@ -1,27 +1,11 @@
----
-import { Image } from "astro:assets";
-import heroGlass from "../assets/maka-glass-hero-v2.png";
----
-
 <div class="execution-field" aria-hidden="true">
-  <div class="execution-field__hero" data-hero-glass>
-    <Image
-      src={heroGlass}
-      alt=""
-      widths={[768, 1200, 1672]}
-      sizes="100vw"
-      format="webp"
-      quality={95}
-      loading="eager"
-      fetchpriority="high"
-    />
-  </div>
   <canvas
     id="execution-field"
     data-engine="three.js r184"
     data-wordmark="Maka"
     data-wordmark-geometry="continuous-cursive-ribbon"
   ></canvas>
+  <div class="execution-field__wordmark">Maka</div>
   <svg class="execution-field__fallback" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet">
     <defs>
       <filter id="fallback-soft" x="-40%" y="-40%" width="180%" height="180%">

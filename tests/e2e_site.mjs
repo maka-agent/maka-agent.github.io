@@ -60,7 +60,13 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
   if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
   if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
-  if ((await page.locator("img").count()) !== 7) throw new Error(`${label}: expected the Hero visual, 5 Product images, and the Surfaces projection`);
+  if ((await page.locator("img").count()) !== 6) throw new Error(`${label}: expected 5 Product images and the Surfaces projection`);
+  if ((await page.locator(".execution-field img, [data-hero-glass]").count()) !== 0) {
+    throw new Error(`${label}: the interactive Hero was replaced by a flattened design image`);
+  }
+  if ((await page.locator(".execution-field__wordmark").innerText()) !== "Maka") {
+    throw new Error(`${label}: the real Hero wordmark is missing`);
+  }
   if ((await page.locator("[data-evidence-command]").count()) !== 3) throw new Error(`${label}: evidence index needs three entries`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
