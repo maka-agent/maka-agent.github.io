@@ -166,22 +166,57 @@ if (canvas) {
     pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
 
     const wordGlass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#356faa"),
-      metalness: 0.04,
-      roughness: 0.3,
-      transmission: 0.1,
-      thickness: 0.38,
-      ior: 1.28,
-      dispersion: 0.04,
-      clearcoat: 0.8,
-      clearcoatRoughness: 0.14,
-      attenuationColor: new THREE.Color("#245d94"),
-      attenuationDistance: 1.1,
-      iridescence: 0.06,
+      color: new THREE.Color("#3f8dcc"),
+      emissive: new THREE.Color("#0a528d"),
+      emissiveIntensity: 0.18,
+      metalness: 0.025,
+      roughness: 0.25,
+      transmission: 0.08,
+      thickness: 0.72,
+      ior: 1.32,
+      dispersion: 0.075,
+      clearcoat: 1,
+      clearcoatRoughness: 0.075,
+      attenuationColor: new THREE.Color("#4d93ce"),
+      attenuationDistance: 1.8,
+      iridescence: 0.13,
       iridescenceIOR: 1.3,
       opacity: 1,
-      envMapIntensity: 0.72,
+      envMapIntensity: 1.05,
     });
+
+    let wordShader: Parameters<typeof wordGlass.onBeforeCompile>[0] | null = null;
+    wordGlass.onBeforeCompile = (shader) => {
+      wordShader = shader;
+      shader.uniforms.uMakaTime = { value: 0 };
+      shader.uniforms.uMakaPointer = { value: new THREE.Vector2() };
+      shader.uniforms.uMakaVelocity = { value: 0 };
+      shader.vertexShader = `varying vec3 vMakaWordPosition;\n${shader.vertexShader}`;
+      shader.vertexShader = shader.vertexShader.replace(
+        "#include <begin_vertex>",
+        "#include <begin_vertex>\nvMakaWordPosition = position;",
+      );
+      shader.fragmentShader = `
+        uniform float uMakaTime;
+        uniform vec2 uMakaPointer;
+        uniform float uMakaVelocity;
+        varying vec3 vMakaWordPosition;
+        ${shader.fragmentShader}
+      `;
+      shader.fragmentShader = shader.fragmentShader.replace(
+        "#include <emissivemap_fragment>",
+        `#include <emissivemap_fragment>
+        float makaSweepCenter = mod(uMakaTime * 1.18 + uMakaPointer.x * 1.25 + 6.8, 13.6) - 6.8;
+        float makaSweep = exp(-pow((vMakaWordPosition.x - makaSweepCenter) * 1.42, 2.0));
+        float makaReturnCenter = 6.4 - mod(uMakaTime * 0.46 + 3.1, 12.8);
+        float makaReturn = exp(-pow((vMakaWordPosition.x - makaReturnCenter) * 0.74, 2.0));
+        float makaDiagonal = 0.5 + 0.5 * sin(vMakaWordPosition.y * 4.1 - vMakaWordPosition.x * 0.72 + uMakaTime * 0.65);
+        float makaMotion = 0.85 + min(1.0, uMakaVelocity) * 0.34;
+        totalEmissiveRadiance += vec3(0.7, 0.91, 1.0) * makaSweep * (0.12 + makaDiagonal * 0.16) * makaMotion;
+        totalEmissiveRadiance += vec3(0.2, 0.56, 1.0) * makaReturn * 0.045;`,
+      );
+    };
+    wordGlass.customProgramCacheKey = () => "maka-word-traveling-light-v2";
 
     const glass = wordGlass.clone();
     glass.color.set("#63b6f6");
@@ -229,85 +264,49 @@ if (canvas) {
     });
 
     type TubePoint = readonly [number, number, number?];
-    const makeTubeStroke = (points: TubePoint[], radius = 0.19, closed = false) => {
-      const path = new THREE.CatmullRomCurve3(
-        points.map(([x, y, z = 0]) => new THREE.Vector3(x, y, z)),
-        closed,
-        "centripetal",
-        0.42,
-      );
-      const stroke = new THREE.Mesh(
-        new THREE.TubeGeometry(path, Math.max(48, points.length * 12), radius, 18, closed),
-        wordGlass,
-      );
-      stroke.castShadow = true;
-      stroke.receiveShadow = true;
-      return stroke;
-    };
-
-    // The reference's glass object is a purpose-built word model, not a font
-    // extrusion. These original tube strokes preserve that soft material
-    // language while making Maka's own name the literal hero geometry.
-    const letterDefinitions: Array<{
-      x: number;
-      strokes: Array<{ points: TubePoint[]; radius?: number; closed?: boolean }>;
-    }> = [
-      {
-        x: -3.12,
-        strokes: [{
-          points: [
-            [-0.86, -1.02, 0], [-0.84, 0.32, 0.03], [-0.76, 1.12, 0.07],
-            [-0.44, 1.22, 0.1], [-0.05, 0.05, 0.02], [0.36, 1.18, -0.02],
-            [0.7, 1.08, 0.03], [0.82, 0.28, 0.06], [0.83, -1.02, 0],
-          ],
-          radius: 0.205,
-        }],
-      },
-      {
-        x: -1.32,
-        strokes: [
-          {
-            points: [
-              [-0.62, 0.03, 0], [-0.52, 0.52, 0.04], [-0.08, 0.72, 0.08],
-              [0.4, 0.57, 0.05], [0.57, 0.06, 0], [0.39, -0.48, -0.03],
-              [-0.08, -0.67, 0], [-0.54, -0.43, 0.03],
-            ],
-            closed: true,
-          },
-          { points: [[0.52, 0.56, 0.02], [0.54, 0.16, 0.04], [0.55, -0.3, 0], [0.58, -0.76, -0.02]], radius: 0.175 },
-        ],
-      },
-      {
-        x: 0.16,
-        strokes: [
-          { points: [[-0.53, -0.98, 0], [-0.55, -0.16, 0.04], [-0.53, 0.58, 0.02], [-0.47, 1.11, -0.04]], radius: 0.19 },
-          { points: [[-0.45, -0.02, 0.04], [-0.08, 0.24, 0.08], [0.31, 0.62, 0.02], [0.59, 0.82, -0.03]], radius: 0.175 },
-          { points: [[-0.43, -0.03, 0.04], [-0.06, -0.27, 0.08], [0.34, -0.61, 0.02], [0.64, -0.84, -0.03]], radius: 0.175 },
-        ],
-      },
-      {
-        x: 1.66,
-        strokes: [
-          {
-            points: [
-              [-0.62, 0.03, 0], [-0.52, 0.52, -0.02], [-0.08, 0.72, 0.04],
-              [0.4, 0.57, 0.07], [0.57, 0.06, 0.03], [0.39, -0.48, 0],
-              [-0.08, -0.67, -0.02], [-0.54, -0.43, 0.02],
-            ],
-            closed: true,
-          },
-          { points: [[0.52, 0.56, 0.03], [0.54, 0.16, 0.06], [0.55, -0.3, 0.02], [0.58, -0.76, -0.02]], radius: 0.175 },
-        ],
-      },
+    const cursivePoints: TubePoint[] = [
+      [-4.8, -0.5, 0], [-4.48, -0.48, 0.02], [-4.27, -0.08, 0.08],
+      [-4.04, 0.76, 0.14], [-3.78, 1.34, 0.08], [-3.5, 1.18, -0.02],
+      [-3.38, 0.32, -0.08], [-3.32, -0.54, 0], [-3.08, -0.16, 0.06],
+      [-2.78, 0.72, 0.12], [-2.5, 1.22, 0.04], [-2.22, 1.04, -0.04],
+      [-2.15, 0.22, -0.08], [-2.08, -0.48, 0],
+      [-1.78, -0.58, 0.06], [-1.42, -0.43, 0.12], [-1.2, 0.02, 0.08],
+      [-1.28, 0.52, 0], [-1.65, 0.68, -0.06], [-1.98, 0.43, -0.02],
+      [-2.02, -0.03, 0.06], [-1.7, -0.38, 0.12], [-1.22, -0.4, 0.06],
+      [-1.08, 0.78, 0], [-0.96, -0.42, 0.04], [-0.78, -0.08, 0],
+      [-0.66, 0.68, -0.03], [-0.44, 1.36, 0.02],
+      [-0.22, 1.48, 0.1], [-0.06, 1.08, 0.12], [-0.2, 0.42, 0.06],
+      [-0.58, -0.1, 0], [-0.24, 0.02, 0.06], [0.2, 0.52, 0.12],
+      [0.58, 0.62, 0.06], [0.34, 0.18, -0.02], [0.04, -0.06, 0],
+      [0.46, -0.44, 0.08], [0.9, -0.48, 0.12], [1.2, -0.24, 0.08],
+      [1.32, 0.24, 0], [1.1, 0.62, -0.06], [0.7, 0.62, 0],
+      [0.5, 0.24, 0.08], [0.66, -0.22, 0.12], [1.08, -0.4, 0.06],
+      [1.52, -0.22, 0], [1.72, 0.78, 0.04], [1.7, -0.3, 0.08],
+      [2.02, -0.47, 0.1], [2.48, -0.34, 0.06], [2.88, -0.12, 0],
+      [3.24, -0.04, -0.02],
     ];
-
+    const cursiveCurve = new THREE.CatmullRomCurve3(
+      cursivePoints.map(([x, y, z = 0]) => new THREE.Vector3(x, y, z)),
+      false,
+      "centripetal",
+      0.42,
+    );
     const wordmark = new THREE.Group();
-    letterDefinitions.forEach(({ x, strokes }, index) => {
-      const letter = new THREE.Group();
-      letter.add(...strokes.map(({ points, radius, closed }) => makeTubeStroke(points, radius, closed)));
-      letter.position.set(x, 0, index % 2 === 0 ? 0.06 : -0.025);
-      wordmark.add(letter);
-    });
+    const cursiveStroke = new THREE.Mesh(
+      new THREE.TubeGeometry(cursiveCurve, 420, 0.168, 24, false),
+      wordGlass,
+    );
+    cursiveStroke.castShadow = true;
+    cursiveStroke.receiveShadow = true;
+    wordmark.add(cursiveStroke);
+    const terminalGeometry = new THREE.SphereGeometry(0.1685, 24, 18);
+    const startTerminal = new THREE.Mesh(terminalGeometry, wordGlass);
+    const endTerminal = new THREE.Mesh(terminalGeometry, wordGlass);
+    startTerminal.position.copy(cursiveCurve.getPointAt(0));
+    endTerminal.position.copy(cursiveCurve.getPointAt(1));
+    startTerminal.castShadow = true;
+    endTerminal.castShadow = true;
+    wordmark.add(startTerminal, endTerminal);
     const glintCanvas = document.createElement("canvas");
     glintCanvas.width = 96;
     glintCanvas.height = 96;
@@ -323,13 +322,7 @@ if (canvas) {
     }
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
-    const glintPositions = [
-      new THREE.Vector3(-3.48, 0.88, 0.38),
-      new THREE.Vector3(-1.29, -0.4, 0.34),
-      new THREE.Vector3(0.02, 0.03, 0.36),
-      new THREE.Vector3(1.77, 0.46, 0.36),
-    ];
-    const wordGlints = glintPositions.map((position, index) => {
+    const wordGlints = [0, 0.33, 0.66].map((phase, index) => {
       const material = new THREE.SpriteMaterial({
         map: glintTexture,
         color: 0xffffff,
@@ -339,14 +332,15 @@ if (canvas) {
         depthWrite: false,
       });
       const glint = new THREE.Sprite(material);
-      glint.position.copy(position);
+      glint.position.copy(cursiveCurve.getPointAt(phase));
+      glint.position.z += 0.25;
       glint.scale.setScalar(0.55 + index * 0.04);
       wordmark.add(glint);
-      return { glint, material, phase: index * 1.35 };
+      return { glint, material, phase };
     });
-    wordmark.position.set(0.55, -0.18, 0.42);
-    wordmark.rotation.set(-0.045, -0.025, -0.014);
-    wordmark.scale.set(1.42, 1.16, 1.16);
+    wordmark.position.set(0.12, -0.04, 0.42);
+    wordmark.rotation.set(-0.055, -0.035, -0.012);
+    wordmark.scale.set(1.18, 1.1, 1.1);
     organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
@@ -439,7 +433,7 @@ if (canvas) {
     const cursor = new THREE.Mesh(cursorGeometry, cobalt);
     cursor.scale.setScalar(0.55);
     cursor.rotation.set(0.12, -0.16, 0.05);
-    cursor.position.set(4.28, -0.46, 3.1);
+    cursor.position.set(4.72, -1.08, -0.72);
     cursor.visible = window.innerWidth >= 768;
     cursor.castShadow = true;
     scene.add(cursor);
@@ -481,6 +475,12 @@ if (canvas) {
     const pointerLight = new THREE.PointLight(0xd9efff, 2.1, 26, 1.5);
     pointerLight.position.set(0, 1, 7);
     scene.add(pointerLight);
+
+    const sweepLight = new THREE.PointLight(0xf4fbff, 1.25, 6.5, 1.65);
+    const returnLight = new THREE.PointLight(0x4b9fff, 0.55, 6, 1.8);
+    sweepLight.position.set(-7, 0.8, 4.8);
+    returnLight.position.set(7, -0.4, 3.8);
+    scene.add(sweepLight, returnLight);
 
     const pointer = new THREE.Vector2();
     const pointerTarget = new THREE.Vector2();
@@ -694,7 +694,9 @@ if (canvas) {
         raycaster.setFromCamera(pointer, camera);
         if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
           cursorTarget.copy(intersection);
-          cursorTarget.z = 3.1;
+          // Keep the pointer sculpture behind the word so it can participate
+          // in the scene without masking the final "a" or any terminal.
+          cursorTarget.z = -0.72;
         }
       }
       dampVector3(cursor.position, cursorTarget, 9.5, delta);
@@ -706,14 +708,22 @@ if (canvas) {
       cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.78 * (1 - cursorSpeed * 0.09), 13, delta);
       cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.78, 13, delta);
 
-      wordmark.rotation.x = -0.055 + Math.sin(elapsed * 0.32) * 0.012;
-      wordmark.rotation.y = -0.028 + Math.sin(elapsed * 0.28) * 0.018;
-      wordmark.rotation.z = -0.014 + Math.sin(elapsed * 0.24) * 0.007;
+      wordmark.rotation.x = -0.055 + pointer.y * 0.035 + Math.sin(elapsed * 0.32) * 0.018;
+      wordmark.rotation.y = -0.035 + pointer.x * 0.065 + Math.sin(elapsed * 0.28) * 0.026;
+      wordmark.rotation.z = -0.012 + pointer.x * 0.009 + Math.sin(elapsed * 0.24) * 0.009;
       wordGlints.forEach(({ glint, material, phase }) => {
-        const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.45 + phase);
-        glint.scale.setScalar(0.38 + pulse * 0.3);
-        material.opacity = 0.26 + pulse * 0.52;
+        const progress = (elapsed * 0.072 + phase + pointer.x * 0.025 + 1) % 1;
+        const point = cursiveCurve.getPointAt(progress);
+        glint.position.copy(point);
+        glint.position.z += 0.25;
+        const pulse = 0.5 + 0.5 * Math.sin(elapsed * 2.1 + phase * Math.PI * 2);
+        glint.scale.setScalar(0.34 + pulse * 0.3);
+        material.opacity = 0.18 + pulse * 0.56;
       });
+      sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
+      sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
+      returnLight.position.x = 7.2 - ((elapsed * 0.58 + 12) % 14.4);
+      returnLight.position.y = -0.35 + Math.cos(elapsed * 0.58) * 0.9;
       task.rotation.y = -0.34 + elapsed * 0.22;
       tool.rotation.y = 0.5 - elapsed * 0.2;
       artifact.rotation.y = 0.38 + Math.sin(elapsed * 0.42) * 0.22;
@@ -723,6 +733,11 @@ if (canvas) {
       nodes.forEach((node, index) => node.scale.setScalar(0.64 + Math.sin(elapsed * 1.4 + index) * 0.12));
 
       if (pearlShader) pearlShader.uniforms.uMakaTime.value = elapsed;
+      if (wordShader) {
+        wordShader.uniforms.uMakaTime.value = elapsed;
+        wordShader.uniforms.uMakaPointer.value.copy(pointer);
+        wordShader.uniforms.uMakaVelocity.value = Math.min(1, pointerVelocity.length() * 0.16);
+      }
       atmosphereUniforms.uMakaTime.value = elapsed;
       atmosphereUniforms.uMakaPointer.value.copy(pointer);
       atmosphereUniforms.uMakaVelocity.value.copy(pointerVelocity);

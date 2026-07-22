@@ -61,6 +61,15 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       </div>
     </header>
 
+    <div class="scene-rail" aria-hidden="true">
+      <span>SCROLL</span>
+      <i data-scene-dot="overview"></i>
+      <i data-scene-dot="product"></i>
+      <i data-scene-dot="runtime"></i>
+      <i data-scene-dot="surfaces"></i>
+      <b>↓</b>
+    </div>
+
     <main id="main-content" class="stage-main">
       <section class="view view--overview is-active" id="overview" data-view-panel="overview" aria-labelledby="overview-title" aria-hidden="false">
         <div class="overview-note overview-note--identity">
@@ -198,6 +207,15 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         </div>
 
         <div class="runtime-stage" data-runtime-path aria-label="Maka runtime event flow">
+          <canvas id="runtime-field" aria-hidden="true"></canvas>
+          <div class="runtime-signal-cloud" aria-hidden="true">
+            <span class="runtime-signal runtime-signal--message">MESSAGE</span>
+            <span class="runtime-signal runtime-signal--tool">TOOL CALL</span>
+            <span class="runtime-signal runtime-signal--result">TOOL RESULT</span>
+            <span class="runtime-signal runtime-signal--permission">PERMISSION</span>
+            <span class="runtime-signal runtime-signal--artifact">ARTIFACT</span>
+            <span class="runtime-signal runtime-signal--recovery">RECOVERY</span>
+          </div>
           <div class="runtime-rail" aria-hidden="true"><i></i></div>
           <ol class="runtime-flow">
             <li class="runtime-step runtime-step--request" data-runtime-phase="request">
@@ -237,6 +255,36 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             Desktop, TUI, CLI, and Headless share one workspace,<br />
             one set of model connections, and one execution record.
           </p>
+        </div>
+
+        <div class="surface-world" aria-hidden="true">
+          <figure class="surface-projection surface-projection--desktop">
+            <Image
+              src={firstRunCurrent}
+              alt=""
+              widths={[720, 960, 1280]}
+              sizes="54vw"
+              format="webp"
+              quality={82}
+              loading="eager"
+            />
+            <figcaption>DESKTOP / LIVE WORKSPACE</figcaption>
+          </figure>
+          <div class="surface-projection surface-projection--tui">
+            <b>maka tui</b>
+            <span>&gt; task artifact-recovery</span>
+            <span class="is-success">✓ Tool Result appended</span>
+            <span>✓ Artifact attached</span>
+          </div>
+          <div class="surface-projection surface-projection--cli">
+            <b>$ maka run "inspect this workspace"</b>
+            <span>TaskRun completed · 3 artifacts</span>
+          </div>
+          <div class="surface-projection surface-projection--headless">
+            <b>TaskRun / durable</b>
+            <span><i></i>Request</span><span><i></i>Tool Call</span><span><i></i>Artifact</span><span><i></i>Completed</span>
+          </div>
+          <div class="surface-pulse" aria-hidden="true"></div>
         </div>
 
         <ol class="surface-index" aria-label="Maka surfaces">
@@ -287,6 +335,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
   </div>
 
   <script src="../scripts/product-hover-field.ts"></script>
+  <script src="../scripts/runtime-field.ts"></script>
   <script>
     const stage = document.querySelector<HTMLElement>(".stage");
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-view-target]"));
@@ -301,12 +350,17 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const transitionDurations = { overview: 900, product: 1450, runtime: 1900, surfaces: 1300 } as const;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let transitionToken = 0;
+    let edgeTimer = 0;
 
     const setView = (requested: string, updateHash = true) => {
       const view = views.includes(requested as (typeof views)[number]) ? requested : "overview";
       if (!stage || stage.dataset.view === view) return;
       const outgoing = stage.dataset.view ?? "overview";
+      const outgoingIndex = views.indexOf(outgoing as (typeof views)[number]);
+      const incomingIndex = views.indexOf(view as (typeof views)[number]);
       const token = ++transitionToken;
+      stage.dataset.direction = incomingIndex > outgoingIndex ? "down" : "up";
+      delete stage.dataset.edge;
       if (!reduceMotion.matches) {
         stage.dataset.entering = view;
         stage.dataset.transitioning = `${outgoing}-to-${view}`;
@@ -328,7 +382,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         if (link.dataset.viewTarget === view) link.setAttribute("aria-current", "page");
         else link.removeAttribute("aria-current");
       });
-      const index = views.indexOf(view as (typeof views)[number]);
+      const index = incomingIndex;
       if (statusLabel) {
         statusLabel.textContent = view.toUpperCase();
         if (!reduceMotion.matches) {
@@ -343,7 +397,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       }
       if (statusIndex) statusIndex.textContent = `0${index + 1} / 04`;
       if (updateHash) history.replaceState(null, "", `#${view}`);
-      window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index } }));
+      window.dispatchEvent(new CustomEvent("maka:viewchange", { detail: { view, index, direction: stage.dataset.direction } }));
 
       if (!reduceMotion.matches) {
         const duration = transitionDurations[view as keyof typeof transitionDurations];
@@ -355,6 +409,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           if (token !== transitionToken || !stage) return;
           delete stage.dataset.transitioning;
           delete stage.dataset.transitionDuration;
+          delete stage.dataset.direction;
         };
         // rAF path plays the entrance animation on a visible page: a forced
         // reflow commits the entering styles before the flag is removed.
@@ -376,6 +431,74 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       event.preventDefault();
       setView(link.dataset.viewTarget ?? "overview");
     }));
+
+    const showEdgeResistance = (edge: "top" | "bottom") => {
+      if (!stage || reduceMotion.matches) return;
+      stage.dataset.edge = edge;
+      window.clearTimeout(edgeTimer);
+      edgeTimer = window.setTimeout(() => {
+        if (stage?.dataset.edge === edge) delete stage.dataset.edge;
+      }, 420);
+    };
+
+    const stepView = (direction: 1 | -1) => {
+      const current = views.indexOf((stage?.dataset.view ?? "overview") as (typeof views)[number]);
+      const next = Math.max(0, Math.min(views.length - 1, current + direction));
+      if (next === current) {
+        showEdgeResistance(direction > 0 ? "bottom" : "top");
+        return false;
+      }
+      setView(views[next]);
+      return true;
+    };
+
+    let wheelAccumulator = 0;
+    let wheelDirection = 0;
+    let lastWheelAt = 0;
+    let wheelGestureLocked = false;
+    let wheelGestureTimer = 0;
+    window.addEventListener("wheel", (event) => {
+      if (event.ctrlKey || event.metaKey || Math.abs(event.deltaY) < Math.abs(event.deltaX) * 1.15) return;
+      event.preventDefault();
+      const now = performance.now();
+      const direction = Math.sign(event.deltaY);
+      if (!direction) return;
+      if (now - lastWheelAt > 260 || direction !== wheelDirection) {
+        wheelAccumulator = 0;
+        wheelGestureLocked = false;
+      }
+      lastWheelAt = now;
+      wheelDirection = direction;
+      window.clearTimeout(wheelGestureTimer);
+      wheelGestureTimer = window.setTimeout(() => {
+        wheelAccumulator = 0;
+        wheelGestureLocked = false;
+      }, 280);
+      if (wheelGestureLocked) return;
+      const unit = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 18 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? innerHeight : 1;
+      wheelAccumulator += Math.abs(event.deltaY) * unit;
+      if (wheelAccumulator < 74) return;
+      wheelAccumulator = 0;
+      wheelGestureLocked = true;
+      stepView(direction > 0 ? 1 : -1);
+    }, { passive: false });
+
+    let touchStart: { x: number; y: number; at: number } | null = null;
+    window.addEventListener("touchstart", (event) => {
+      const touch = event.touches[0];
+      if (!touch) return;
+      touchStart = { x: touch.clientX, y: touch.clientY, at: performance.now() };
+    }, { passive: true });
+    window.addEventListener("touchend", (event) => {
+      const start = touchStart;
+      const touch = event.changedTouches[0];
+      touchStart = null;
+      if (!start || !touch || performance.now() - start.at > 900) return;
+      const deltaX = touch.clientX - start.x;
+      const deltaY = touch.clientY - start.y;
+      if (Math.abs(deltaY) < 56 || Math.abs(deltaY) < Math.abs(deltaX) * 1.2) return;
+      stepView(deltaY < 0 ? 1 : -1);
+    }, { passive: true });
 
     const evidenceCaptions: Record<string, string> = {
       artifact: "Tool Call → Artifact",
@@ -465,10 +588,10 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         toggleTheme();
         return;
       }
-      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-      const current = views.indexOf((stage?.dataset.view ?? "overview") as (typeof views)[number]);
-      const next = event.key === "ArrowRight" ? Math.min(views.length - 1, current + 1) : Math.max(0, current - 1);
-      setView(views[next]);
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "PageUp", "PageDown"].includes(event.key)) return;
+      event.preventDefault();
+      const forward = event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === "PageDown";
+      stepView(forward ? 1 : -1);
     });
 
     const formatCoordinate = (value: number) => String(Math.max(0, Math.round(value))).padStart(4, "0");

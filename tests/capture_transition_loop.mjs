@@ -13,7 +13,8 @@ const VIEWPORTS = [
 const TRANSITIONS = [
   ["overview", "product"],
   ["product", "runtime"],
-  ["runtime", "overview"],
+  ["runtime", "surfaces"],
+  ["surfaces", "overview"],
 ];
 
 await mkdir(RESULTS, { recursive: true });
@@ -69,6 +70,12 @@ const collectComputedTimeline = (page, to) => page.evaluate(({ target, timestamp
           hubTransform: style("[data-runtime-hub]", "transform"),
           stageOpacity: numeric("[data-runtime-path]", "opacity"),
           ledgerOpacity: numeric("[data-runtime-statement]", "opacity"),
+        },
+        surfaces: {
+          statementOpacity: numeric(".surfaces-statement", "opacity"),
+          desktopOpacity: numeric(".surface-projection--desktop", "opacity"),
+          tuiOpacity: numeric(".surface-projection--tui", "opacity"),
+          closeOpacity: numeric(".surfaces-close", "opacity"),
         },
       },
     };

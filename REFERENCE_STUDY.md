@@ -143,12 +143,42 @@ use original copy, composition, assets, and shaders.
   screen-space refraction `ShaderMaterial`; the visible word is therefore a
   purpose-built model, not runtime `TextGeometry` with a stock typeface.
 - `PARTIAL` — Maka translates that geometry principle with original
-  Catmull–Rom tube strokes spelling `Maka`. It does not reuse the reference
-  model, mesh data, shader code, or exact material constants.
+  single-path Catmull–Rom cursive geometry spelling `Maka`. One open ribbon and
+  two shared terminal caps replace the previous per-letter assembly. It does
+  not reuse the reference model, mesh data, shader code, or exact material
+  constants.
 - `SOURCE` — The fluid renderer ping-pongs velocity targets and has explicit
   render-target disposal and resize paths.
 - `PARTIAL` — The captured browser remained on the WebGL loading surface, so the
   fully composed source-to-output dynamic sequence has not yet passed replay QA.
+
+## Iteration 17 — continuous writing, scroll ownership, and later worlds
+
+- `SOURCE` — The reference hero identity is one model mesh. The visible
+  `hello` has continuous joined counters and only global terminals; the
+  screenshot does not expose a flat end at every letter boundary.
+- `PARTIAL` — Maka now translates that topology as one sampled open curve with
+  shared sphere caps at `t=0` and `t=1`. Exact control points, radius, color,
+  and material response are Maka-owned `GUESS` values verified by local
+  desktop and compact screenshots.
+- `SOURCE` — The reference's long page keeps its shell fixed while vertical
+  scroll hands ownership between the Hero, Work grid, multi-stage dark
+  HyperSpace world, and bright pixel finale.
+- `PARTIAL` — Maka translates the input mechanism into four fixed semantic
+  states driven by the same wheel/trackpad, touch-swipe, keyboard, nav, and
+  hash state machine. It intentionally does not reproduce the reference's
+  10,199px document length or exact Lenis timing.
+- `SOURCE` — The later dark reference state is not a workflow card layout. A
+  radial streak field and one display statement own the entire viewport.
+- `PARTIAL` — Maka's Runtime uses an original Canvas2D perspective field whose
+  streak palette maps to actual Event Log categories and whose hub remains the
+  real `Request → AgentRun → Event Log → Projection → Recovery` architecture.
+- `SOURCE` — The bright reference finale uses large decoded/pixel typography,
+  asymmetric objects, and persistent cursor residue rather than four equal
+  feature cards.
+- `PARTIAL` — Maka's Surfaces finale decodes its own statement and projects the
+  same execution into Desktop, TUI, CLI, and Headless at unequal scales. Copy
+  and surface facts remain sourced from Maka's public repository.
 
 ## Principles to carry into Maka
 

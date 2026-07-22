@@ -60,7 +60,7 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
   if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
   if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
-  if ((await page.locator("img").count()) !== 5) throw new Error(`${label}: expected 5 product images`);
+  if ((await page.locator("img").count()) !== 6) throw new Error(`${label}: expected 5 Product images plus the Surfaces projection`);
   if ((await page.locator("[data-evidence-command]").count()) !== 3) throw new Error(`${label}: evidence index needs three entries`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
@@ -69,6 +69,8 @@ for (const [label, width, height] of VIEWPORTS) {
     throw new Error(`${label}: Runtime event order is incorrect ${JSON.stringify(runtimePhases)}`);
   }
   if ((await page.locator("[data-runtime-hub]").count()) !== 1) throw new Error(`${label}: Runtime needs one dominant Event Log hub`);
+  if ((await page.locator("#runtime-field").count()) !== 1) throw new Error(`${label}: Runtime perspective field is missing`);
+  if ((await page.locator(".surface-projection").count()) !== 4) throw new Error(`${label}: Surfaces needs four asymmetric projections`);
   if ((await page.locator(".runtime-map, .runtime-code").count()) !== 0) throw new Error(`${label}: legacy Runtime collage remains`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
   if ((await page.locator("a:not([href])").count()) !== 0) throw new Error(`${label}: anchor missing href`);
@@ -96,8 +98,8 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
     throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
   }
-  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "original-tube-strokes") {
-    throw new Error(`${label}: hero wordmark regressed to a generic or anonymous geometry`);
+  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "continuous-cursive-ribbon") {
+    throw new Error(`${label}: hero wordmark is no longer the continuous capped Maka ribbon`);
   }
   const expectedCenter = `${String(Math.round(width / 2)).padStart(4, "0")}X${String(Math.round(height / 2)).padStart(4, "0")}Y`;
   const initialPointer = (await page.locator(".pointer-readout").textContent() ?? "").replaceAll("\n", " ").replaceAll(/\s+/g, " ").trim();
@@ -189,14 +191,14 @@ for (const [label, width, height] of VIEWPORTS) {
     if (!productHierarchy.main
       || productHierarchy.main.width / productHierarchy.viewport.width < 0.62
       || productHierarchy.main.width / productHierarchy.viewport.width > 0.68
-      || productHierarchy.main.height / productHierarchy.viewport.height < 0.45
-      || productHierarchy.main.height / productHierarchy.viewport.height > 0.62
-      || productHierarchy.main.x / productHierarchy.viewport.width < 0.33
-      || productHierarchy.main.x / productHierarchy.viewport.width > 0.37) {
+      || productHierarchy.main.height / productHierarchy.viewport.height < 0.65
+      || productHierarchy.main.height / productHierarchy.viewport.height > 0.82
+      || productHierarchy.main.x / productHierarchy.viewport.width < 0.31
+      || productHierarchy.main.x / productHierarchy.viewport.width > 0.34) {
       throw new Error(`desktop: dominant Product proof lost its reference-led ownership ${JSON.stringify(productHierarchy)}`);
     }
-    if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs.some((proof) => proof.y / productHierarchy.viewport.height < 0.7)) {
-      throw new Error(`desktop: next Product proofs lost equal lower-edge pacing ${JSON.stringify(productHierarchy)}`);
+    if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs[0].top >= productHierarchy.proofs[1].top) {
+      throw new Error(`desktop: supporting Product evidence lost its depth stagger ${JSON.stringify(productHierarchy)}`);
     }
     await page.locator('.view-nav [data-view-target="overview"]').click();
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
@@ -222,6 +224,17 @@ for (const [label, width, height] of VIEWPORTS) {
     await page.keyboard.press("1");
     await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
     await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
+
+    await page.mouse.wheel(0, 500);
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "product");
+    await page.waitForTimeout(320);
+    await page.mouse.wheel(0, 500);
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "runtime");
+    await page.waitForTimeout(320);
+    await page.mouse.wheel(0, -500);
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "product");
+    await page.locator('[data-view-target="overview"]').first().click();
+    await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
   }
 
   const expectedTransitionDurations = { overview: "900", product: "1450", runtime: "1900", surfaces: "1300" };
@@ -297,6 +310,10 @@ for (const [label, width, height] of VIEWPORTS) {
       if (runtimeGeometry.hubFontSize < Math.max(...runtimeGeometry.secondaryFontSizes) * 3) {
         throw new Error(`${label}: Event Log no longer owns the Runtime hierarchy ${JSON.stringify(runtimeGeometry)}`);
       }
+      const runtimeFieldBacking = await page.locator("#runtime-field").evaluate((element) => ({ width: element.width, height: element.height, active: element.dataset.active }));
+      if (!runtimeFieldBacking.width || !runtimeFieldBacking.height || runtimeFieldBacking.active !== "true") {
+        throw new Error(`${label}: Runtime field is not rendering the active event tunnel ${JSON.stringify(runtimeFieldBacking)}`);
+      }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-runtime.png`, timeout: NAVIGATION_TIMEOUT });
     }
     if (view === "surfaces") {
@@ -304,6 +321,13 @@ for (const [label, width, height] of VIEWPORTS) {
         .every((element) => element.textContent === element.dataset.decode), undefined, { timeout: NAVIGATION_TIMEOUT });
       if ((await page.locator("#execution-field").getAttribute("data-scene-state")) !== "suppressed") {
         throw new Error(`${label}: WebGL sculpture still competes with the Surfaces close`);
+      }
+      const surfacesBounds = await page.locator(".surfaces-statement").evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return { left: box.left, right: box.right, width: box.width, viewport: innerWidth, scrollWidth: element.scrollWidth };
+      });
+      if (surfacesBounds.left < -1 || surfacesBounds.right > surfacesBounds.viewport + 1 || surfacesBounds.scrollWidth > surfacesBounds.width + 1) {
+        throw new Error(`${label}: Surfaces statement is clipped ${JSON.stringify(surfacesBounds)}`);
       }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-surfaces.png`, timeout: NAVIGATION_TIMEOUT });
     }
@@ -331,6 +355,24 @@ for (const [label, width, height] of VIEWPORTS) {
       if (smallTargets.length) throw new Error(`${label}/${view}: small targets ${JSON.stringify(smallTargets)}`);
     }
     await page.locator('[data-view-target="overview"]').first().click();
+    if (label === "phone-390") {
+      await page.evaluate(() => {
+        const target = document.body;
+        const start = new Touch({ identifier: 1, target, clientX: 190, clientY: 650 });
+        const end = new Touch({ identifier: 1, target, clientX: 190, clientY: 260 });
+        window.dispatchEvent(new TouchEvent("touchstart", { bubbles: true, touches: [start], changedTouches: [start] }));
+        window.dispatchEvent(new TouchEvent("touchend", { bubbles: true, touches: [], changedTouches: [end] }));
+      });
+      await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "product");
+      await page.evaluate(() => {
+        const target = document.body;
+        const start = new Touch({ identifier: 2, target, clientX: 190, clientY: 260 });
+        const end = new Touch({ identifier: 2, target, clientX: 190, clientY: 650 });
+        window.dispatchEvent(new TouchEvent("touchstart", { bubbles: true, touches: [start], changedTouches: [start] }));
+        window.dispatchEvent(new TouchEvent("touchend", { bubbles: true, touches: [], changedTouches: [end] }));
+      });
+      await page.waitForFunction(() => document.querySelector(".stage")?.getAttribute("data-view") === "overview");
+    }
   }
 
   await page.waitForFunction(() => !document.querySelector(".stage")?.hasAttribute("data-transitioning"));
