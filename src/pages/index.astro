@@ -23,7 +23,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <b></b>
     </div>
     <ExecutionField />
-    <div class="light-field" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="light-field" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
     <div class="measurement-grid" aria-hidden="true">
       <i class="rule rule--v rule--v1"></i>
@@ -73,8 +73,14 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
     <main id="main-content" class="stage-main">
       <section class="view view--overview is-active" id="overview" data-view-panel="overview" aria-labelledby="overview-title" aria-hidden="false">
+        <div class="hero-intro" aria-label="Maka introduction">
+          <p><strong>Maka Agent</strong><span>Open source<br />Local first</span></p>
+          <p><strong>Built for real work.</strong><span>Designed for visible proof.</span></p>
+          <p><span>Maka turns intent into inspectable execution. Tools, permissions, artifacts, and durable progress remain visible from the first request to the finished work.</span></p>
+        </div>
         <div class="hero-copy">
-          <h1 id="overview-title">An open source agent that turns intent into inspectable work.</h1>
+          <p class="hero-copy__signal"><span></span>LOCAL-FIRST / OPEN SOURCE</p>
+          <h1 id="overview-title"><span>Your work.</span><span>Your agent.</span><span>Runs locally.</span></h1>
           <div class="hero-actions">
             <a class="primary-action" href={githubUrl} target="_blank" rel="noreferrer">
               View source

@@ -54,7 +54,7 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const commandHints = await page.locator(".view-nav small").allTextContents();
   if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]", "[4]"])) throw new Error(`${label}: navigation command hints are incomplete`);
-  if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "An open source agent that turns intent into inspectable work.") {
+  if ((await page.locator("#overview-title").textContent()) !== "Your work.Your agent.Runs locally.") {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
@@ -105,8 +105,8 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
     throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
   }
-  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "continuous-cursive-ribbon") {
-    throw new Error(`${label}: hero wordmark is no longer the continuous capped Maka ribbon`);
+  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "extruded-calligraphic-solid") {
+    throw new Error(`${label}: hero wordmark is no longer the extruded Maka calligraphic solid`);
   }
   const expectedCenter = `${String(Math.round(width / 2)).padStart(4, "0")}X${String(Math.round(height / 2)).padStart(4, "0")}Y`;
   const initialPointer = (await page.locator(".pointer-readout").textContent() ?? "").replaceAll("\n", " ").replaceAll(/\s+/g, " ").trim();
@@ -366,7 +366,14 @@ for (const [label, width, height] of VIEWPORTS) {
           bottom: box.bottom,
         };
       }));
-      if (surfaceProjection.some(({ transform }) => transform !== "none")) {
+      const hasTiltOrSkew = ({ transform }) => {
+        if (transform === "none") return false;
+        const match = transform.match(/^matrix\(([-\d.e]+), ([-\d.e]+), ([-\d.e]+), ([-\d.e]+),/);
+        if (!match) return true;
+        const [, a, b, c, d] = match.map(Number);
+        return Math.abs(a - 1) > 0.001 || Math.abs(b) > 0.001 || Math.abs(c) > 0.001 || Math.abs(d - 1) > 0.001;
+      };
+      if (surfaceProjection.some(hasTiltOrSkew)) {
         throw new Error(`${label}: Surfaces evidence is tilted or skewed ${JSON.stringify(surfaceProjection)}`);
       }
       if (width >= 768 && surfaceProjection.some(({ left, top, right, bottom }) => left < -1 || top < -1 || right > width + 1 || bottom > height + 1)) {
