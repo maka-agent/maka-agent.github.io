@@ -4,7 +4,10 @@ const canvas = document.querySelector<HTMLCanvasElement>("#runtime-field");
 if (canvas) {
   const context = canvas.getContext("2d", { alpha: true });
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const colors = ["#31d9ff", "#318bff", "#7feaff", "#1667e8", "#ffad35", "#48d78b"];
+  const colors = [
+    "#28e4ff", "#368fff", "#a8f5ff", "#2175ff", "#5bb8ff", "#78eaff",
+    "#318bff", "#a8f5ff", "#2071ee", "#48d5ff", "#ffbd48", "#54ed9a",
+  ];
   type Streak = {
     angle: number;
     progress: number;
@@ -13,6 +16,7 @@ if (canvas) {
     color: string;
     width: number;
     lane: number;
+    dotted: boolean;
   };
   let width = 1;
   let height = 1;
@@ -32,10 +36,11 @@ if (canvas) {
     color: colors[index % colors.length],
     width: index % 11 === 0 ? 2.05 : index % 4 === 0 ? 1.42 : 0.92,
     lane: 0.72 + (index % 13) * 0.028,
+    dotted: index % 3 === 0 || index % 11 === 0,
   });
 
   const rebuild = () => {
-    const count = width < 720 ? 142 : width < 1100 ? 240 : 380;
+    const count = width < 720 ? 280 : width < 1100 ? 540 : 920;
     streaks = Array.from({ length: count }, (_, index) => makeStreak(index));
   };
 
@@ -52,11 +57,11 @@ if (canvas) {
 
   const project = (streak: Streak, progress: number) => {
     const eased = Math.pow(Math.max(0, progress), 1.72);
-    const maxRadius = Math.hypot(width, height) * 0.72 * streak.lane;
-    const centerX = width * 0.53 + pointerX * width * 0.022;
-    const centerY = height * 0.47 - pointerY * height * 0.018;
+    const maxRadius = Math.hypot(width, height) * 0.76 * streak.lane;
+    const centerX = width * 0.55 + pointerX * width * 0.022;
+    const centerY = height * 0.43 - pointerY * height * 0.018;
     const horizontal = Math.cos(streak.angle) * maxRadius * eased;
-    const vertical = Math.sin(streak.angle) * maxRadius * eased * 0.68;
+    const vertical = Math.sin(streak.angle) * maxRadius * eased * 0.76;
     const bend = (pointerX * Math.sin(streak.angle) - pointerY * Math.cos(streak.angle)) * eased * 20;
     return {
       x: centerX + horizontal - Math.sin(streak.angle) * bend,
@@ -80,20 +85,22 @@ if (canvas) {
       }
       const head = project(streak, streak.progress);
       const tail = project(streak, Math.max(0, streak.progress - streak.length));
-      const alpha = Math.min(0.94, 0.14 + Math.pow(streak.progress, 1.18) * 0.82);
+      const alpha = Math.min(1, 0.3 + Math.pow(streak.progress, 1.08) * 0.94);
       const gradient = context.createLinearGradient(tail.x, tail.y, head.x, head.y);
       gradient.addColorStop(0, "transparent");
-      gradient.addColorStop(0.42, `${streak.color}22`);
+      gradient.addColorStop(0.38, `${streak.color}55`);
       gradient.addColorStop(1, streak.color);
       context.strokeStyle = gradient;
       context.globalAlpha = alpha;
-      context.lineWidth = streak.width * (0.55 + streak.progress * 1.25);
+      context.lineWidth = streak.width * (0.62 + streak.progress * 1.42);
+      context.setLineDash(streak.dotted ? [1.4 + (index % 4) * 0.45, 4 + (index % 6) * 1.3] : []);
+      context.lineDashOffset = -streak.progress * 34;
       context.beginPath();
       context.moveTo(tail.x, tail.y);
       context.lineTo(head.x, head.y);
       context.stroke();
 
-      if (index % 17 === 0) {
+      if (index % 7 === 0) {
         context.fillStyle = streak.color;
         context.globalAlpha = alpha * 0.9;
         context.beginPath();
@@ -101,6 +108,7 @@ if (canvas) {
         context.fill();
       }
     });
+    context.setLineDash([]);
     context.restore();
     context.globalAlpha = 1;
 

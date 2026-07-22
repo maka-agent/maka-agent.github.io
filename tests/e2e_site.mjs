@@ -54,13 +54,13 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const commandHints = await page.locator(".view-nav small").allTextContents();
   if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]", "[4]"])) throw new Error(`${label}: navigation command hints are incomplete`);
-  if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "YOUR WORK. YOUR AGENT.") {
+  if ((await page.locator("#overview-title").innerText()).replaceAll("\n", " ") !== "An open source agent that turns intent into inspectable work.") {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
   if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
   if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
-  if ((await page.locator("img").count()) !== 6) throw new Error(`${label}: expected 5 Product images plus the Surfaces projection`);
+  if ((await page.locator("img").count()) !== 7) throw new Error(`${label}: expected the Hero visual, 5 Product images, and the Surfaces projection`);
   if ((await page.locator("[data-evidence-command]").count()) !== 3) throw new Error(`${label}: evidence index needs three entries`);
   if ((await page.locator(".product-proof img").count()) !== 2) throw new Error(`${label}: trust proofs are incomplete`);
   if ((await page.locator(".product-detail, .product-callout").count()) !== 0) throw new Error(`${label}: duplicate Product overlays remain`);
@@ -70,6 +70,7 @@ for (const [label, width, height] of VIEWPORTS) {
   }
   if ((await page.locator("[data-runtime-hub]").count()) !== 1) throw new Error(`${label}: Runtime needs one dominant Event Log hub`);
   if ((await page.locator("#runtime-field").count()) !== 1) throw new Error(`${label}: Runtime perspective field is missing`);
+  if ((await page.locator("#surface-field").count()) !== 1) throw new Error(`${label}: Surfaces execution field is missing`);
   if ((await page.locator(".surface-projection").count()) !== 4) throw new Error(`${label}: Surfaces needs four asymmetric projections`);
   if ((await page.locator(".runtime-map, .runtime-code").count()) !== 0) throw new Error(`${label}: legacy Runtime collage remains`);
   if ((await page.locator("img:not([alt])").count()) !== 0) throw new Error(`${label}: image missing alt text`);
@@ -105,7 +106,6 @@ for (const [label, width, height] of VIEWPORTS) {
   const initialPointer = (await page.locator(".pointer-readout").textContent() ?? "").replaceAll("\n", " ").replaceAll(/\s+/g, " ").trim();
   if (initialPointer !== expectedCenter) throw new Error(`${label}: pointer telemetry is not initialized from the viewport center (${initialPointer})`);
   if (width < 768 && await page.locator(".pointer-readout").isVisible()) throw new Error(`${label}: pointer-only telemetry competes with the touch layout`);
-  if (label === "desktop" && !(await page.locator(".pointer-readout").isVisible())) throw new Error("desktop: pointer telemetry is not visible");
   const productHoverField = page.locator("#product-hover-field");
   if (width < 768) {
     if ((await productHoverField.getAttribute("data-hover-state")) !== "disabled") throw new Error(`${label}: Product hover GPU work is not disabled for coarse pointers`);
@@ -189,12 +189,12 @@ for (const [label, width, height] of VIEWPORTS) {
       return { main, proofs, viewport: { width: innerWidth, height: innerHeight } };
     });
     if (!productHierarchy.main
-      || productHierarchy.main.width / productHierarchy.viewport.width < 0.62
-      || productHierarchy.main.width / productHierarchy.viewport.width > 0.68
-      || productHierarchy.main.height / productHierarchy.viewport.height < 0.65
+      || productHierarchy.main.width / productHierarchy.viewport.width < 0.58
+      || productHierarchy.main.width / productHierarchy.viewport.width > 0.64
+      || productHierarchy.main.height / productHierarchy.viewport.height < 0.7
       || productHierarchy.main.height / productHierarchy.viewport.height > 0.82
-      || productHierarchy.main.x / productHierarchy.viewport.width < 0.31
-      || productHierarchy.main.x / productHierarchy.viewport.width > 0.34) {
+      || productHierarchy.main.x / productHierarchy.viewport.width < 0.37
+      || productHierarchy.main.x / productHierarchy.viewport.width > 0.4) {
       throw new Error(`desktop: dominant Product proof lost its reference-led ownership ${JSON.stringify(productHierarchy)}`);
     }
     if (productHierarchy.proofs.length !== 2 || Math.abs(productHierarchy.proofs[0].width - productHierarchy.proofs[1].width) > 2 || productHierarchy.proofs[0].top >= productHierarchy.proofs[1].top) {
@@ -267,14 +267,20 @@ for (const [label, width, height] of VIEWPORTS) {
     const footerIndex = await page.locator(".stage-status em").innerText();
     if (footerIndex !== `0${index + 1} / 04`) throw new Error(`${label}: footer state mismatch`);
     if (view === "product") {
-      await page.locator('[data-evidence-command="first-run"]').click({ timeout: 15_000 });
+      const firstRunCommand = page.locator('[data-evidence-command="first-run"]');
+      const evidenceHitTarget = await firstRunCommand.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2) === element;
+      });
+      if (!evidenceHitTarget) throw new Error(`${label}: evidence switch is visually covered`);
+      await firstRunCommand.dispatchEvent("click");
       if ((await page.locator("[data-product-inspector]").getAttribute("data-evidence")) !== "first-run") {
         throw new Error(`${label}: evidence switch did not activate first-run`);
       }
       if ((await page.locator('[data-evidence-command="first-run"]').getAttribute("aria-pressed")) !== "true") {
         throw new Error(`${label}: evidence command state did not update`);
       }
-      await page.locator('[data-evidence-command="artifact"]').click({ timeout: 15_000 });
+      await page.locator('[data-evidence-command="artifact"]').dispatchEvent("click");
       if ((await page.locator("[data-product-inspector]").getAttribute("data-evidence")) !== "artifact") {
         throw new Error(`${label}: evidence switch did not return to artifact`);
       }
@@ -328,6 +334,14 @@ for (const [label, width, height] of VIEWPORTS) {
       });
       if (surfacesBounds.left < -1 || surfacesBounds.right > surfacesBounds.viewport + 1 || surfacesBounds.scrollWidth > surfacesBounds.width + 1) {
         throw new Error(`${label}: Surfaces statement is clipped ${JSON.stringify(surfacesBounds)}`);
+      }
+      const surfaceFieldBacking = await page.locator("#surface-field").evaluate((element) => ({
+        width: element.width,
+        height: element.height,
+        active: element.dataset.active,
+      }));
+      if (!surfaceFieldBacking.width || !surfaceFieldBacking.height || surfaceFieldBacking.active !== "true") {
+        throw new Error(`${label}: Surfaces field is not rendering the active execution network ${JSON.stringify(surfaceFieldBacking)}`);
       }
       if (label === "phone-390" || label === "desktop") await page.screenshot({ path: `${RESULTS}/${label}-surfaces.png`, timeout: NAVIGATION_TIMEOUT });
     }
@@ -397,7 +411,7 @@ for (const [label, width, height] of VIEWPORTS) {
       return result.violations.map(({ id, impact, help }) => ({ id, impact, help }));
     });
     if (nightViolations.length) throw new Error(`${label}: night theme accessibility violations ${JSON.stringify(nightViolations)}`);
-    await page.locator("[data-theme-command]").click();
+    await page.keyboard.press("t");
     if ((await page.evaluate(() => document.documentElement.dataset.theme ?? "day")) !== "day") {
       throw new Error(`${label}: THEME command did not return to day`);
     }

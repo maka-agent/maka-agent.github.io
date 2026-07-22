@@ -34,7 +34,7 @@ if (canvas) {
     renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.68;
+    renderer.toneMappingExposure = 0.82;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
 
@@ -44,7 +44,7 @@ if (canvas) {
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
-    scene.environmentIntensity = 0.82;
+    scene.environmentIntensity = 1.18;
     pmrem.dispose();
 
     const world = new THREE.Group();
@@ -165,65 +165,88 @@ if (canvas) {
     };
     pearl.customProgramCacheKey = () => "maka-pearl-normal-v1";
 
-    const wordGlass = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#3f8dcc"),
-      emissive: new THREE.Color("#0a528d"),
-      emissiveIntensity: 0.18,
-      metalness: 0.025,
-      roughness: 0.25,
-      transmission: 0.08,
-      thickness: 0.72,
-      ior: 1.32,
-      dispersion: 0.075,
-      clearcoat: 1,
-      clearcoatRoughness: 0.075,
-      attenuationColor: new THREE.Color("#4d93ce"),
-      attenuationDistance: 1.8,
-      iridescence: 0.13,
-      iridescenceIOR: 1.3,
-      opacity: 1,
-      envMapIntensity: 1.05,
-    });
-
-    let wordShader: Parameters<typeof wordGlass.onBeforeCompile>[0] | null = null;
-    wordGlass.onBeforeCompile = (shader) => {
-      wordShader = shader;
-      shader.uniforms.uMakaTime = { value: 0 };
-      shader.uniforms.uMakaPointer = { value: new THREE.Vector2() };
-      shader.uniforms.uMakaVelocity = { value: 0 };
-      shader.vertexShader = `varying vec3 vMakaWordPosition;\n${shader.vertexShader}`;
-      shader.vertexShader = shader.vertexShader.replace(
-        "#include <begin_vertex>",
-        "#include <begin_vertex>\nvMakaWordPosition = position;",
-      );
-      shader.fragmentShader = `
+    // A view-dependent shell is more reliable than a single transmissive
+    // material over the bright page. It keeps the blue rim and transparent
+    // body legible at every camera angle without washing the wordmark white.
+    const wordGlass = new THREE.ShaderMaterial({
+      uniforms: {
+        uMakaTime: { value: 0 },
+        uMakaPointer: { value: new THREE.Vector2() },
+        uMakaVelocity: { value: 0 },
+        uMakaOpacity: { value: 1 },
+      },
+      vertexShader: `
+        varying vec3 vMakaWordPosition;
+        varying vec3 vMakaWorldNormal;
+        varying vec3 vMakaViewDirection;
+        void main() {
+          vMakaWordPosition = position;
+          vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+          vMakaWorldNormal = normalize(mat3(modelMatrix) * normal);
+          vMakaViewDirection = normalize(cameraPosition - worldPosition.xyz);
+          gl_Position = projectionMatrix * viewMatrix * worldPosition;
+        }
+      `,
+      fragmentShader: `
         uniform float uMakaTime;
         uniform vec2 uMakaPointer;
         uniform float uMakaVelocity;
+        uniform float uMakaOpacity;
         varying vec3 vMakaWordPosition;
-        ${shader.fragmentShader}
-      `;
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "#include <emissivemap_fragment>",
-        `#include <emissivemap_fragment>
-        float makaSweepCenter = mod(uMakaTime * 1.18 + uMakaPointer.x * 1.25 + 6.8, 13.6) - 6.8;
-        float makaSweep = exp(-pow((vMakaWordPosition.x - makaSweepCenter) * 1.42, 2.0));
-        float makaReturnCenter = 6.4 - mod(uMakaTime * 0.46 + 3.1, 12.8);
-        float makaReturn = exp(-pow((vMakaWordPosition.x - makaReturnCenter) * 0.74, 2.0));
-        float makaDiagonal = 0.5 + 0.5 * sin(vMakaWordPosition.y * 4.1 - vMakaWordPosition.x * 0.72 + uMakaTime * 0.65);
-        float makaMotion = 0.85 + min(1.0, uMakaVelocity) * 0.34;
-        totalEmissiveRadiance += vec3(0.7, 0.91, 1.0) * makaSweep * (0.12 + makaDiagonal * 0.16) * makaMotion;
-        totalEmissiveRadiance += vec3(0.2, 0.56, 1.0) * makaReturn * 0.045;`,
-      );
-    };
-    wordGlass.customProgramCacheKey = () => "maka-word-traveling-light-v2";
+        varying vec3 vMakaWorldNormal;
+        varying vec3 vMakaViewDirection;
 
-    const glass = wordGlass.clone();
-    glass.color.set("#63b6f6");
-    glass.transmission = 0.2;
-    glass.thickness = 1.1;
-    glass.opacity = 0.76;
-    glass.transparent = true;
+        void main() {
+          vec3 normal = normalize(vMakaWorldNormal);
+          vec3 viewDirection = normalize(vMakaViewDirection);
+          float facing = abs(dot(normal, viewDirection));
+          float rim = pow(1.0 - facing, 1.65);
+          float thinRim = pow(1.0 - facing, 5.5);
+          float upperEdge = smoothstep(-0.35, 0.88, normal.y);
+          float lowerEdge = smoothstep(0.42, -0.72, normal.y);
+          float makaSweepCenter = mod(uMakaTime * 1.08 + uMakaPointer.x * 1.2 + 6.8, 13.6) - 6.8;
+          float sweep = exp(-pow((vMakaWordPosition.x - makaSweepCenter) * 1.36, 2.0));
+          float micro = 0.5 + 0.5 * sin(vMakaWordPosition.x * 6.2 + vMakaWordPosition.y * 8.7 - uMakaTime * 0.75);
+          float motion = min(1.0, uMakaVelocity);
+
+          vec3 body = vec3(0.54, 0.79, 0.97);
+          vec3 edge = vec3(0.12, 0.5, 0.9);
+          vec3 highlight = vec3(1.0, 0.985, 0.92);
+          vec3 color = mix(body, edge, rim * 0.76 + upperEdge * 0.12);
+          color = mix(color, highlight, thinRim * (0.5 + upperEdge * 0.42));
+          color += highlight * sweep * (0.16 + micro * 0.16 + motion * 0.1);
+          color += vec3(0.1, 0.42, 0.88) * lowerEdge * 0.12;
+
+          float alpha = (0.11 + rim * 0.55 + thinRim * 0.2 + sweep * 0.1) * uMakaOpacity;
+          gl_FragColor = vec4(color, clamp(alpha, 0.0, 0.9));
+        }
+      `,
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+      blending: THREE.NormalBlending,
+    });
+
+    const wordCoreMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("#62b8f2"),
+      transparent: true,
+      opacity: 0.075,
+      depthWrite: false,
+      blending: THREE.NormalBlending,
+    });
+
+    const glass = new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color("#63b6f6"),
+      metalness: 0,
+      roughness: 0.12,
+      transmission: 0.2,
+      thickness: 1.1,
+      ior: 1.43,
+      clearcoat: 1,
+      clearcoatRoughness: 0.05,
+      opacity: 0.76,
+      transparent: true,
+    });
 
     const cobalt = new THREE.MeshPhysicalMaterial({
       color: new THREE.Color("#176ed3"),
@@ -292,21 +315,65 @@ if (canvas) {
       0.42,
     );
     const wordmark = new THREE.Group();
+    const cursiveCore = new THREE.Mesh(
+      new THREE.TubeGeometry(cursiveCurve, 480, 0.118, 22, false),
+      wordCoreMaterial,
+    );
     const cursiveStroke = new THREE.Mesh(
-      new THREE.TubeGeometry(cursiveCurve, 420, 0.168, 24, false),
+      new THREE.TubeGeometry(cursiveCurve, 480, 0.175, 28, false),
       wordGlass,
     );
-    cursiveStroke.castShadow = true;
+    const wordHighlightMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("#f6fbff"),
+      transparent: true,
+      opacity: 0.32,
+      depthWrite: false,
+      depthTest: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const cursiveHighlight = new THREE.Mesh(
+      new THREE.TubeGeometry(cursiveCurve, 480, 0.014, 8, false),
+      wordHighlightMaterial,
+    );
+    cursiveHighlight.position.set(-0.028, 0.052, 0.192);
+    cursiveStroke.castShadow = false;
     cursiveStroke.receiveShadow = true;
-    wordmark.add(cursiveStroke);
-    const terminalGeometry = new THREE.SphereGeometry(0.1685, 24, 18);
+    cursiveCore.renderOrder = 1;
+    cursiveStroke.renderOrder = 2;
+    cursiveHighlight.renderOrder = 4;
+    wordmark.add(cursiveCore, cursiveStroke, cursiveHighlight);
+    const terminalGeometry = new THREE.SphereGeometry(0.1755, 28, 20);
     const startTerminal = new THREE.Mesh(terminalGeometry, wordGlass);
     const endTerminal = new THREE.Mesh(terminalGeometry, wordGlass);
     startTerminal.position.copy(cursiveCurve.getPointAt(0));
     endTerminal.position.copy(cursiveCurve.getPointAt(1));
-    startTerminal.castShadow = true;
-    endTerminal.castShadow = true;
+    startTerminal.castShadow = false;
+    endTerminal.castShadow = false;
     wordmark.add(startTerminal, endTerminal);
+
+    const sparklePositions = new Float32Array(260 * 3);
+    for (let index = 0; index < 260; index += 1) {
+      const t = ((index * 0.61803398875) % 1) * 0.996 + 0.002;
+      const point = cursiveCurve.getPointAt(t);
+      const angle = index * 2.3999632297;
+      const radius = 0.025 + ((index * 0.41421356237) % 1) * 0.105;
+      sparklePositions[index * 3] = point.x + Math.cos(angle) * radius * 0.35;
+      sparklePositions[index * 3 + 1] = point.y + Math.sin(angle) * radius;
+      sparklePositions[index * 3 + 2] = point.z + Math.cos(angle * 1.37) * radius;
+    }
+    const sparkleGeometry = new THREE.BufferGeometry();
+    sparkleGeometry.setAttribute("position", new THREE.BufferAttribute(sparklePositions, 3));
+    const wordSparkleMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.045,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.72,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const wordSparkles = new THREE.Points(sparkleGeometry, wordSparkleMaterial);
+    wordmark.add(wordSparkles);
     const glintCanvas = document.createElement("canvas");
     glintCanvas.width = 96;
     glintCanvas.height = 96;
@@ -338,9 +405,10 @@ if (canvas) {
       wordmark.add(glint);
       return { glint, material, phase };
     });
-    wordmark.position.set(0.12, -0.04, 0.42);
-    wordmark.rotation.set(-0.055, -0.035, -0.012);
-    wordmark.scale.set(1.18, 1.1, 1.1);
+    wordmark.position.set(0.1, -0.02, 0.42);
+    wordmark.rotation.set(-0.07, -0.045, -0.018);
+    wordmark.scale.set(1.42, 1.52, 1.4);
+    wordmark.visible = false;
     organism.add(wordmark);
 
     const task = new THREE.Mesh(new RoundedBoxGeometry(1.12, 1.12, 0.54, 5, 0.24), cobalt);
@@ -449,16 +517,16 @@ if (canvas) {
 
     const shadow = new THREE.Mesh(
       new THREE.PlaneGeometry(14, 8),
-      new THREE.ShadowMaterial({ color: "#31608d", opacity: 0.075 }),
+      new THREE.ShadowMaterial({ color: "#2c6095", opacity: 0.105 }),
     );
     shadow.position.set(0, -3.25, -0.8);
     shadow.rotation.x = -Math.PI / 2;
     shadow.receiveShadow = true;
     organism.add(shadow);
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x55789e, 0.68));
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x78a8d8, 1.35));
 
-    const key = new THREE.DirectionalLight(0xffffff, 1.35);
+    const key = new THREE.DirectionalLight(0xffffff, 1.75);
     key.position.set(-4, 8, 9);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
@@ -468,9 +536,17 @@ if (canvas) {
     key.shadow.camera.bottom = -6;
     scene.add(key);
 
-    const rim = new THREE.DirectionalLight(0x4b9eff, 0.95);
+    const rim = new THREE.DirectionalLight(0x4b9eff, 1.18);
     rim.position.set(8, -1, 7);
     scene.add(rim);
+
+    const warmFill = new THREE.PointLight(0xfff1cf, 2.1, 13, 1.7);
+    warmFill.position.set(-5.5, 3.8, 5.5);
+    scene.add(warmFill);
+
+    const frontFill = new THREE.DirectionalLight(0xaedcff, 1.25);
+    frontFill.position.set(-1, -4, 10);
+    scene.add(frontFill);
 
     const pointerLight = new THREE.PointLight(0xd9efff, 2.1, 26, 1.5);
     pointerLight.position.set(0, 1, 7);
@@ -578,13 +654,16 @@ if (canvas) {
         materialTargets.atmosphere = 0;
       }
 
-      for (const material of [pearl, wordGlass, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
+      for (const material of [pearl, cobalt, ink, permissionAmber, successGreen]) material.transparent = index !== 0;
       updateCursorVisibility();
       if (reduceMotion) {
         world.position.copy(worldPositionTarget);
         world.scale.copy(worldScaleTarget);
         pearl.opacity = materialTargets.pearl;
         wordGlass.opacity = materialTargets.word;
+        wordGlass.uniforms.uMakaOpacity.value = materialTargets.word;
+        wordCoreMaterial.opacity = materialTargets.word * 0.075;
+        wordHighlightMaterial.opacity = materialTargets.word * 0.32;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
@@ -602,8 +681,8 @@ if (canvas) {
     const inkDayColor = ink.color.clone();
     const inkNightColor = new THREE.Color("#8fa2c4");
     const applyTheme = (night: boolean) => {
-      renderer.toneMappingExposure = night ? 0.56 : 0.68;
-      scene.environmentIntensity = night ? 0.6 : 0.82;
+      renderer.toneMappingExposure = night ? 0.62 : 0.82;
+      scene.environmentIntensity = night ? 0.72 : 1.18;
       ink.color.copy(night ? inkNightColor : inkDayColor);
       atmosphereNightScale = night ? 0.55 : 1;
       if (reduceMotion) renderer.render(scene, camera);
@@ -704,13 +783,14 @@ if (canvas) {
       cursor.rotation.y = THREE.MathUtils.damp(cursor.rotation.y, -0.16 - pointerVelocity.x * 0.025, 12, delta);
       cursor.rotation.z = THREE.MathUtils.damp(cursor.rotation.z, 0.05 - pointerVelocity.x * 0.045, 12, delta);
       const cursorSpeed = Math.min(1, pointerVelocity.length() * 0.18);
-      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.78 * (1 + cursorSpeed * 0.13), 13, delta);
-      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.78 * (1 - cursorSpeed * 0.09), 13, delta);
-      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.78, 13, delta);
+      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.6 * (1 + cursorSpeed * 0.13), 13, delta);
+      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
+      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
 
       wordmark.rotation.x = -0.055 + pointer.y * 0.035 + Math.sin(elapsed * 0.32) * 0.018;
       wordmark.rotation.y = -0.035 + pointer.x * 0.065 + Math.sin(elapsed * 0.28) * 0.026;
       wordmark.rotation.z = -0.012 + pointer.x * 0.009 + Math.sin(elapsed * 0.24) * 0.009;
+      wordSparkles.rotation.z = Math.sin(elapsed * 0.18) * 0.006;
       wordGlints.forEach(({ glint, material, phase }) => {
         const progress = (elapsed * 0.072 + phase + pointer.x * 0.025 + 1) % 1;
         const point = cursiveCurve.getPointAt(progress);
@@ -733,11 +813,9 @@ if (canvas) {
       nodes.forEach((node, index) => node.scale.setScalar(0.64 + Math.sin(elapsed * 1.4 + index) * 0.12));
 
       if (pearlShader) pearlShader.uniforms.uMakaTime.value = elapsed;
-      if (wordShader) {
-        wordShader.uniforms.uMakaTime.value = elapsed;
-        wordShader.uniforms.uMakaPointer.value.copy(pointer);
-        wordShader.uniforms.uMakaVelocity.value = Math.min(1, pointerVelocity.length() * 0.16);
-      }
+      wordGlass.uniforms.uMakaTime.value = elapsed;
+      wordGlass.uniforms.uMakaPointer.value.copy(pointer);
+      wordGlass.uniforms.uMakaVelocity.value = Math.min(1, pointerVelocity.length() * 0.16);
       atmosphereUniforms.uMakaTime.value = elapsed;
       atmosphereUniforms.uMakaPointer.value.copy(pointer);
       atmosphereUniforms.uMakaVelocity.value.copy(pointerVelocity);
@@ -750,6 +828,10 @@ if (canvas) {
 
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
       wordGlass.opacity = THREE.MathUtils.damp(wordGlass.opacity, materialTargets.word, 7, delta);
+      wordGlass.uniforms.uMakaOpacity.value = wordGlass.opacity;
+      wordCoreMaterial.opacity = THREE.MathUtils.damp(wordCoreMaterial.opacity, materialTargets.word * 0.075, 7, delta);
+      wordHighlightMaterial.opacity = THREE.MathUtils.damp(wordHighlightMaterial.opacity, materialTargets.word * 0.32, 7, delta);
+      wordSparkleMaterial.opacity = THREE.MathUtils.damp(wordSparkleMaterial.opacity, materialTargets.word * 0.72, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
       cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);
       ink.opacity = THREE.MathUtils.damp(ink.opacity, materialTargets.ink, 7, delta);

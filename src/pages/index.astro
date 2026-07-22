@@ -2,11 +2,10 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import artifactCurrent from "../assets/maka-artifact-pane.png";
-import permissionCurrent from "../assets/maka-permission-fresh.png";
-import questionCurrent from "../assets/maka-question-fresh.png";
-import firstRunCurrent from "../assets/maka-first-run.png";
-import errorsCurrent from "../assets/maka-artifact-errors.png";
+import productDesign from "../assets/maka-product-design-v2.png";
+import productSetupDesign from "../assets/maka-product-setup-design-v2.png";
+import productErrorDesign from "../assets/maka-product-error-design-v2.png";
+import surfacesDesktopDesign from "../assets/maka-surfaces-desktop-v2.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -40,7 +39,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           <path d="M10 5H5v24h5M24 5h5v24h-5" />
           <circle cx="17" cy="17" r="3" />
         </svg>
-        <span>MAKA</span>
+        <span>MAKA AGENT</span>
       </a>
 
       <nav class="view-nav" aria-label="Explore Maka">
@@ -72,44 +71,32 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
     <main id="main-content" class="stage-main">
       <section class="view view--overview is-active" id="overview" data-view-panel="overview" aria-labelledby="overview-title" aria-hidden="false">
-        <div class="overview-note overview-note--identity">
-          <strong>LOCAL-FIRST<br />AGENT WORKSPACE</strong>
-          <p>Work on your machine.<br />Keep every decision visible.</p>
-        </div>
-
-        <div class="overview-note overview-note--model">
-          <span class="signal-dot"></span>
-          <p>Task → Tool Call → Artifact</p>
-          <p>One continuous execution record.</p>
-        </div>
-
-        <div class="overview-note overview-note--trust">
-          <p>Your connections.<br />Your permission boundary.</p>
-          <a href={architectureUrl} target="_blank" rel="noreferrer">Read architecture ↗</a>
-        </div>
-
         <div class="hero-copy">
-          <p class="hero-copy__signal"><span></span> EXECUTION, MADE TANGIBLE</p>
-          <h1 id="overview-title"><span>YOUR WORK.</span><span>YOUR AGENT.</span></h1>
-          <div class="hero-copy__footer">
-            <p>Maka turns agent conversations into<br />inspectable, recoverable local work.</p>
-            <a class="primary-action" href="#product" data-view-target="product">
-              Enter workspace
-              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+          <h1 id="overview-title">An open source agent that turns intent into inspectable work.</h1>
+          <div class="hero-actions">
+            <a class="primary-action" href={githubUrl} target="_blank" rel="noreferrer">
+              View source
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
+            </a>
+            <a class="secondary-action" href={architectureUrl} target="_blank" rel="noreferrer">
+              Read architecture
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" /></svg>
             </a>
           </div>
         </div>
 
         <ol class="object-index" aria-label="Maka execution objects">
-          <li><span>01</span><b>Task</b><small>intent</small></li>
-          <li><span>02</span><b>Tool</b><small>action</small></li>
-          <li><span>03</span><b>Artifact</b><small>proof</small></li>
+          <li><i>◇</i><b>Intent</b></li>
+          <li><i>▱</i><b>Execution</b></li>
+          <li><i>◉</i><b>Artifacts</b></li>
+          <li><i>⌘</i><b>Tools</b></li>
+          <li><i>●</i><b>Permissions</b></li>
         </ol>
       </section>
 
       <section class="view view--product" id="product" data-view-panel="product" aria-labelledby="product-title" aria-hidden="true" inert>
         <div class="product-copy">
-          <p class="section-signal"><span></span>REAL MAKA / CURRENT SOURCE</p>
+          <p class="section-signal"><span></span>MAKA / INSPECTABLE WORK</p>
           <h2 id="product-title">Real work.<br />Visible proof.</h2>
           <p>Conversation, Tool Calls, permissions, and generated files stay attached to one task. Inspect what ran and what remains.</p>
           <div class="product-facts" aria-label="Product facts">
@@ -127,8 +114,8 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
             </div>
             <div class="product-shot__visual" data-product-inspector data-evidence="artifact" tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
               <Image
-                src={artifactCurrent}
-                alt="Current Maka task showing a Tool Call beside three generated files and their inspectable artifact pane."
+                src={productDesign}
+                alt="Maka task workspace showing the conversation, visible Tool Call, code change, task metadata, and attached Artifacts."
                 widths={[960, 1280, 1600, 1920]}
                 sizes="(max-width: 760px) 132vw, 65vw"
                 format="webp"
@@ -138,9 +125,9 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
                 data-evidence-panel="artifact"
               />
               <Image
-                src={firstRunCurrent}
-                alt="Maka first-run provider setup: a three-step flow for choosing an AI provider, completing authentication, and testing the default connection."
-                widths={[960, 1280, 1600]}
+                src={productSetupDesign}
+                alt="Maka first-run setup checklist with repository, dependency, permission, and tool verification steps."
+                widths={[225, 450, 675]}
                 sizes="(max-width: 760px) 132vw, 65vw"
                 format="webp"
                 quality={88}
@@ -148,9 +135,9 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
                 data-evidence-panel="first-run"
               />
               <Image
-                src={errorsCurrent}
-                alt="Maka artifact task showing an interrupted Tool Call and a deleted generated file surfaced as an explicit unreadable-file error."
-                widths={[960, 1280, 1600]}
+                src={productErrorDesign}
+                alt="Maka error state showing a failed Tool Call and the missing permission required to continue."
+                widths={[235, 470, 705]}
                 sizes="(max-width: 760px) 132vw, 65vw"
                 format="webp"
                 quality={88}
@@ -172,28 +159,28 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
           <figure class="product-proof product-proof--streaming">
             <Image
-              src={permissionCurrent}
-              alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
+              src={productSetupDesign}
+              alt="Maka first-run setup checklist for connecting a repository, installing dependencies, and configuring permissions."
               widths={[720, 960, 1280]}
               sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"
             />
-            <figcaption><span>PERMISSION</span><b>02</b></figcaption>
+            <figcaption><span>FIRST RUN</span><b>02</b></figcaption>
           </figure>
 
           <figure class="product-proof product-proof--empty">
             <Image
-              src={questionCurrent}
-              alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
+              src={productErrorDesign}
+              alt="Maka error surface showing a failed Tool Call and the permission required to continue."
               widths={[720, 960, 1280]}
               sizes="(max-width: 760px) 72vw, 38vw"
               format="webp"
               quality={86}
               loading="eager"
             />
-            <figcaption><span>CLARIFICATION</span><b>03</b></figcaption>
+            <figcaption><span>ERROR</span><b>03</b></figcaption>
           </figure>
         </div>
       </section>
@@ -258,31 +245,40 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         </div>
 
         <div class="surface-world" aria-hidden="true">
+          <canvas id="surface-field"></canvas>
           <figure class="surface-projection surface-projection--desktop">
             <Image
-              src={firstRunCurrent}
+              src={surfacesDesktopDesign}
               alt=""
-              widths={[720, 960, 1280]}
+              widths={[960, 1280, 1600]}
               sizes="54vw"
               format="webp"
-              quality={82}
+              quality={90}
               loading="eager"
             />
-            <figcaption>DESKTOP / LIVE WORKSPACE</figcaption>
+            <figcaption>Desktop · live workspace</figcaption>
           </figure>
           <div class="surface-projection surface-projection--tui">
-            <b>maka tui</b>
-            <span>&gt; task artifact-recovery</span>
-            <span class="is-success">✓ Tool Result appended</span>
-            <span>✓ Artifact attached</span>
+            <div class="surface-terminal__bar"><b>› maka tui</b><span>LOCAL</span></div>
+            <div class="surface-terminal__body">
+              <span><i>›</i>TASK-4821 <b>Open</b></span>
+              <span><i>✓</i>Planning</span>
+              <span><i>✓</i>Tool Call · Edit file</span>
+              <span><i>✓</i>Tool Result · Tests pass</span>
+              <span><i>✓</i>Artifact · rate_limit.rs</span>
+            </div>
           </div>
           <div class="surface-projection surface-projection--cli">
             <b>$ maka run "inspect this workspace"</b>
-            <span>TaskRun completed · 3 artifacts</span>
+            <span class="is-success">→ Completed in 1.24s</span>
+            <span>Artifacts: 3 · Permission: approved</span>
           </div>
           <div class="surface-projection surface-projection--headless">
-            <b>TaskRun / durable</b>
-            <span><i></i>Request</span><span><i></i>Tool Call</span><span><i></i>Artifact</span><span><i></i>Completed</span>
+            <div class="surface-terminal__bar"><b>TaskRun / durable</b><span>1.24s</span></div>
+            <span><i></i>Planning <em>120ms</em></span>
+            <span><i></i>Tool Call <em>1.2s</em></span>
+            <span><i></i>Artifact <em>180ms</em></span>
+            <span class="is-success"><i></i>Completed <em>✓</em></span>
           </div>
           <div class="surface-pulse" aria-hidden="true"></div>
         </div>
@@ -336,6 +332,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
   <script src="../scripts/product-hover-field.ts"></script>
   <script src="../scripts/runtime-field.ts"></script>
+  <script src="../scripts/surface-field.ts"></script>
   <script>
     const stage = document.querySelector<HTMLElement>(".stage");
     const links = Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-view-target]"));
@@ -346,6 +343,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     const pointerY = document.querySelector<HTMLElement>("#pointer-y");
     const timeReadout = document.querySelector<HTMLElement>("#local-time");
     const lightField = document.querySelector<HTMLElement>(".light-field");
+    const heroGlass = document.querySelector<HTMLElement>("[data-hero-glass]");
     const views = ["overview", "product", "runtime", "surfaces"] as const;
     const transitionDurations = { overview: 900, product: 1450, runtime: 1900, surfaces: 1300 } as const;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -608,6 +606,12 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       renderPointerCoordinates(event.clientX, event.clientY);
       if (stage && event.pointerType !== "touch") stage.dataset.pointer = "engaged";
       if (lightField) lightField.style.transform = `translate3d(${normalizedX * -18}px, ${normalizedY * -12}px, 0)`;
+      if (heroGlass) {
+        heroGlass.style.setProperty("--maka-x", `${normalizedX * -12}px`);
+        heroGlass.style.setProperty("--maka-y", `${normalizedY * -8}px`);
+        heroGlass.style.setProperty("--maka-glow-x", `${normalizedX * 42}px`);
+        heroGlass.style.setProperty("--maka-glow-y", `${normalizedY * 26}px`);
+      }
       window.dispatchEvent(new CustomEvent("maka:pointer", {
         detail: {
           x: event.clientX,
