@@ -491,6 +491,27 @@ if (canvas) {
       return { glint, material, anchor, phase: index * 1.71 };
     });
 
+    // Pointer residue: a small pool of star sprites the cursor sheds as it
+    // sweeps the hero — the reference's cursor leaves the same sparkle wake.
+    const TRAIL_COUNT = 14;
+    const trailPool = Array.from({ length: TRAIL_COUNT }, () => {
+      const material = new THREE.SpriteMaterial({
+        map: glintTexture,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const sprite = new THREE.Sprite(material);
+      sprite.visible = false;
+      sprite.renderOrder = 7;
+      scene.add(sprite);
+      return { sprite, material, life: 0 };
+    });
+    let trailIndex = 0;
+    const lastTrailPos = new THREE.Vector3(1e9, 0, 0);
+
     // Light spilling through the glass: long diagonal caustic streaks painted
     // once and mounted behind the word, echoing sunlit glass on a wall.
     const causticCanvas = document.createElement("canvas");
@@ -1048,9 +1069,10 @@ if (canvas) {
         raycaster.setFromCamera(pointer, camera);
         if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
           cursorTarget.copy(intersection);
-          // Keep the pointer sculpture behind the word so it can participate
-          // in the scene without masking the final "a" or any terminal.
-          cursorTarget.z = -0.72;
+          // The sculpture glides IN FRONT of the glass like a real cursor —
+          // hiding it inside the word zone made the word feel like a flat
+          // image blocking the pointer.
+          cursorTarget.z = 1.5;
         }
       }
       dampVector3(cursor.position, cursorTarget, 9.5, delta);
@@ -1058,14 +1080,29 @@ if (canvas) {
       cursor.rotation.y = THREE.MathUtils.damp(cursor.rotation.y, -0.16 - pointerVelocity.x * 0.025, 12, delta);
       cursor.rotation.z = THREE.MathUtils.damp(cursor.rotation.z, 0.05 - pointerVelocity.x * 0.045, 12, delta);
       const cursorSpeed = Math.min(1, pointerVelocity.length() * 0.18);
-      // The pointer sculpture never crosses the glass word: seen through the
-      // transparent tubes it reads as a glyph defect, so it shrinks away
-      // whenever its target enters the word's bounding box.
-      const overWord = Math.abs(cursorTarget.x + 0.35) < 6.2 && Math.abs(cursorTarget.y - 0.05) < 2.7;
-      const cursorScale = overWord ? 0.001 : 0.6;
-      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, cursorScale * (1 + cursorSpeed * 0.13), 13, delta);
-      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, cursorScale * (1 - cursorSpeed * 0.09), 13, delta);
-      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, cursorScale, 13, delta);
+      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.6 * (1 + cursorSpeed * 0.13), 13, delta);
+      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
+      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
+
+      if (!reduceMotion && cursor.visible && cursor.position.distanceTo(lastTrailPos) > 0.55) {
+        lastTrailPos.copy(cursor.position);
+        const shed = trailPool[trailIndex];
+        trailIndex = (trailIndex + 1) % TRAIL_COUNT;
+        shed.life = 1;
+        shed.sprite.visible = true;
+        shed.sprite.position.set(
+          cursor.position.x + (Math.random() - 0.5) * 0.6,
+          cursor.position.y + (Math.random() - 0.5) * 0.6,
+          0.9,
+        );
+      }
+      for (const shed of trailPool) {
+        if (shed.life <= 0) continue;
+        shed.life = Math.max(0, shed.life - delta * 1.5);
+        shed.sprite.scale.setScalar(0.12 + 0.3 * shed.life);
+        shed.material.opacity = 0.7 * shed.life * shed.life;
+        if (shed.life === 0) shed.sprite.visible = false;
+      }
 
       wordmark.rotation.x = THREE.MathUtils.damp(wordmark.rotation.x, -0.018 + pointer.y * 0.014, 4.8, delta);
       wordmark.rotation.y = THREE.MathUtils.damp(wordmark.rotation.y, 0.028 + pointer.x * 0.016, 4.8, delta);
