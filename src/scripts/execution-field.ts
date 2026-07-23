@@ -275,15 +275,18 @@ if (canvas) {
 
         // Procedural stand-in for the page sky: paper-blue gradient with
         // two warm diagonal light bands, matching the DOM backdrop.
+        // Measured from the reference render: near-uniform powder blue
+        // (#bfddf0) with gently warmer diagonal bands (#e1e7f0 peaks,
+        // #fdf7f0 through the tube bottoms).
         vec3 sky(vec2 p, float night) {
-          vec3 top = mix(vec3(0.90, 0.945, 0.985), vec3(0.10, 0.12, 0.19), night);
-          vec3 bottom = mix(vec3(0.62, 0.78, 0.92), vec3(0.05, 0.07, 0.12), night);
+          vec3 top = mix(vec3(0.749, 0.867, 0.941), vec3(0.10, 0.12, 0.19), night);
+          vec3 bottom = mix(vec3(0.70, 0.82, 0.92), vec3(0.05, 0.07, 0.12), night);
           vec3 c = mix(top, bottom, smoothstep(0.05, 0.95, 1.0 - p.y));
           float d = p.x * 0.62 + (1.0 - p.y) * 0.78;
           float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
           float band2 = exp(-pow((d - 1.02) * 6.4, 2.0));
-          vec3 warm = mix(vec3(0.985, 0.99, 0.995), vec3(0.16, 0.2, 0.3), night);
-          return mix(c, warm, clamp(band1 * 0.7 + band2 * 0.5, 0.0, 1.0));
+          vec3 warm = mix(vec3(0.992, 0.969, 0.941), vec3(0.16, 0.2, 0.3), night);
+          return mix(c, warm, clamp(band1 * 0.55 + band2 * 0.4, 0.0, 1.0));
         }
 
         float saturateLuma(float x) { return clamp(x, 0.0, 1.0); }
@@ -296,9 +299,10 @@ if (canvas) {
           vec3 refractR = refract(eyeDir, normal, 1.0 / 1.15);
           vec3 refractG = refract(eyeDir, normal, 1.0 / 1.18);
           vec3 refractB = refract(eyeDir, normal, 1.0 / 1.22);
+          float grain = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453) * 0.025;
           vec3 color = vec3(0.0);
           for (int i = 0; i < 3; i++) {
-            float slide = float(i) / 3.0 * 0.1;
+            float slide = float(i) / 3.0 * 0.1 + grain;
             float offset = (REFRACT_POWER + slide) * CHROMATIC;
             color.r += sky(uv + refractR.xy * offset, uNight).r;
             color.g += sky(uv + refractG.xy * offset, uNight).g;
@@ -309,7 +313,7 @@ if (canvas) {
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
           color = mix(luma, color, 1.2);
-          color *= mix(1.0, 1.15, uNight);
+          color *= mix(0.9, 1.15, uNight);
           color = (color - 0.5) * 0.92 + 0.5;
 
           // vertical Beer-Lambert tint: saturated blue only at the crowns,
@@ -318,8 +322,12 @@ if (canvas) {
           vec3 tint = mix(uTintBottom, uTintTop, pow(yT, 1.5));
           float ndotv = abs(dot(normal, eyeDir));
           float thickness = clamp(1.0 - ndotv, 0.0, 1.0);
-          float tintAlpha = mix(0.8, 1.0, thickness);
+          // Measured: facing surfaces stay nearly sky-clear (#d2e6f0-ish);
+          // the blue concentrates at grazing rims (#6d9cd6). The thickness
+          // mask, not the vertical gradient, carries most of the color.
+          float tintAlpha = mix(0.22, 1.0, pow(thickness, 1.25));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
+          color *= mix(1.0, 0.88, pow(thickness, 2.2));
 
           // pointer-driven pin highlight
           vec3 lightVector = normalize(-uLight);
