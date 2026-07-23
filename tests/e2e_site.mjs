@@ -325,13 +325,14 @@ for (const [label, width, height] of VIEWPORTS) {
         };
         const stage = document.querySelector("[data-runtime-path]");
         const hub = document.querySelector("[data-runtime-hub]");
+        const hubDisplay = document.querySelector(".runtime-hub");
         const secondary = [...document.querySelectorAll("[data-runtime-phase]:not([data-runtime-hub])")];
         return {
           viewport: { width: innerWidth, height: innerHeight },
           stage: stage ? serialize(stage) : null,
           hub: hub ? serialize(hub) : null,
           secondary: secondary.map(serialize),
-          hubFontSize: hub ? Number.parseFloat(getComputedStyle(hub.querySelector("strong")).fontSize) : 0,
+          hubFontSize: hubDisplay ? Number.parseFloat(getComputedStyle(hubDisplay).fontSize) : 0,
           secondaryFontSizes: secondary.map((element) => Number.parseFloat(getComputedStyle(element.querySelector("b")).fontSize)),
         };
       });

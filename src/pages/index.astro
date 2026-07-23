@@ -197,47 +197,34 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
         <div class="runtime-stage" data-runtime-path aria-label="Maka runtime event flow">
           <canvas id="runtime-field" aria-hidden="true"></canvas>
-          <div class="runtime-rings" aria-hidden="true">
-            <i style="--ring-width: 56%; --ring-y: -5.8rem"></i>
-            <i style="--ring-width: 74%; --ring-y: -3rem"></i>
-            <i style="--ring-width: 84%; --ring-y: 0rem"></i>
-            <i style="--ring-width: 74%; --ring-y: 3rem"></i>
-            <i style="--ring-width: 56%; --ring-y: 5.8rem"></i>
-            <b></b>
-          </div>
           <div class="runtime-signal-cloud" aria-hidden="true">
-            <span class="runtime-signal runtime-signal--message">EVERY TURN STAYS INSPECTABLE</span>
-            <span class="runtime-signal runtime-signal--tool">TOOL CALLS CROSS VISIBLE BOUNDARIES</span>
-            <span class="runtime-signal runtime-signal--result">RESULTS RETURN TO THE SAME TASK</span>
-            <span class="runtime-signal runtime-signal--permission">PERMISSION STAYS EXPLICIT</span>
-            <span class="runtime-signal runtime-signal--artifact">ARTIFACTS REMAIN ATTACHED</span>
-            <span class="runtime-signal runtime-signal--recovery">INTERRUPTED WORK CAN RESUME</span>
+            <span class="runtime-signal runtime-signal--tool"><i>❯</i>TOOL CALL</span>
+            <span class="runtime-signal runtime-signal--message"><i>◍</i>MESSAGE</span>
+            <span class="runtime-signal runtime-signal--result"><i>✓</i>TOOL RESULT</span>
+            <span class="runtime-signal runtime-signal--permission"><i>◈</i>PERMISSION</span>
+            <span class="runtime-signal runtime-signal--artifact"><i>▣</i>ARTIFACT</span>
+            <span class="runtime-signal runtime-signal--termination"><i>■</i>TERMINATION</span>
+            <span class="runtime-signal runtime-signal--recovery"><i>↻</i>RECOVERY</span>
           </div>
-          <div class="runtime-rail" aria-hidden="true"><i></i></div>
+          <p class="runtime-hub" aria-hidden="true"><i>Event</i><i>Log</i></p>
+          <div class="runtime-rail" aria-hidden="true"></div>
           <ol class="runtime-flow">
             <li class="runtime-step runtime-step--request" data-runtime-phase="request">
-              <span>01 / INPUT</span><b>Request</b><small>A turn begins</small>
+              <span>01 INPUT</span><b>Request</b>
             </li>
             <li class="runtime-step runtime-step--run" data-runtime-phase="agent-run">
-              <span>02 / EXECUTE</span><b>AgentRun</b><small>Model and tools advance</small>
+              <span>02 EXECUTE</span><b>AgentRun</b>
             </li>
             <li class="runtime-step runtime-step--hub" data-runtime-phase="event-log" data-runtime-hub>
-              <span>03 / APPEND ONLY</span>
-              <strong><i>Event</i><i>Log</i></strong>
-              <small>Messages · Tool Calls · Results · Permissions · Termination</small>
+              <span>03 APPEND ONLY</span><b>Event Log</b>
             </li>
             <li class="runtime-step runtime-step--projection" data-runtime-phase="projection">
-              <span>04 / PROJECT</span><b>Projection</b><small>Context and interface</small>
+              <span>04 PROJECT</span><b>Projection</b>
             </li>
             <li class="runtime-step runtime-step--recovery" data-runtime-phase="recovery">
-              <span>05 / RESUME</span><b>Recovery</b><small>Interrupted work survives</small>
+              <span>05 RESUME</span><b>Recovery</b>
             </li>
           </ol>
-
-          <div class="runtime-ledger" data-runtime-statement>
-            <span>ONE RECORDED EXECUTION</span>
-            <p>Every surface is rebuilt from what happened—not from hidden state.</p>
-          </div>
         </div>
       </section>
 

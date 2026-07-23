@@ -1107,167 +1107,107 @@ html[data-field="unavailable"] .execution-field canvas {
   transition: transform 1050ms var(--ease-expo) 120ms, opacity 360ms ease 140ms;
 }
 
-.runtime-stage::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 51%;
-  width: min(34vw, 33rem);
-  aspect-ratio: 1;
-  border: 1px solid oklch(0.73 0.1 250 / 0.2);
-  border-radius: 50%;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.72);
-  transition: opacity 700ms ease 420ms, transform 1200ms var(--ease-expo) 300ms;
-}
-
-.runtime-stage::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 51%;
-  width: min(24vw, 23rem);
-  aspect-ratio: 1;
-  border: 1px dashed oklch(0.73 0.1 250 / 0.16);
-  border-radius: 50%;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(1.18) rotate(-18deg);
-  transition: opacity 700ms ease 550ms, transform 1400ms var(--ease-expo) 350ms;
-}
-
 .view--runtime.is-active .runtime-stage { opacity: 1; transform: translate3d(0, 0, 0); }
-.view--runtime.is-active .runtime-stage::before { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.view--runtime.is-active .runtime-stage::after { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
 .stage[data-entering="runtime"] .view--runtime.is-active .runtime-stage { opacity: 0; transform: translate3d(7vw, 0, 0); }
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-stage::before { opacity: 0; transform: translate(-50%, -50%) scale(0.72); }
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-stage::after { opacity: 0; transform: translate(-50%, -50%) scale(1.18) rotate(-18deg); }
 
+/* The one statement the whole field converges on. */
+.runtime-hub {
+  position: absolute;
+  top: 43%;
+  left: 55%;
+  z-index: 3;
+  margin: 0;
+  color: white;
+  font-family: var(--sans);
+  font-size: clamp(3.6rem, 6vw, 6.2rem);
+  font-weight: 640;
+  letter-spacing: -0.03em;
+  line-height: 0.92;
+  text-align: center;
+  text-shadow: 0 0 2.6rem oklch(0.68 0.14 250 / 0.28);
+  transform: translate(-50%, -50%);
+  transition: opacity 620ms ease 300ms, transform 1100ms var(--ease-expo) 240ms, filter 700ms ease 300ms;
+}
+
+.runtime-hub i { display: block; font-style: normal; }
+
+.view--runtime.is-active .runtime-hub { opacity: 1; filter: none; transform: translate(-50%, -50%) scale(1); }
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-hub {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate(-50%, -47%) scale(0.9);
+}
+
+/* One quiet timeline across the full stage: five stops on one line. */
 .runtime-rail {
   position: absolute;
-  top: 50%;
   right: 7%;
+  bottom: 15%;
   left: 7%;
   z-index: 1;
   height: 1px;
-  background: oklch(1 0 0 / 0.18);
+  background: oklch(1 0 0 / 0.16);
 }
 
 .runtime-rail::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: oklch(0.73 0.14 250 / 0.9);
+  background: linear-gradient(90deg, oklch(0.73 0.14 250 / 0.9) 0 45%, oklch(0.73 0.14 250 / 0.35) 55% 100%);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 1600ms var(--ease-expo) 250ms;
 }
 
-.runtime-rail i {
-  position: absolute;
-  top: -1.4rem;
-  bottom: -1.4rem;
-  left: -10%;
-  z-index: 2;
-  width: 20%;
-  background: radial-gradient(circle, oklch(0.86 0.11 240) 0 4%, oklch(0.7 0.15 250 / 0.46) 5%, transparent 34%);
-  opacity: 0;
-  transform: translate3d(-100%, 0, 0);
-}
-
 .view--runtime.is-active .runtime-rail::after { transform: scaleX(1); }
-.view--runtime.is-active .runtime-rail i {
-  opacity: 1;
-  animation: runtime-rail-pulse-x 4.8s linear 1.7s infinite;
-}
-
-@keyframes runtime-rail-pulse-x {
-  from { transform: translate3d(-100%, 0, 0); }
-  to { transform: translate3d(600%, 0, 0); }
-}
 
 .runtime-flow { margin: 0; padding: 0; list-style: none; }
 
 .runtime-step {
   position: absolute;
   z-index: 3;
+  bottom: calc(15% + 1.15rem);
   display: grid;
-  gap: 0.12rem;
+  gap: 0.18rem;
   font-family: var(--mono);
   opacity: 0;
   transform: translate3d(0, 1rem, 0);
   transition: opacity 300ms ease, transform 700ms var(--ease-expo);
 }
 
-.runtime-step:not(.runtime-step--hub)::before {
+.runtime-step::before {
   content: "";
   position: absolute;
-  top: -0.85rem;
-  left: 0;
-  width: 0.45rem;
-  height: 0.45rem;
+  bottom: -1.52rem;
+  left: 0.05rem;
+  width: 0.5rem;
+  height: 0.5rem;
   border-radius: 50%;
   background: var(--blue);
-  box-shadow: 0 0 0 0.3rem oklch(0.7 0.15 250 / 0.1);
+  box-shadow: 0 0 0.65rem oklch(0.72 0.16 250 / 0.75);
 }
 
-.runtime-step span { color: var(--blue); font-size: 0.54rem; letter-spacing: 0.04em; }
-.runtime-step b { font-family: var(--sans); font-size: clamp(0.95rem, 1.35vw, 1.3rem); font-weight: 600; }
-.runtime-step small { color: oklch(0.72 0.01 250); font-size: 0.56rem; }
-.runtime-step--request { top: 57%; left: 7%; transition-delay: 420ms; }
-.runtime-step--run { top: 31%; left: 25%; transition-delay: 570ms; }
-.runtime-step--projection { top: 58%; left: 72%; transition-delay: 920ms; }
-.runtime-step--recovery { top: 32%; left: 86%; transition-delay: 1070ms; }
-
-.runtime-step--hub {
-  top: 50%;
-  left: 51%;
-  width: min(26vw, 25rem);
-  text-align: center;
-  opacity: 0;
-  transform: translate(-50%, -42%) scale(0.88);
-  transition: opacity 420ms ease 690ms, transform 950ms var(--ease-expo) 620ms;
+.runtime-step span { color: var(--blue); font-size: 0.54rem; letter-spacing: 0.06em; }
+.runtime-step b { color: white; font-family: var(--sans); font-size: clamp(0.95rem, 1.35vw, 1.3rem); font-weight: 600; }
+.runtime-step--request { left: 7%; transition-delay: 420ms; }
+.runtime-step--run { left: 27%; transition-delay: 570ms; }
+.runtime-step--hub { left: 50%; text-align: center; transform: translate3d(-50%, 1rem, 0); transition-delay: 720ms; }
+.runtime-step--hub::before {
+  left: 50%;
+  margin-left: -0.25rem;
+  box-shadow:
+    0 0 0.65rem oklch(0.72 0.16 250 / 0.85),
+    0 0 0 0.34rem oklch(0.05 0.02 260),
+    0 0 0 0.42rem oklch(0.72 0.14 250 / 0.9);
 }
+.runtime-step--projection { left: 71%; transition-delay: 870ms; }
+.runtime-step--recovery { right: 7%; text-align: right; transition-delay: 1020ms; }
+.runtime-step--recovery::before { right: 0.05rem; left: auto; }
 
-.runtime-step--hub span { justify-self: center; }
-.runtime-step--hub strong {
-  display: block;
-  margin: 0.35rem 0 0.55rem;
-  font-family: var(--sans);
-  font-size: clamp(4rem, 6.5vw, 6rem);
-  font-weight: 690;
-  letter-spacing: -0.04em;
-  line-height: 0.78;
-  text-transform: uppercase;
-}
-
-.runtime-step--hub strong i { display: block; font-style: normal; }
-.runtime-step--hub small { max-width: 24rem; justify-self: center; color: oklch(0.79 0.015 250); }
-.view--runtime.is-active .runtime-step:not(.runtime-step--hub) { opacity: 1; transform: translate3d(0, 0, 0); }
-.view--runtime.is-active .runtime-step--hub { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-step:not(.runtime-step--hub) { opacity: 0; transform: translate3d(0, 1rem, 0); }
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-step--hub { opacity: 0; transform: translate(-50%, -42%) scale(0.88); }
-
-.runtime-ledger {
-  position: absolute;
-  right: 7%;
-  bottom: 5%;
-  left: 7%;
-  z-index: 3;
-  display: grid;
-  grid-template-columns: 12rem minmax(0, 1fr);
-  gap: 1.4rem;
-  align-items: baseline;
-  padding-top: 0.72rem;
-  border-top: 1px solid var(--grid-color);
-  opacity: 0;
-  transform: translate3d(0, 1rem, 0);
-  transition: opacity 350ms ease 1120ms, transform 720ms var(--ease-expo) 1060ms;
-}
-
-.runtime-ledger span { color: var(--blue); font-family: var(--mono); font-size: 0.56rem; letter-spacing: 0.05em; }
-.runtime-ledger p { margin: 0; color: oklch(0.78 0.012 250); font-size: 0.75rem; }
-.view--runtime.is-active .runtime-ledger { opacity: 1; transform: translate3d(0, 0, 0); }
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-ledger { opacity: 0; transform: translate3d(0, 1rem, 0); }
+.view--runtime.is-active .runtime-step { opacity: 1; transform: translate3d(0, 0, 0); }
+.view--runtime.is-active .runtime-step--hub { transform: translate3d(-50%, 0, 0); }
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-step { opacity: 0; transform: translate3d(0, 1rem, 0); }
+.stage[data-entering="runtime"] .view--runtime.is-active .runtime-step--hub { transform: translate3d(-50%, 1rem, 0); }
 
 .view--surfaces {
   display: block;
@@ -1889,60 +1829,39 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   pointer-events: none;
 }
 
-.runtime-step--hub {
-  top: 47%;
-  left: 56%;
-  z-index: 4;
-  width: min(28vw, 27rem);
-}
-
-.runtime-step--hub strong {
-  font-size: clamp(4.4rem, 7vw, 7rem);
-  text-shadow: 0 0 2.4rem oklch(0.68 0.14 250 / 0.22);
-}
-
-.runtime-rail {
-  top: auto;
-  right: 4.5%;
-  bottom: 15%;
-  left: 4.5%;
-  z-index: 4;
-}
-
-.runtime-step:not(.runtime-step--hub) { top: auto; bottom: 8.8%; z-index: 5; }
-.runtime-step--request { left: 4.5%; }
-.runtime-step--run { left: 25%; }
-.runtime-step--projection { left: 70%; }
-.runtime-step--recovery { right: 2%; left: auto; text-align: right; }
-.runtime-step--recovery::before { right: 0; left: auto !important; }
-.runtime-step:not(.runtime-step--hub)::before { top: -1.58rem; }
-.runtime-ledger { right: 4.5%; bottom: 2.2%; left: 4.5%; }
-
+/* Event-type tags ride the streaks: short labels, semantic colors,
+   rotated toward the vanishing point. */
 .runtime-signal-cloud {
   position: absolute;
   inset: 0;
   z-index: 2;
   font-family: var(--mono);
-  font-size: clamp(0.48rem, 0.62vw, 0.62rem);
+  font-size: clamp(0.52rem, 0.66vw, 0.68rem);
   pointer-events: none;
 }
 
 .runtime-signal {
   position: absolute;
-  color: oklch(0.78 0.16 228);
-  letter-spacing: 0.05em;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  color: oklch(0.78 0.14 228);
+  letter-spacing: 0.08em;
   opacity: 0;
-  transform: translate3d(-1rem, 0, 0);
+  transform: rotate(var(--signal-tilt, 0deg)) translate3d(-1rem, 0, 0);
   transition: opacity 420ms ease, transform 900ms var(--ease-expo);
 }
 
-.view--runtime.is-active .runtime-signal { opacity: 0.78; transform: translate3d(0, 0, 0); }
-.runtime-signal--message { top: 24%; left: 34%; transition-delay: 650ms; }
-.runtime-signal--tool { top: 15%; left: 43%; transition-delay: 760ms; }
-.runtime-signal--result { top: 35%; left: 30%; transition-delay: 870ms; }
-.runtime-signal--permission { top: 58%; left: 35%; color: oklch(0.79 0.17 72); transition-delay: 980ms; }
-.runtime-signal--artifact { top: 65%; left: 43%; transition-delay: 1090ms; }
-.runtime-signal--recovery { top: 65%; left: 72%; color: oklch(0.78 0.16 150); transition-delay: 1200ms; }
+.runtime-signal i { font-size: 1.05em; font-style: normal; }
+
+.view--runtime.is-active .runtime-signal { opacity: 0.85; transform: rotate(var(--signal-tilt, 0deg)) translate3d(0, 0, 0); }
+.runtime-signal--tool { top: 15%; left: 38%; --signal-tilt: -13deg; transition-delay: 650ms; }
+.runtime-signal--message { top: 25%; left: 31%; --signal-tilt: -9deg; color: oklch(0.74 0.12 250); transition-delay: 760ms; }
+.runtime-signal--result { top: 38%; left: 27%; --signal-tilt: -3deg; transition-delay: 870ms; }
+.runtime-signal--permission { top: 51%; left: 29%; --signal-tilt: 5deg; color: oklch(0.79 0.17 72); transition-delay: 980ms; }
+.runtime-signal--artifact { top: 62%; left: 34%; --signal-tilt: 11deg; color: oklch(0.9 0.05 240); transition-delay: 1090ms; }
+.runtime-signal--termination { top: 70%; left: 42%; --signal-tilt: 17deg; color: oklch(0.72 0.02 260); transition-delay: 1200ms; }
+.runtime-signal--recovery { top: 63%; left: 73%; --signal-tilt: -14deg; color: oklch(0.78 0.16 150); transition-delay: 1310ms; }
 
 /* The finale projects one execution record into four asymmetric surfaces. */
 .surfaces-lede {
@@ -2094,26 +2013,22 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy::before { inset: -2rem; }
   #runtime-field { opacity: 0.58; mask-image: linear-gradient(180deg, transparent 0 27%, black 42% 100%); }
   .runtime-stage { top: 0; }
-  .runtime-stage::before { top: 54%; left: 50%; width: min(58vw, 17rem); }
-  .runtime-stage::after { top: 54%; left: 50%; width: min(36vw, 11rem); }
-  .runtime-step--hub { top: 54%; left: 50%; width: 82vw; }
-  .runtime-step--hub strong { font-size: clamp(3.1rem, 16vw, 4.5rem); }
-  .runtime-rail { top: auto; right: 7%; bottom: 8%; left: 7%; width: auto; height: 1px; }
-  .runtime-rail::after { transform: scaleX(0); transform-origin: left; }
-  .view--runtime.is-active .runtime-rail::after { transform: scaleX(1); }
-  .runtime-rail i { display: none; }
-  .runtime-step:not(.runtime-step--hub) { bottom: 3.3%; }
-  .runtime-step:not(.runtime-step--hub) small { display: none; }
+  .runtime-hub { top: 52%; left: 50%; font-size: clamp(2.9rem, 14vw, 4.2rem); }
+  .runtime-rail { right: 7%; bottom: 12%; left: 7%; }
+  .runtime-step { bottom: calc(12% + 1rem); }
   .runtime-step--request { left: 7%; }
-  .runtime-step--run { left: 29%; right: auto; text-align: left; }
-  .runtime-step--projection { left: 60%; }
-  .runtime-step--recovery { right: 4%; left: auto; text-align: right; }
-  .runtime-step:not(.runtime-step--hub)::before { top: -1.15rem; }
-  .runtime-signal--message { top: 39%; left: 8%; }
-  .runtime-signal--tool { top: 34%; left: 66%; }
-  .runtime-signal--result { top: 67%; left: 7%; }
-  .runtime-signal--permission { top: 72%; left: 64%; }
+  .runtime-step--run { left: 30%; }
+  .runtime-step--hub span { display: none; }
+  .runtime-step--projection { left: 58%; }
+  .runtime-step--recovery { right: 7%; }
+  .runtime-step b { font-size: 0.78rem; }
+  .runtime-step span { font-size: 0.46rem; }
+  .runtime-signal--tool { top: 34%; left: 64%; }
+  .runtime-signal--message { top: 38%; left: 9%; }
+  .runtime-signal--result { top: 66%; left: 8%; }
+  .runtime-signal--permission { top: 71%; left: 62%; }
   .runtime-signal--artifact,
+  .runtime-signal--termination,
   .runtime-signal--recovery { display: none; }
   .surfaces-lede { top: 2%; left: var(--gutter); width: calc(100vw - 2rem); }
   .surfaces-statement { font-size: clamp(2rem, 9.5vw, 2.8rem); }
@@ -2389,34 +2304,15 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy > p:not(.section-signal) { max-width: 38ch; font-family: var(--mono); font-size: 0.76rem; line-height: 1.65; }
   .runtime-stage { transform-origin: 55% 43%; }
   #runtime-field { opacity: 1; mask-image: none; }
-  .runtime-stage::before { top: 43%; left: 55%; width: min(17vw, 16rem); border-color: oklch(0.72 0.16 245 / 0.2); }
-  .runtime-stage::after { top: 43%; left: 55%; width: min(10vw, 9.5rem); }
-  .runtime-step--hub { top: 43%; left: 55%; width: min(18vw, 17rem); }
-  .runtime-step--hub strong { font-size: clamp(3.6rem, 4.6vw, 5rem); line-height: 0.86; }
-  .runtime-step--hub small { max-width: 24rem; margin-top: 0.8rem; font-size: 0.52rem; white-space: nowrap; }
-  .runtime-signal { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; }
-  .runtime-signal::before { color: currentColor; font-size: 1rem; }
-  .runtime-signal--message { top: 27%; left: 31%; }
-  .runtime-signal--message::before { content: "▱"; }
-  .runtime-signal--tool { top: 15%; left: 37%; }
-  .runtime-signal--tool::before { content: "⌘"; }
-  .runtime-signal--result { top: 39%; left: 29%; }
-  .runtime-signal--result::before { content: "✓"; }
-  .runtime-signal--permission { top: 48%; left: 31%; }
-  .runtime-signal--permission::before { content: "▣"; }
-  .runtime-signal--artifact { top: 58%; left: 37%; }
-  .runtime-signal--artifact::before { content: "◇"; }
-  .runtime-signal--recovery { top: 64%; left: 69%; }
-  .runtime-signal--recovery::before { content: "↻"; }
+  .runtime-hub { top: 43%; left: 55%; }
+  .runtime-signal { font-size: 0.72rem; }
   .runtime-rail { right: var(--gutter); bottom: 16%; left: var(--gutter); }
-  .runtime-step:not(.runtime-step--hub) { bottom: 9.5%; }
+  .runtime-step { bottom: calc(16% + 1.2rem); }
   .runtime-step--request { left: var(--gutter); }
   .runtime-step--run { left: 26%; }
-  .runtime-step--projection { left: 66%; }
+  .runtime-step--projection { left: 68%; }
   .runtime-step--recovery { right: var(--gutter); }
-  .runtime-step:not(.runtime-step--hub) b { font-size: 1.15rem; }
-  .runtime-ledger { right: auto; bottom: 2.7%; left: var(--gutter); }
-  .runtime-ledger p { display: none; }
+  .runtime-step b { font-size: 1.15rem; }
 
   /* Surfaces: four outputs orbit one execution record instead of a bottom card row. */
   .surfaces-lede {

@@ -24,8 +24,10 @@ if (canvas) {
       uStripeReveal: { value: 1 },
       uCenterShift: { value: new THREE.Vector2() },
       uAccentColor: { value: new THREE.Color("#009dff") },
-      uStripeColorA: { value: new THREE.Color("#18dcff") },
-      uStripeColorB: { value: new THREE.Color("#6baeff") },
+      // Close hues keep the rainbow drift narrow: the field stays in the
+      // blue-cyan family and lets the semantic accents carry the color story.
+      uStripeColorA: { value: new THREE.Color("#2bb3f5") },
+      uStripeColorB: { value: new THREE.Color("#5f8fe8") },
       uPermissionColor: { value: new THREE.Color("#ffb340") },
       uArtifactColor: { value: new THREE.Color("#d8f7ff") },
       uRecoveryColor: { value: new THREE.Color("#55e69a") },
@@ -94,9 +96,9 @@ if (canvas) {
           vec2 q = vec2(angleId, radialCoord);
 
           float travel = smoothstep(0.0, 1.0, t);
-          float keepProbability = mix(0.18, 1.0, travel);
-          float scrollSpeed = mix(0.7, 3.6, travel);
-          float trailLength = mix(2.7, 0.975, travel);
+          float keepProbability = mix(0.12, 0.56, travel);
+          float scrollSpeed = mix(0.7, 3.2, travel);
+          float trailLength = mix(2.7, 1.32, travel);
           float raySeq = fract((angleId + 0.5) * 0.61803398875);
           float keepMask = 1.0 - smoothstep(keepProbability - 0.025, keepProbability + 0.025, raySeq);
 
@@ -114,7 +116,7 @@ if (canvas) {
           star *= thinMask * keepMask;
 
           float radialBoost = pow(smoothstep(0.1, 1.0, polar.y), 1.25);
-          float intensity = mix(0.0, 6.5, t * 1.2);
+          float intensity = mix(0.0, 4.6, t * 1.2);
 
           float stripeBlend = hash21(vec2(angleId, 19.713));
           float category = hash21(vec2(angleId, 43.117));
@@ -135,7 +137,7 @@ if (canvas) {
           vec3 hsvB = rgb2hsv(max(uStripeColorB, vec3(1e-5)));
           float dh = abs(hsvA.x - hsvB.x);
           dh = min(dh, 1.0 - dh);
-          float hueBand = clamp(dh * 1.25 + 0.04, 0.07, 0.24);
+          float hueBand = clamp(dh * 1.25 + 0.02, 0.035, 0.12);
           vec3 hsv = rgb2hsv(max(stripeRgb, vec3(1e-5)));
           float idHash = hash21(vec2(angleId, 6.18));
           float idHash2 = hash21(vec2(angleId, 91.7));
