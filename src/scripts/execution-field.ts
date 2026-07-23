@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { MAKA_TUBE_BRANCHES, MAKA_TUBE_RADIUS } from "./maka-wordmark-tube";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
 const root = document.documentElement;
@@ -228,12 +229,12 @@ if (canvas) {
       metalness: 0,
       roughness: 0.06,
       transmission: 0.95,
-      thickness: 1.05,
+      thickness: 0.5,
       ior: 1.5,
       clearcoat: 1,
       clearcoatRoughness: 0.05,
       attenuationColor: new THREE.Color("#63a9de"),
-      attenuationDistance: 0.85,
+      attenuationDistance: 0.6,
       iridescence: 0.12,
       iridescenceIOR: 1.3,
       specularIntensity: 0.95,
@@ -246,62 +247,37 @@ if (canvas) {
       opacity: 1,
     });
 
-    // One continuous blown-glass tube. A hand-authored Catmull-Rom
-    // centreline writes cursive capital-M "Maka" in a single stroke:
-    // ball entry → two M arches → a → looped k → a → long swash.
-    // Coordinates: baseline y≈0, x-height ≈1, caps ≈2.5, width ≈10.5.
-    // Letterforms were tuned against a 2D thick-stroke preview until the
-    // word read unambiguously; z offsets lift the pen at every crossing.
-    const WORD_CENTERLINE: Array<[number, number, number]> = [
-      // capital M — ball entry, two tall arches
-      [-0.5, 0.6, 0], [-0.3, 0.22, 0], [0.1, 0.16, 0], [0.6, 0.9, 0],
-      [1.0, 2.05, 0], [1.2, 2.52, 0], [1.42, 1.8, 0], [1.62, 0.7, 0],
-      [1.78, 0.3, 0], [2.05, 1.1, 0], [2.35, 2.2, 0], [2.52, 2.38, 0],
-      [2.75, 1.6, 0], [2.95, 0.5, 0], [3.15, 0.1, 0], [3.5, 0.02, 0],
-      // a1 — connector runs under the bowl, climbs its right side, arcs over
-      [4.1, 0.08, 0], [4.62, 0.3, -0.05], [4.82, 0.8, -0.07], [4.6, 1.1, -0.06],
-      [4.1, 1.14, -0.04], [3.72, 0.85, 0], [3.62, 0.42, 0], [3.9, 0.08, 0],
-      [4.4, 0.02, 0.03], [4.78, 0.28, 0.07], [4.9, 0.6, 0.09], [4.98, 0.25, 0.07],
-      [5.12, 0.05, 0.03], [5.45, 0.12, 0],
-      // k — leaning stem with a top loop, then a sharp V arm and kicked leg
-      [5.75, 0.75, -0.05], [5.95, 1.75, -0.05], [6.12, 2.48, -0.04],
-      [6.05, 2.76, 0], [5.78, 2.6, 0.06], [5.74, 2.12, 0.1],
-      [5.92, 1.25, 0.12], [6.0, 0.5, 0.08], [6.04, 0.14, 0.03],
-      [6.3, 0.72, 0], [6.65, 1.18, 0], [7.0, 1.44, 0],
-      [7.02, 1.26, 0], [6.94, 1.08, 0], [7.22, 0.58, 0],
-      [7.45, 0.12, 0], [7.72, 0.04, 0],
-      // a2 — same ductus as a1
-      [8.3, 0.08, 0], [8.82, 0.3, -0.05], [9.02, 0.8, -0.07], [8.8, 1.1, -0.06],
-      [8.3, 1.14, -0.04], [7.92, 0.85, 0], [7.82, 0.42, 0], [8.1, 0.08, 0],
-      [8.6, 0.02, 0.03], [8.98, 0.28, 0.07], [9.1, 0.6, 0.09], [9.18, 0.25, 0.07],
-      [9.32, 0.06, 0.03],
-      // closing swash — shallow rise, long tail, ball terminal
-      [9.75, 0.1, 0], [10.25, 0.45, 0], [10.7, 0.62, 0],
-      [11.15, 0.48, 0], [11.55, 0.28, 0], [11.8, 0.24, 0],
-    ];
-    const WORD_SCALE = 0.85;
-    const WORD_CENTER = { x: 5.65, y: 1.12 };
-    const centerlinePoints = WORD_CENTERLINE.map(([x, y, z]) => new THREE.Vector3(
-      (x - WORD_CENTER.x) * WORD_SCALE,
-      (y - WORD_CENTER.y) * WORD_SCALE,
-      z,
-    ));
-    const wordCurve = new THREE.CatmullRomCurve3(centerlinePoints, false, "centripetal");
-    const TUBE_RADIUS = 0.23;
-    const tubeGeometry = new THREE.TubeGeometry(wordCurve, 1400, TUBE_RADIUS, 26, false);
-    const wordTube = new THREE.Mesh(tubeGeometry, wordFaceMaterial);
-    wordTube.castShadow = true;
-    wordTube.receiveShadow = true;
-    wordTube.renderOrder = 2;
-    wordmark.add(wordTube);
-
-    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS, 24, 24);
-    for (const t of [0, 1]) {
-      const cap = new THREE.Mesh(capGeometry, wordFaceMaterial);
-      cap.position.copy(wordCurve.getPoint(t));
-      cap.castShadow = true;
-      cap.renderOrder = 2;
-      wordmark.add(cap);
+    // Glass tubes along the true Pacifico stroke skeleton: one tube per
+    // skeleton branch, a sphere cap on every branch end so the joints read
+    // as one continuous blown-glass word. Letterform quality comes from the
+    // typeface itself, not hand-tuned control points.
+    const WORD_WORLD_WIDTH = 10.6;
+    const TUBE_RADIUS = Math.max(0.17, MAKA_TUBE_RADIUS * WORD_WORLD_WIDTH * 1.08);
+    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS, 22, 22);
+    for (const branch of MAKA_TUBE_BRANCHES) {
+      if (branch.length < 2) continue;
+      const points = branch.map(([x, y]) => new THREE.Vector3(
+        x * WORD_WORLD_WIDTH,
+        y * WORD_WORLD_WIDTH,
+        0,
+      ));
+      const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
+      const segments = Math.max(16, points.length * 7);
+      const tube = new THREE.Mesh(
+        new THREE.TubeGeometry(curve, segments, TUBE_RADIUS, 22, false),
+        wordFaceMaterial,
+      );
+      tube.castShadow = true;
+      tube.receiveShadow = true;
+      tube.renderOrder = 2;
+      wordmark.add(tube);
+      for (const t of [0, 1]) {
+        const cap = new THREE.Mesh(capGeometry, wordFaceMaterial);
+        cap.position.copy(curve.getPoint(t));
+        cap.castShadow = true;
+        cap.renderOrder = 2;
+        wordmark.add(cap);
+      }
     }
 
     const dustPositions = new Float32Array(84 * 3);
@@ -357,15 +333,20 @@ if (canvas) {
     glintTexture.colorSpace = THREE.SRGBColorSpace;
     // Anchors ride the tube crests: M arches, bowls, the k loop, and the
     // closing swash — where real glass would flare.
-    const glintAnchors = [
-      new THREE.Vector3(-3.78, 1.19, 0.42),
-      new THREE.Vector3(-3.29, -0.7, 0.44),
-      new THREE.Vector3(-2.66, 1.07, 0.42),
-      new THREE.Vector3(-0.89, -0.02, 0.44),
-      new THREE.Vector3(0.34, 1.39, 0.42),
-      new THREE.Vector3(2.68, -0.02, 0.44),
-      new THREE.Vector3(4.29, -0.43, 0.42),
-    ];
+    // One glint per horizontal band, sitting on the highest tube crest in
+    // that band — recomputed from the skeleton so they always ride the word.
+    const GLINT_BANDS = 7;
+    const bandTops: Array<{ x: number; y: number } | null> = Array.from({ length: GLINT_BANDS }, () => null);
+    for (const branch of MAKA_TUBE_BRANCHES) {
+      for (const [x, y] of branch) {
+        const band = Math.min(GLINT_BANDS - 1, Math.max(0, Math.floor((x + 0.5) * GLINT_BANDS)));
+        const current = bandTops[band];
+        if (!current || y > current.y) bandTops[band] = { x, y };
+      }
+    }
+    const glintAnchors = bandTops.flatMap((top, index) => top
+      ? [new THREE.Vector3(top.x * WORD_WORLD_WIDTH, top.y * WORD_WORLD_WIDTH + 0.08, index % 2 ? 0.44 : 0.42)]
+      : []);
     const wordGlints = glintAnchors.map((anchor, index) => {
       const material = new THREE.SpriteMaterial({
         map: glintTexture,
@@ -419,7 +400,7 @@ if (canvas) {
     caustics.renderOrder = 0;
     wordmark.add(caustics);
 
-    wordmark.position.set(-0.35, 0.05, 0.48);
+    wordmark.position.set(-0.35, 0.5, 0.48);
     wordmark.rotation.set(-0.018, 0.028, -0.012);
     wordmark.scale.set(1, 0.98, 1.02);
     wordmark.visible = true;
@@ -941,9 +922,14 @@ if (canvas) {
       cursor.rotation.y = THREE.MathUtils.damp(cursor.rotation.y, -0.16 - pointerVelocity.x * 0.025, 12, delta);
       cursor.rotation.z = THREE.MathUtils.damp(cursor.rotation.z, 0.05 - pointerVelocity.x * 0.045, 12, delta);
       const cursorSpeed = Math.min(1, pointerVelocity.length() * 0.18);
-      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.6 * (1 + cursorSpeed * 0.13), 13, delta);
-      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
-      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
+      // The pointer sculpture never crosses the glass word: seen through the
+      // transparent tubes it reads as a glyph defect, so it shrinks away
+      // whenever its target enters the word's bounding box.
+      const overWord = Math.abs(cursorTarget.x + 0.35) < 6.2 && Math.abs(cursorTarget.y - 0.05) < 2.7;
+      const cursorScale = overWord ? 0.001 : 0.6;
+      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, cursorScale * (1 + cursorSpeed * 0.13), 13, delta);
+      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, cursorScale * (1 - cursorSpeed * 0.09), 13, delta);
+      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, cursorScale, 13, delta);
 
       wordmark.rotation.x = THREE.MathUtils.damp(wordmark.rotation.x, -0.018 + pointer.y * 0.014, 4.8, delta);
       wordmark.rotation.y = THREE.MathUtils.damp(wordmark.rotation.y, 0.028 + pointer.x * 0.016, 4.8, delta);

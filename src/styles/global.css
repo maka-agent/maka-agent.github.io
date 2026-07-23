@@ -864,7 +864,15 @@ html[data-field="unavailable"] .execution-field canvas {
 .stage[data-entering="product"] .view--product.is-active .product-gallery::before { clip-path: inset(0 0 0 100%); }
 
 /* The dominant proof is a crafted Maka task window: real product semantics,
-   design-controlled rendering. */
+   design-controlled rendering. The window is a light UI object in both
+   themes, so its ink variables are pinned locally. */
+.product-shot--main,
+.ui-card {
+  --ink: oklch(0.15 0.012 276);
+  --muted: oklch(0.37 0.018 270);
+  color: var(--ink);
+}
+
 .product-shot--main {
   position: absolute;
   top: 5.2%;
@@ -2477,6 +2485,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   }
   .view--surfaces.is-active .surface-projection--cli { transform: none; }
   .surface-projection--headless {
+    /* Light UI object in both themes: pin its ink locally. */
+    --ink: oklch(0.15 0.012 276);
+    --muted: oklch(0.37 0.018 270);
     right: 2.5%;
     bottom: 5%;
     width: min(21vw, 20rem);
