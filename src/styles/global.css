@@ -2124,21 +2124,6 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-signal--artifact,
   .runtime-signal--termination,
   .runtime-signal--recovery { display: none; }
-  .surfaces-lede { top: 2%; left: var(--gutter); width: calc(100vw - 2rem); }
-  .surfaces-statement { font-size: clamp(2rem, 9.5vw, 2.8rem); }
-  .surface-world { top: 24%; }
-  .surface-world::before { opacity: 0.2; }
-  .surface-projection--desktop { bottom: -1%; left: -12%; width: 82vw; }
-  .surface-projection--desktop figcaption { display: none; }
-  .surface-projection--tui { right: -7%; bottom: 36%; width: 58vw; }
-  .surface-projection--cli { right: 3%; bottom: 17%; width: 64vw; }
-  .surface-projection--headless { display: none; }
-  .surface-index { right: var(--gutter); bottom: 2.5%; left: var(--gutter); width: auto; }
-  .surfaces-close { top: 26%; left: var(--gutter); width: 42vw; }
-  .surfaces-trust,
-  .surfaces-colophon,
-  .surfaces-secondary { display: none; }
-  .surfaces-actions .primary-action { padding: 0 0.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2530,79 +2515,61 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy h2 { font-size: clamp(2.65rem, 12.5vw, 3.35rem); line-height: 0.92; letter-spacing: -0.04em; }
   .runtime-copy > p:not(.section-signal) { max-width: 48ch; font-family: var(--mono); font-size: 0.62rem; line-height: 1.5; }
 
-  .surfaces-lede { top: 1.8%; }
+  /* Phone Surfaces reads top-to-bottom: statement → two full-width
+     terminal proofs → actions. Panels never bleed off-canvas. */
+  .surfaces-lede { top: 1.8%; right: var(--gutter); left: var(--gutter); width: auto; }
   .surfaces-lede .section-signal { display: none; }
   .surfaces-statement { font-size: clamp(2rem, 10vw, 3rem); line-height: 0.93; letter-spacing: -0.04em; }
   .surfaces-sub { max-width: 44ch; margin-top: 0.7rem; font-size: 0.61rem; line-height: 1.4; }
-  .surfaces-close { top: 20%; left: var(--gutter); width: calc(100vw - 2 * var(--gutter)); }
-  .surfaces-close .surfaces-actions { justify-content: center; }
+  .surfaces-close {
+    top: auto;
+    right: var(--gutter);
+    bottom: 7.5%;
+    left: var(--gutter);
+    width: auto;
+    justify-items: start;
+    text-align: left;
+  }
+  .surfaces-close .surfaces-actions { justify-content: flex-start; }
   .surfaces-trust,
   .surfaces-secondary,
   .surfaces-colophon { display: none; }
-  .surface-world { top: 22%; bottom: 0; }
+  .surface-world { top: 0; bottom: 0; }
   #surface-field { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.58; }
   .surface-world::before { display: none; }
-  .surface-projection--desktop { bottom: 18%; left: -22%; width: 94vw; transform: none; }
-  .surface-projection--desktop img { box-shadow: none; filter: none; }
-  .surface-projection--tui { right: -18%; bottom: 58%; width: 72vw; min-height: 8.5rem; padding: 0; }
+  .surface-projection--desktop,
+  .surface-projection--headless { display: none; }
+  .surface-projection--tui {
+    top: 30%;
+    right: var(--gutter);
+    bottom: auto;
+    left: var(--gutter);
+    width: auto;
+    min-height: 8.5rem;
+    padding: 0;
+    transform: none;
+  }
   .surface-terminal__bar { display: flex; justify-content: space-between; padding: 0.5rem 0.65rem; border-bottom: 1px solid oklch(0.7 0.12 250 / 0.28); }
   .surface-terminal__body { display: grid; gap: 0.35rem; padding: 0.6rem; }
   .surface-terminal__body span { display: grid; grid-template-columns: 0.8rem 1fr auto; }
-  .surface-projection--cli { right: 3%; bottom: 30%; width: 70vw; }
-  .surface-projection--headless { display: none; }
+  .surface-projection--cli {
+    top: 61%;
+    right: var(--gutter);
+    bottom: auto;
+    left: var(--gutter);
+    width: auto;
+    transform: none;
+  }
   .surface-index { display: none; }
-  .surface-pulse { top: 57%; left: 55%; }
+  .surface-pulse { display: none; }
 }
 
 /* Final fidelity layer: source-derived hyperspace topology with Maka semantics. */
-.runtime-stage::before,
-.runtime-stage::after { display: none; }
 
-.runtime-rings {
-  position: absolute;
-  top: 43%;
-  left: 55%;
-  z-index: 3;
-  width: min(25vw, 25rem);
-  aspect-ratio: 1;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -50%) scale(0.82);
-  transition: opacity 480ms ease 560ms, transform 1200ms var(--ease-expo) 420ms;
-}
 
-.view--runtime.is-active .runtime-rings {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
 
-.stage[data-entering="runtime"] .view--runtime.is-active .runtime-rings {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.82);
-}
 
-.runtime-rings i {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--ring-width);
-  height: calc(var(--ring-width) * 0.14);
-  border: 1.5px solid oklch(0.86 0.18 205 / 0.88);
-  border-radius: 50%;
-  box-shadow: 0 0 1.2rem oklch(0.7 0.17 220 / 0.12);
-  transform: translate(-50%, calc(-50% + var(--ring-y)));
-}
 
-.runtime-rings b {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0.8rem;
-  height: 0.8rem;
-  background: oklch(0.76 0.18 225);
-  box-shadow: 0 0 1.4rem oklch(0.76 0.18 225 / 0.7);
-  transform: translate(-50%, -50%);
-}
 
 #runtime-field {
   opacity: 1;
@@ -2645,11 +2612,6 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 }
 
 @media (max-width: 767px) {
-  .runtime-rings { top: 55%; left: 50%; width: min(72vw, 19rem); }
-  .runtime-rings i:nth-child(1) { --ring-y: -4.2rem !important; }
-  .runtime-rings i:nth-child(2) { --ring-y: -2.2rem !important; }
-  .runtime-rings i:nth-child(4) { --ring-y: 2.2rem !important; }
-  .runtime-rings i:nth-child(5) { --ring-y: 4.2rem !important; }
   #runtime-field { opacity: 0.92; mask-image: linear-gradient(180deg, transparent 0 18%, black 34% 100%); }
   .runtime-copy::before { inset: -2rem; }
   .runtime-signal { max-width: 34vw; font-size: 0.48rem; }
@@ -2660,6 +2622,4 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .runtime-rings,
-  .view--runtime.is-active .runtime-rings { transition: none; transform: translate(-50%, -50%); }
 }
