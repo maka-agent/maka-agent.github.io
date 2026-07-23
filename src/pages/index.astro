@@ -2,11 +2,6 @@
 import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import artifactCurrent from "../assets/maka-artifact-pane.png";
-import permissionCurrent from "../assets/maka-permission-fresh.png";
-import questionCurrent from "../assets/maka-question-fresh.png";
-import firstRunCurrent from "../assets/maka-first-run.png";
-import errorsCurrent from "../assets/maka-artifact-errors.png";
 import shellCurrent from "../assets/maka-shell-current.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
@@ -108,82 +103,95 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
           </div>
         </div>
 
-        <div class="product-gallery" aria-label="Current Maka interface previews">
-          <figure class="product-shot product-shot--main">
-            <div class="product-shot__bar">
-              <span>maka-agent / artifact task</span>
-              <i>LOCAL <span class="product-shot__mode">· INSPECT</span></i>
+        <div class="product-gallery" data-product-inspector data-evidence="artifact" aria-label="Maka product interface">
+          <div class="product-shot--main uiw" aria-label="Maka task window — TASK-4821, add rate limiting to /v1/ingest">
+            <header class="uiw__bar">
+              <span class="uiw__logo" aria-hidden="true">M</span>
+              <b>Maka</b>
+              <span class="uiw__task"><i>TASK-4821</i> Add rate limiting to /v1/ingest</span>
+              <em class="uiw__chip">Open</em>
+            </header>
+            <div class="uiw__body">
+              <nav class="uiw__side" aria-hidden="true">
+                <p class="uiw__new">＋ New task <i>⌘K</i></p>
+                <span>Inbox</span>
+                <span class="is-active">Tasks</span>
+                <span>Runs</span>
+                <span>Artifacts</span>
+                <span>Tools</span>
+                <span>Permissions</span>
+                <p class="uiw__user"><i></i>maka</p>
+              </nav>
+              <div class="uiw__chat">
+                <p class="uiw__prompt">Add rate limiting to POST /v1/ingest using a sliding window.<br />Limit: 60 requests per minute per API key.<br />Return 429 with retry-after.</p>
+                <div class="uiw__reply"><i aria-hidden="true">M</i><p>I'll implement rate limiting with a sliding window and return 429 with retry-after.</p></div>
+                <p class="uiw__fold">⌄ Planning</p>
+                <div class="uiw__tool">
+                  <span>⌄ Tool Call</span>
+                  <b>Edit file <code>src/middleware/rate_limit.rs</code></b>
+                  <em>Completed · 1.2s <i>✓</i></em>
+                </div>
+                <pre class="uiw__diff" aria-hidden="true"><code><span class="d-meta">@@ -1,6 +1,28 @@</span>
+<span class="d-add">+ use std::collections::VecDeque;</span>
+<span class="d-add">+ use std::time::&#123;Duration, Instant&#125;;</span>
+<span class="d-add">+ pub struct RateLimiter &#123;</span>
+<span class="d-add">+     window: Duration,</span>
+<span class="d-add">+     limit: u32,</span>
+<span class="d-add">+     hits: HashMap&lt;String, VecDeque&lt;Instant&gt;&gt;,</span></code></pre>
+                <p class="uiw__input" aria-hidden="true">Ask Maka anything… <b>→</b></p>
+              </div>
+              <aside class="uiw__meta" aria-hidden="true">
+                <h3>Task</h3>
+                <dl>
+                  <dt>Status</dt><dd class="is-open">Open</dd>
+                  <dt>Priority</dt><dd>P1</dd>
+                  <dt>Assignee</dt><dd>maka</dd>
+                  <dt>Created</dt><dd>May 12, 09:41</dd>
+                </dl>
+                <h3>Artifacts <i>3</i></h3>
+                <ul>
+                  <li><b>rate_limit.rs</b><span>Edited · just now</span></li>
+                  <li><b>rate_limit_test.rs</b><span>Added · just now</span></li>
+                  <li><b>rate-limiting.md</b><span>Added · 2m ago</span></li>
+                </ul>
+                <p class="uiw__more">View all artifacts →</p>
+              </aside>
             </div>
-            <div class="product-shot__visual" data-product-inspector data-evidence="artifact" tabindex="0" aria-label="Inspect the current Maka artifact task screenshot">
-              <Image
-                src={artifactCurrent}
-                alt="Maka task workspace showing the conversation, visible Tool Call, code change, task metadata, and attached Artifacts."
-                widths={[960, 1280, 1600, 1920]}
-                sizes="(max-width: 760px) 132vw, 65vw"
-                format="webp"
-                quality={92}
-                loading="eager"
-                fetchpriority="high"
-                data-evidence-panel="artifact"
-              />
-              <Image
-                src={firstRunCurrent}
-                alt="Maka first-run setup checklist with repository, dependency, permission, and tool verification steps."
-                widths={[225, 450, 675]}
-                sizes="(max-width: 760px) 132vw, 65vw"
-                format="webp"
-                quality={88}
-                loading="eager"
-                data-evidence-panel="first-run"
-              />
-              <Image
-                src={errorsCurrent}
-                alt="Maka error state showing a failed Tool Call and the missing permission required to continue."
-                widths={[235, 470, 705]}
-                sizes="(max-width: 760px) 132vw, 65vw"
-                format="webp"
-                quality={88}
-                loading="eager"
-                data-evidence-panel="errors"
-              />
-              <canvas id="product-hover-field" aria-hidden="true" data-hover-state="loading"></canvas>
+          </div>
+
+          <aside class="ui-card ui-card--firstrun" aria-label="First-run setup checklist">
+            <header>FIRST RUN SETUP</header>
+            <ul class="ui-card__steps">
+              <li class="is-done">Connect repository</li>
+              <li class="is-done">Install dependencies</li>
+              <li class="is-active">Configure permissions</li>
+              <li>Verify tools</li>
+            </ul>
+            <p class="ui-card__hint">Fetching tools…</p>
+            <ul class="ui-card__tools">
+              <li>Read</li><li>Edit</li><li>Run</li><li>Search</li><li>Web</li>
+            </ul>
+          </aside>
+
+          <aside class="ui-card ui-card--error" aria-label="Permission error state">
+            <header><i aria-hidden="true"></i>ERROR</header>
+            <div class="ui-card__tool">
+              <span>⌄ Tool Call</span>
+              <b>Edit file <code>src/middleware/auth.rs</code></b>
+              <em>✗ Failed</em>
             </div>
-            <figcaption>
-              <span>REAL PRODUCT</span>
-              <span class="evidence-index" role="group" aria-label="Switch product evidence">
-                <button type="button" data-evidence-command="artifact" aria-pressed="true">01 Artifact</button>
-                <button type="button" data-evidence-command="first-run" aria-pressed="false">02 First run</button>
-                <button type="button" data-evidence-command="errors" aria-pressed="false">03 Errors</button>
-              </span>
-              <b data-evidence-caption>Tool Call → Artifact</b>
-            </figcaption>
-          </figure>
+            <div class="ui-card__note">
+              <b>Permission denied</b>
+              <span>Missing write permission for src/middleware/auth.rs</span>
+              <p>Request permission</p>
+            </div>
+          </aside>
+        </div>
 
-          <figure class="product-proof product-proof--streaming">
-            <Image
-              src={permissionCurrent}
-              alt="Current Maka file-edit permission prompt showing the exact proposed change and explicit deny or allow controls."
-              widths={[720, 960, 1280]}
-              sizes="(max-width: 760px) 72vw, 38vw"
-              format="webp"
-              quality={86}
-              loading="eager"
-            />
-            <figcaption><span>PERMISSION</span><b>02</b></figcaption>
-          </figure>
-
-          <figure class="product-proof product-proof--empty">
-            <Image
-              src={questionCurrent}
-              alt="Current Maka clarification surface with explicit release choices kept inside the task conversation."
-              widths={[720, 960, 1280]}
-              sizes="(max-width: 760px) 72vw, 38vw"
-              format="webp"
-              quality={86}
-              loading="eager"
-            />
-            <figcaption><span>CLARIFICATION</span><b>03</b></figcaption>
-          </figure>
+        <div class="evidence-index product-tabs" role="group" aria-label="Switch product evidence">
+          <button type="button" data-evidence-command="artifact" aria-pressed="true">01 Artifact</button>
+          <button type="button" data-evidence-command="first-run" aria-pressed="false">02 First run</button>
+          <button type="button" data-evidence-command="errors" aria-pressed="false">03 Errors</button>
         </div>
       </section>
 
@@ -327,7 +335,6 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 
   </div>
 
-  <script src="../scripts/product-hover-field.ts"></script>
   <script src="../scripts/runtime-field.ts"></script>
   <script src="../scripts/surface-field.ts"></script>
   <script>
