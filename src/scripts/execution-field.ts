@@ -373,7 +373,12 @@ if (canvas) {
       -(MAKA_LETTER_META.minY - wordCenterY) * FONT_TO_WORLD + 0.2,
     );
     const svgLoader = new SVGLoader();
+    // One group per letter so the balloons can breathe independently.
+    const letterGroups: THREE.Group[] = [];
     for (const letter of MAKA_LETTERS) {
+      const letterGroup = new THREE.Group();
+      letterGroups.push(letterGroup);
+      wordmark.add(letterGroup);
       const svgDocument = svgLoader.parse(
         `<svg xmlns="http://www.w3.org/2000/svg"><path d="${letter.d}"/></svg>`,
       );
@@ -401,7 +406,7 @@ if (canvas) {
         // the caustic streaks behind it do the grounding instead.
         const mesh = new THREE.Mesh(geometry, wordFaceMaterial);
         mesh.renderOrder = 2;
-        wordmark.add(mesh);
+        letterGroup.add(mesh);
       }
     }
 
@@ -1035,23 +1040,37 @@ if (canvas) {
 
     const inkDayColor = ink.color.clone();
     const inkNightColor = new THREE.Color("#8fa2c4");
+    // The day tints multiply into darkness on the night sky; night gets a
+    // luminous pair so the crowns stay lit.
+    const TINT_TOP_DAY = new THREE.Color("#009dff");
+    const TINT_TOP_NIGHT = new THREE.Color("#4db4ff");
+    const TINT_BOTTOM_DAY = new THREE.Color("#cfe6fa");
+    const TINT_BOTTOM_NIGHT = new THREE.Color("#a9cdf5");
+    let nightMix = root.dataset.theme === "night" ? 1 : 0;
+    let nightTarget = nightMix;
+    // Everything theme-dependent derives from one 0..1 mix so the toggle
+    // cross-fades instead of popping.
+    const applyNightMix = (mix: number) => {
+      renderer.toneMappingExposure = THREE.MathUtils.lerp(0.62, 0.5, mix);
+      scene.environmentIntensity = THREE.MathUtils.lerp(0.88, 0.62, mix);
+      ink.color.copy(inkDayColor).lerp(inkNightColor, mix);
+      wordGlassUniforms.uNight.value = mix;
+      (wordGlassUniforms.uTintTop.value as THREE.Color).copy(TINT_TOP_DAY).lerp(TINT_TOP_NIGHT, mix);
+      (wordGlassUniforms.uTintBottom.value as THREE.Color).copy(TINT_BOTTOM_DAY).lerp(TINT_BOTTOM_NIGHT, mix);
+      atmosphereNightScale = THREE.MathUtils.lerp(1, 0.55, mix);
+    };
     const applyTheme = (night: boolean) => {
-      // Clear glass lives on reflections: keep the environment hot enough for
-      // bright speculars in both themes.
-      renderer.toneMappingExposure = night ? 0.5 : 0.62;
-      scene.environmentIntensity = night ? 0.62 : 0.88;
-      ink.color.copy(night ? inkNightColor : inkDayColor);
-      wordGlassUniforms.uNight.value = night ? 1 : 0;
-      // The day tints multiply into darkness on the night sky; night gets a
-      // luminous pair so the crowns stay lit.
-      (wordGlassUniforms.uTintTop.value as THREE.Color).set(night ? "#4db4ff" : "#009dff");
-      (wordGlassUniforms.uTintBottom.value as THREE.Color).set(night ? "#a9cdf5" : "#cfe6fa");
-      atmosphereNightScale = night ? 0.55 : 1;
-      if (reduceMotion) renderer.render(scene, camera);
+      nightTarget = night ? 1 : 0;
+      if (reduceMotion) {
+        nightMix = nightTarget;
+        applyNightMix(nightMix);
+        renderer.render(scene, camera);
+      }
     };
     window.addEventListener("maka:themechange", ((event: CustomEvent<{ night: boolean }>) => {
       applyTheme(event.detail.night);
     }) as EventListener);
+    applyNightMix(nightMix);
     applyTheme(root.dataset.theme === "night");
 
     window.addEventListener("maka:pointer", ((event: CustomEvent<{
@@ -1176,6 +1195,15 @@ if (canvas) {
         if (shed.life === 0) shed.sprite.visible = false;
       }
 
+      if (nightMix !== nightTarget) {
+        nightMix = THREE.MathUtils.damp(nightMix, nightTarget, 5, delta);
+        if (Math.abs(nightMix - nightTarget) < 0.002) nightMix = nightTarget;
+        applyNightMix(nightMix);
+      }
+      // Balloons breathe: each letter floats on its own slow phase.
+      letterGroups.forEach((group, index) => {
+        group.position.y = Math.sin(elapsed * 0.5 + index * 1.15) * 0.05;
+      });
       wordmark.rotation.x = THREE.MathUtils.damp(wordmark.rotation.x, -0.018 + pointer.y * 0.014, 4.8, delta);
       wordmark.rotation.y = THREE.MathUtils.damp(wordmark.rotation.y, 0.028 + pointer.x * 0.016, 4.8, delta);
       wordmark.rotation.z = -0.012;
