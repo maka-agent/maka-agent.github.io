@@ -336,12 +336,11 @@ html.js[data-boot="field"] .stage-footer {
   z-index: 2;
   color: oklch(0.48 0.17 250 / 0.88);
   font-family: "Pacifico", "Brush Script MT", cursive;
-  font-size: clamp(7rem, 20vw, 19rem);
+  font-size: clamp(6rem, 17vw, 16rem);
   font-weight: 500;
   line-height: 0.8;
   letter-spacing: -0.045em;
   white-space: nowrap;
-  text-transform: lowercase;
   text-shadow: 0 1px 0 oklch(0.98 0.01 245 / 0.9);
   transform: translate(-50%, -50%);
   transition: opacity 520ms ease, transform 760ms var(--ease-expo);
@@ -389,7 +388,6 @@ html[data-field="unavailable"] .execution-field canvas {
   font-size: 300px;
   font-weight: 600;
   letter-spacing: -0.045em;
-  text-transform: lowercase;
 }
 
 .fallback-satellites {
@@ -2210,44 +2208,27 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .stage-status__pulse { display: none; }
   .stage-status::after { content: "↓"; margin-left: 2.2rem; font-size: 1.7rem; font-weight: 300; line-height: 0.6; }
 
-  /* Overview: glass wordmark first, one concise conversion block second. */
+  /* Overview: the glass wordmark is the hero; one quiet sentence and the
+     actions sit under it, exactly like the approved mockup. */
   .overview-note { display: none; }
-  .hero-intro {
-    position: absolute;
-    top: calc(var(--header-height) + 3.6rem);
-    right: var(--gutter);
-    left: var(--gutter);
-    z-index: 4;
-    display: grid;
-    grid-template-columns: 30% 31% 1fr;
-    gap: 1rem;
-    pointer-events: none;
-  }
-  .hero-intro p { margin: 0; font-family: var(--mono); font-size: clamp(0.68rem, 0.84vw, 0.82rem); line-height: 1.42; }
-  .hero-intro p:nth-child(2) { padding-left: 1.5rem; }
-  .hero-intro p:nth-child(3) { max-width: 38rem; }
-  .hero-intro strong { display: block; margin-bottom: 0.55rem; font-family: var(--sans); font-size: clamp(1rem, 1.35vw, 1.35rem); font-weight: 640; line-height: 1; letter-spacing: -0.03em; }
-  .hero-intro span { display: block; }
   .hero-copy {
     top: auto;
     bottom: 3.15rem;
     left: var(--gutter);
-    width: min(57vw, 62rem);
+    width: min(34vw, 30rem);
     max-width: none;
     opacity: 1;
     filter: none;
     transform: none;
   }
   .hero-copy h1 {
-    max-width: none;
+    max-width: 17ch;
     margin: 0;
-    font-size: clamp(3.3rem, 4.55vw, 5.5rem);
-    font-weight: 690;
-    line-height: 0.87;
-    letter-spacing: -0.04em;
-    text-transform: uppercase;
+    font-size: clamp(1.8rem, 2.15vw, 2.7rem);
+    font-weight: 650;
+    line-height: 1.18;
+    letter-spacing: -0.028em;
   }
-  .hero-copy__signal { margin-bottom: 0.8rem; }
   .hero-actions { display: flex; gap: 0.65rem; margin-top: 1rem; }
   .hero-actions a {
     display: inline-flex;
@@ -2264,19 +2245,28 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .hero-actions svg { width: 1rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
   .secondary-action { border: 1px solid currentColor; background: oklch(0.98 0.012 245 / 0.55); }
 
-  .object-index { display: none; }
+  /* Right-hand concept rail (mockup): five labeled execution objects. */
+  .object-index {
+    top: 24%;
+    right: var(--gutter);
+    bottom: auto;
+    width: auto;
+    display: grid;
+    gap: 1.05rem;
+  }
   .object-index li {
     display: grid;
-    grid-template-columns: 1.35rem 1fr;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0.7rem;
     align-items: center;
     min-height: auto;
     padding: 0;
     border: 0;
     font-family: var(--mono);
   }
-  .object-index li i { color: var(--blue-deep); font-size: 0.95rem; font-style: normal; text-align: center; }
+  .object-index li i { color: var(--blue-deep); font-size: 1rem; font-style: normal; text-align: center; }
   .object-index li:nth-child(5) i { color: oklch(0.72 0.16 76); }
-  .object-index li b { font-size: 0.7rem; font-weight: 520; text-transform: uppercase; }
+  .object-index li b { font-size: 0.68rem; font-weight: 560; letter-spacing: 0.07em; text-transform: uppercase; }
   .object-index li span,
   .object-index li small { display: none; }
 

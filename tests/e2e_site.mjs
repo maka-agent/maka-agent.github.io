@@ -54,7 +54,7 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.title()) !== "Maka — Your work. Your agent.") throw new Error(`${label}: unexpected title`);
   const commandHints = await page.locator(".view-nav small").allTextContents();
   if (JSON.stringify(commandHints) !== JSON.stringify(["[1]", "[2]", "[3]", "[4]"])) throw new Error(`${label}: navigation command hints are incomplete`);
-  if ((await page.locator("#overview-title").textContent()) !== "Your work.Your agent.Runs locally.") {
+  if ((await page.locator("#overview-title").textContent()) !== "An open source agentthat turns intent intoinspectable work.") {
     throw new Error(`${label}: unexpected h1`);
   }
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
