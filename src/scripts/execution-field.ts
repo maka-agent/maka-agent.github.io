@@ -665,7 +665,7 @@ if (canvas) {
     cursor.castShadow = true;
     scene.add(cursor);
 
-    const makeStickerTexture = (kind: "seal" | "eyes" | "heart") => {
+    const makeStickerTexture = (kind: "seal" | "eyes" | "heart" | "bolt" | "hand") => {
       const stickerCanvas = document.createElement("canvas");
       stickerCanvas.width = 384;
       stickerCanvas.height = 384;
@@ -743,6 +743,56 @@ if (canvas) {
           sheen.addColorStop(0.45, "rgba(255,255,255,0)");
           context.fillStyle = sheen;
           context.fill(heart);
+        } else if (kind === "bolt") {
+          // Frosted lightning bolt: pale glass fill inside a cobalt outline.
+          context.rotate(0.14);
+          const bolt = new Path2D();
+          bolt.moveTo(26, -128);
+          bolt.lineTo(-72, 14);
+          bolt.lineTo(-12, 14);
+          bolt.lineTo(-34, 122);
+          bolt.lineTo(72, -32);
+          bolt.lineTo(8, -32);
+          bolt.closePath();
+          context.lineJoin = "round";
+          context.lineWidth = 16;
+          context.strokeStyle = "#3565d6";
+          context.stroke(bolt);
+          context.fillStyle = "rgba(214, 232, 250, 0.92)";
+          context.fill(bolt);
+          const boltSheen = context.createLinearGradient(-40, -120, 40, 120);
+          boltSheen.addColorStop(0, "rgba(255,255,255,0.65)");
+          boltSheen.addColorStop(0.5, "rgba(255,255,255,0)");
+          context.fillStyle = boltSheen;
+          context.fill(bolt);
+        } else if (kind === "hand") {
+          // Pixel pointing hand, drawn on an 11x12 grid like an old cursor.
+          const P = 13;
+          const rows = [
+            "....11.....",
+            "...1221....",
+            "...1221....",
+            "...1221....",
+            "...12211111",
+            "...12212221",
+            "11112222221",
+            "12212222221",
+            "12222222221",
+            ".1222222221",
+            "..12222221.",
+            "...111111..",
+          ];
+          context.rotate(-0.2);
+          context.translate(-rows[0].length * P / 2, -rows.length * P / 2);
+          for (let y = 0; y < rows.length; y += 1) {
+            for (let x = 0; x < rows[y].length; x += 1) {
+              const cell = rows[y][x];
+              if (cell === "1") context.fillStyle = "#2c56c9";
+              else if (cell === "2") context.fillStyle = "#dbe9fb";
+              else continue;
+              context.fillRect(x * P, y * P, P, P);
+            }
+          }
         }
       }
       const texture = new THREE.CanvasTexture(stickerCanvas);
@@ -779,7 +829,25 @@ if (canvas) {
     heartSticker.position.set(-6.55, -0.7, -0.2);
     heartSticker.scale.set(0.95, 0.95, 1);
     heartSticker.renderOrder = 0;
-    satellites.add(sealSticker, eyesSticker, heartSticker);
+    const boltStickerMaterial = new THREE.SpriteMaterial({
+      map: makeStickerTexture("bolt"),
+      transparent: true,
+      depthWrite: false,
+    });
+    const boltSticker = new THREE.Sprite(boltStickerMaterial);
+    boltSticker.position.set(2.1, 3.1, -0.42);
+    boltSticker.scale.set(0.85, 0.85, 1);
+    boltSticker.renderOrder = 0;
+    const handStickerMaterial = new THREE.SpriteMaterial({
+      map: makeStickerTexture("hand"),
+      transparent: true,
+      depthWrite: false,
+    });
+    const handSticker = new THREE.Sprite(handStickerMaterial);
+    handSticker.position.set(-4.7, 3.0, -0.35);
+    handSticker.scale.set(1.0, 1.0, 1);
+    handSticker.renderOrder = 0;
+    satellites.add(sealSticker, eyesSticker, heartSticker, boltSticker, handSticker);
 
     const nodeGeometry = new THREE.SphereGeometry(0.115, 14, 14);
     const nodes = Array.from({ length: 9 }, (_, index) => {
@@ -880,6 +948,8 @@ if (canvas) {
       { object: sealSticker, depth: 0.82, x: -0.32, y: 0.26, drift: 0.05, phase: 2.8 },
       { object: eyesSticker, depth: 0.7, x: 0.3, y: 0.22, drift: 0.05, phase: 1.1 },
       { object: heartSticker, depth: 0.9, x: 0.36, y: -0.24, drift: 0.06, phase: 3.7 },
+      { object: boltSticker, depth: 0.75, x: -0.28, y: 0.24, drift: 0.055, phase: 5.1 },
+      { object: handSticker, depth: 0.6, x: 0.26, y: 0.2, drift: 0.05, phase: 0.9 },
       ...nodes.map((object, index) => ({
         object,
         depth: 0.26 + (index % 3) * 0.2,
@@ -1020,6 +1090,8 @@ if (canvas) {
       // The seal rides the right margin; compact viewports crop it in half,
       // which reads as a bug rather than a sticker.
       sealSticker.visible = !compact;
+      boltSticker.visible = !compact;
+      handSticker.visible = !compact;
       if (stateIndex === 0) {
         worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
       }
