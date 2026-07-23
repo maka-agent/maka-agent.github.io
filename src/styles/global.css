@@ -1060,6 +1060,29 @@ html[data-field="unavailable"] .execution-field canvas {
 }
 .uiw__input b { display: grid; width: 1.1rem; height: 1.1rem; place-items: center; border-radius: 0.3rem; background: var(--blue-deep); color: white; }
 
+/* Micro-life: the crafted window breathes like a live app. */
+.uiw__caret {
+  display: inline-block;
+  width: 1px;
+  height: 0.85em;
+  margin-left: 0.18rem;
+  vertical-align: -0.12em;
+  background: var(--blue-deep);
+  animation: uiw-caret-blink 1.1s steps(1) infinite;
+}
+
+@keyframes uiw-caret-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
+
+.uiw__chip { animation: uiw-chip-breathe 3.4s ease-in-out infinite; }
+
+@keyframes uiw-chip-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.7 0.15 250 / 0); }
+  50% { box-shadow: 0 0 0 4px oklch(0.7 0.15 250 / 0.14); }
+}
+
 .uiw__meta {
   display: flex;
   flex-direction: column;
@@ -1954,6 +1977,22 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 }
 
 .runtime-signal i { font-size: 1.05em; font-style: normal; }
+
+/* The tags drift with the streaks — `translate` composes with the tilt
+   transform, so entrance rotation stays intact. */
+.view--runtime.is-active .runtime-signal { animation: runtime-signal-drift 5.4s ease-in-out infinite alternate; }
+.runtime-signal--tool { animation-delay: -0.6s; }
+.runtime-signal--message { animation-delay: -1.5s; }
+.runtime-signal--result { animation-delay: -2.4s; }
+.runtime-signal--permission { animation-delay: -3.1s; }
+.runtime-signal--artifact { animation-delay: -3.9s; }
+.runtime-signal--termination { animation-delay: -4.6s; }
+.runtime-signal--recovery { animation-delay: -5.2s; }
+
+@keyframes runtime-signal-drift {
+  from { translate: 0 2px; }
+  to { translate: 0 -4px; }
+}
 
 .view--runtime.is-active .runtime-signal { opacity: 0.85; transform: rotate(var(--signal-tilt, 0deg)) translate3d(0, 0, 0); }
 .runtime-signal--tool { top: 15%; left: 38%; --signal-tilt: -13deg; transition-delay: 650ms; }
