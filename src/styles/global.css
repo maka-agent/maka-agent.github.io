@@ -1683,11 +1683,14 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .uiw__task { display: none; }
   .evidence-index { gap: 0.75rem; }
   .evidence-index button { font-size: 0.52rem; }
-  .product-tabs { bottom: 3%; }
-  .ui-card { width: min(74vw, 15rem); }
-  .ui-card--firstrun { top: 66%; left: 4%; }
-  .ui-card--error { top: 70%; left: 42%; }
-  .ui-card--error .ui-card__tool { display: none; }
+  /* One supporting card fits a phone; two piled onto the tab row read as
+     wreckage. The error story stays reachable through the desktop view. */
+  .product-tabs { bottom: 1.6%; }
+  .ui-card { width: min(72vw, 15rem); }
+  .ui-card--firstrun { top: 64%; left: 4%; }
+  .ui-card--firstrun .ui-card__hint,
+  .ui-card--firstrun .ui-card__tools { display: none; }
+  .ui-card--error { display: none; }
 
   .view--runtime {
     display: block;
@@ -1718,38 +1721,11 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .surfaces-trust { font-size: 0.72rem; }
   .surfaces-actions { grid-column: 1; grid-row: auto; gap: 1rem; }
   .surfaces-colophon { font-size: 0.5rem; }
+  /* Legacy vertical-rail runtime layout removed: the redesigned bottom
+     timeline (later max-767 block) owns the compact Runtime view. */
   .runtime-copy { position: absolute; top: 2%; right: var(--gutter); left: var(--gutter); width: auto; max-width: none; }
   .runtime-copy > a { min-height: 44px; margin-top: 0.1rem; font-size: 0.56rem; }
   .runtime-stage { top: 37%; right: 0; bottom: 0; left: 0; }
-  .runtime-stage::before { top: 47%; left: 50%; width: min(62vw, 16rem); }
-  .runtime-stage::after { top: 47%; left: 50%; width: min(45vw, 12rem); }
-  .runtime-rail { top: 5%; right: auto; bottom: 9%; left: 50%; width: 1px; height: auto; }
-  .runtime-rail::after { transform: scaleY(0); transform-origin: top; }
-  .view--runtime.is-active .runtime-rail::after { transform: scaleY(1); }
-  .runtime-rail i {
-    top: -10%;
-    right: -1.4rem;
-    bottom: auto;
-    left: -1.4rem;
-    width: auto;
-    height: 20%;
-    transform: translate3d(0, -100%, 0);
-  }
-  .view--runtime.is-active .runtime-rail i { animation-name: runtime-rail-pulse-y; }
-  .runtime-step { gap: 0; }
-  .runtime-step span { font-size: 0.42rem; }
-  .runtime-step b { font-size: 0.78rem; }
-  .runtime-step small { font-size: 0.44rem; }
-  .runtime-step--request { top: 4%; left: 9%; }
-  .runtime-step--run { top: 19%; right: 7%; left: auto; text-align: right; }
-  .runtime-step--run::before,
-  .runtime-step--recovery::before { right: 0; left: auto; }
-  .runtime-step--hub { top: 47%; left: 50%; width: 74vw; }
-  .runtime-step--hub strong { margin: 0.24rem 0 0.4rem; font-size: clamp(3rem, 15vw, 4.2rem); }
-  .runtime-step--hub small { font-size: 0.42rem; }
-  .runtime-step--projection { top: 71%; left: 9%; }
-  .runtime-step--recovery { top: 84%; right: 7%; left: auto; text-align: right; }
-  .runtime-ledger { display: none; }
 
   .stage-footer {
     grid-template-columns: 1fr;
@@ -1763,11 +1739,6 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .pointer-readout { display: none; }
   .stage-status { min-width: 8.5rem; }
   .stage-footer > a { display: none; }
-}
-
-@keyframes runtime-rail-pulse-y {
-  from { transform: translate3d(0, -100%, 0); }
-  to { transform: translate3d(0, 600%, 0); }
 }
 
 @media (max-height: 700px) and (min-width: 768px) {
@@ -1787,8 +1758,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-copy h2 { font-size: clamp(2.15rem, 10.5vw, 2.8rem); }
   .runtime-copy > p:not(.section-signal) { max-width: 44ch; font-size: 0.6rem; line-height: 1.3; }
   .runtime-stage { top: 42%; }
-  .runtime-step--hub strong { font-size: clamp(2.55rem, 13vw, 3.2rem); }
-  .runtime-step small { display: none; }
+  .runtime-hub { font-size: clamp(2.4rem, 12vw, 3.4rem); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2137,10 +2107,14 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .runtime-rail { right: 7%; bottom: 12%; left: 7%; }
   .runtime-step { bottom: calc(12% + 1rem); }
   .runtime-step--request { left: 7%; }
-  .runtime-step--run { left: 30%; }
   .runtime-step--hub span { display: none; }
-  .runtime-step--projection { left: 58%; }
   .runtime-step--recovery { right: 7%; }
+  /* Five labels cannot share 390px: the intermediate stops keep their
+     dots but drop their text on phones. */
+  .runtime-step--run span, .runtime-step--run b,
+  .runtime-step--projection span, .runtime-step--projection b { display: none; }
+  .runtime-step--run { left: 28.5%; }
+  .runtime-step--projection { left: 71.5%; }
   .runtime-step b { font-size: 0.78rem; }
   .runtime-step span { font-size: 0.46rem; }
   .runtime-signal--tool { top: 34%; left: 64%; }
