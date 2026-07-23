@@ -335,13 +335,18 @@ html.js[data-boot="field"] .stage-footer {
   left: 56%;
   z-index: 2;
   color: oklch(0.48 0.17 250 / 0.88);
+  background: linear-gradient(180deg, oklch(0.52 0.19 255) 0%, oklch(0.66 0.13 250) 55%, oklch(0.8 0.07 246) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-family: "Pacifico", "Brush Script MT", cursive;
   font-size: clamp(6rem, 17vw, 16rem);
   font-weight: 500;
   line-height: 0.8;
   letter-spacing: -0.045em;
   white-space: nowrap;
-  text-shadow: 0 1px 0 oklch(0.98 0.01 245 / 0.9);
+  /* No text-shadow: with a transparent text fill the shadow bleeds through
+     the glyphs and washes the gradient into a white ghost. */
   transform: translate(-50%, -50%);
   transition: opacity 520ms ease, transform 760ms var(--ease-expo);
 }
@@ -370,7 +375,9 @@ html[data-field="unavailable"] .execution-field canvas {
 .execution-field__fallback {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  /* Below the ghost wordmark: the soft light ellipse must glow behind the
+     word, not veil it. */
+  z-index: 1;
   color: var(--ink);
 }
 
@@ -390,11 +397,11 @@ html[data-field="unavailable"] .execution-field canvas {
   letter-spacing: -0.045em;
 }
 
-.fallback-satellites {
-  fill: oklch(0.58 0.17 250 / 0.92);
-  stroke: oklch(0.2 0.025 270 / 0.35);
-  stroke-width: 4;
-}
+/* Static satellites mirror the live sticker cast. */
+.fallback-eye { fill: white; stroke: oklch(0.22 0.02 270); stroke-width: 7; }
+.fallback-pupil { fill: oklch(0.22 0.02 270); }
+.fallback-heart { fill: oklch(0.74 0.16 5); stroke: white; stroke-width: 22; }
+.fallback-bolt { fill: oklch(0.92 0.03 245); stroke: oklch(0.52 0.17 262); stroke-width: 13; stroke-linejoin: round; }
 
 .measurement-grid {
   position: absolute;

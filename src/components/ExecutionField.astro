@@ -11,15 +11,28 @@
       <filter id="fallback-soft" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="18" />
       </filter>
+      <linearGradient id="fallback-tint" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="oklch(0.62 0.17 252)" />
+        <stop offset="0.55" stop-color="oklch(0.78 0.09 248)" />
+        <stop offset="1" stop-color="oklch(0.9 0.035 245)" />
+      </linearGradient>
     </defs>
     <g class="fallback-light" filter="url(#fallback-soft)">
       <ellipse cx="850" cy="470" rx="410" ry="260" />
     </g>
     <text class="fallback-wordmark" x="805" y="560" text-anchor="middle">Maka</text>
+    <!-- The static satellites mirror the live sticker cast. -->
     <g class="fallback-satellites">
-      <rect x="250" y="245" width="82" height="82" rx="23" transform="rotate(-18 291 286)" />
-      <circle cx="1245" cy="640" r="46" />
-      <path d="M1192 256h78l20 106h-118z" />
+      <g transform="translate(255 320) rotate(-8)">
+        <circle class="fallback-eye" cx="-26" cy="0" r="30" />
+        <circle class="fallback-eye" cx="26" cy="0" r="30" />
+        <circle class="fallback-pupil" cx="-16" cy="6" r="13" />
+        <circle class="fallback-pupil" cx="36" cy="6" r="13" />
+      </g>
+      <path class="fallback-heart" transform="translate(1340 750) rotate(-12) scale(0.52)"
+        d="M0 108C-132 22 -108 -96 -6 -44C4 -50 10 -50 18 -44C120 -96 132 22 0 108Z" />
+      <path class="fallback-bolt" transform="translate(1215 260) rotate(8) scale(0.62)"
+        d="M26 -128L-72 14L-12 14L-34 122L72 -32L8 -32Z" />
     </g>
   </svg>
 </div>
