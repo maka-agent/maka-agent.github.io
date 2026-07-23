@@ -287,7 +287,7 @@ if (canvas) {
           float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
           float band2 = exp(-pow((d - 1.02) * 6.4, 2.0));
           vec3 warm = mix(vec3(0.992, 0.969, 0.941), vec3(0.16, 0.2, 0.3), night);
-          return mix(c, warm, clamp(band1 * 0.55 + band2 * 0.4, 0.0, 1.0));
+          return mix(c, warm, clamp(band1 * 0.62 + band2 * 0.46, 0.0, 1.0));
         }
 
         float saturateLuma(float x) { return clamp(x, 0.0, 1.0); }
@@ -313,9 +313,9 @@ if (canvas) {
 
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
-          color = mix(luma, color, 1.2);
-          color *= mix(0.87, 1.15, uNight);
-          color = (color - 0.5) * 0.92 + 0.5;
+          color = mix(luma, color, 1.35);
+          color *= mix(0.95, 1.15, uNight);
+          color = (color - 0.5) * 0.94 + 0.5;
 
           // vertical Beer-Lambert tint: saturated blue only at the crowns,
           // airy white through the body — the reference's read
@@ -330,7 +330,7 @@ if (canvas) {
           float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.45 + 0.55 * yT);
           float tintAlpha = mix(0.42, 1.0, clamp(edgeMask + topMask, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
-          color *= mix(1.0, 0.8, pow(thickness, 2.0));
+          color *= mix(1.0, 0.85, pow(thickness, 2.0));
 
           // pointer-driven pin highlight
           vec3 lightVector = normalize(-uLight);
@@ -375,15 +375,18 @@ if (canvas) {
       for (const shape of shapes) {
         // Bevel consumes almost the full half-stroke on each side: the face
         // narrows to a ridge and the profile approaches a semicircle.
+        // Gentle inset: Pacifico's inter-letter connectors run much thinner
+        // than the stems, and a deep bevelOffset shaves them into knife
+        // blades. A small offset keeps every stroke — thick or thin — round.
         const geometry = new THREE.ExtrudeGeometry(shape, {
           depth: strokeR * 0.35,
           curveSegments: 26,
           steps: 1,
           bevelEnabled: true,
           bevelSegments: 12,
-          bevelSize: strokeR * 0.92,
-          bevelThickness: strokeR * 1.0,
-          bevelOffset: -strokeR * 0.38,
+          bevelSize: strokeR * 0.74,
+          bevelThickness: strokeR * 0.92,
+          bevelOffset: -strokeR * 0.12,
         });
         geometry.translate(letter.x - wordCenterX, -wordCenterY, 0);
         geometry.scale(FONT_TO_WORLD, -FONT_TO_WORLD, FONT_TO_WORLD);
@@ -401,7 +404,7 @@ if (canvas) {
       const ratio = (index * 0.61803398875) % 1;
       dustPositions[index * 3] = -5.1 + ratio * 10.3;
       dustPositions[index * 3 + 1] = -2.0 + ((index * 0.41421356237) % 1) * 3.9;
-      dustPositions[index * 3 + 2] = 0.18 + ((index * 0.73205080757) % 1) * 0.38;
+      dustPositions[index * 3 + 2] = -0.9 + ((index * 0.73205080757) % 1) * 0.5;
     }
     const dustGeometry = new THREE.BufferGeometry();
     dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3));
@@ -428,7 +431,7 @@ if (canvas) {
       const glow = glintContext.createRadialGradient(80, 80, 0, 80, 80, 76);
       glow.addColorStop(0, "rgba(255,255,255,1)");
       glow.addColorStop(0.09, "rgba(255,255,255,0.96)");
-      glow.addColorStop(0.22, "rgba(220,240,255,0.28)");
+      glow.addColorStop(0.17, "rgba(220,240,255,0.22)");
       glow.addColorStop(1, "rgba(190,225,255,0)");
       glintContext.fillStyle = glow;
       glintContext.fillRect(0, 0, 160, 160);
@@ -460,7 +463,7 @@ if (canvas) {
       const [x1, y1, x2, y2] = letter.box;
       return (GLINT_FRACTIONS[letterIndex] ?? [[0.5, 0] as const]).map(([fx, fy], i) => new THREE.Vector3(
         (letter.x + x1 + (x2 - x1) * fx - wordCenterX) * FONT_TO_WORLD,
-        -(y1 + (y2 - y1) * fy + strokeR * 0.7 - wordCenterY) * FONT_TO_WORLD,
+        -(y1 + (y2 - y1) * fy + strokeR * 1.0 - wordCenterY) * FONT_TO_WORLD,
         i % 2 ? 0.44 : 0.42,
       ));
     });
@@ -508,7 +511,7 @@ if (canvas) {
     const causticMaterial = new THREE.SpriteMaterial({
       map: causticTexture,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.42,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -728,7 +731,7 @@ if (canvas) {
     // Perimeter placement: the seal may kiss the sculpture, never the copy.
     // The former "OPEN SOURCE" sticker is gone — it repeated the primary CTA.
     const sealSticker = new THREE.Sprite(sealStickerMaterial);
-    sealSticker.position.set(-1.9, 3.05, -0.38);
+    sealSticker.position.set(4.3, 2.55, -0.38);
     sealSticker.scale.set(1.3, 1.3, 1);
     sealSticker.renderOrder = 0;
     const eyesStickerMaterial = new THREE.SpriteMaterial({
@@ -918,7 +921,7 @@ if (canvas) {
         world.scale.copy(worldScaleTarget);
         pearl.opacity = materialTargets.pearl;
         wordGlassUniforms.uOpacity.value = materialTargets.word;
-        causticMaterial.opacity = materialTargets.word * 0.3;
+        causticMaterial.opacity = materialTargets.word * 0.42;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
         ink.opacity = materialTargets.ink;
@@ -1096,7 +1099,7 @@ if (canvas) {
       wordGlassUniforms.uOpacity.value = THREE.MathUtils.damp(wordGlassUniforms.uOpacity.value, materialTargets.word, 7, delta);
       wordGlassUniforms.uLight.value.set(pointer.x * 5 + 0.6, pointer.y * 3 + 0.9, 0.5);
       wordDustMaterial.opacity = THREE.MathUtils.damp(wordDustMaterial.opacity, materialTargets.word * 0.34, 7, delta);
-      causticMaterial.opacity = THREE.MathUtils.damp(causticMaterial.opacity, materialTargets.word * 0.3, 7, delta);
+      causticMaterial.opacity = THREE.MathUtils.damp(causticMaterial.opacity, materialTargets.word * 0.42, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
       cobalt.opacity = THREE.MathUtils.damp(cobalt.opacity, materialTargets.cobalt, 7, delta);
       ink.opacity = THREE.MathUtils.damp(ink.opacity, materialTargets.ink, 7, delta);
