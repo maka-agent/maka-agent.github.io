@@ -1,7 +1,8 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { MAKA_TUBE_BRANCHES, MAKA_TUBE_RADIUS } from "./maka-wordmark-tube";
+import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+import { MAKA_LETTERS, MAKA_LETTER_META } from "./maka-letter-paths";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
 const root = document.documentElement;
@@ -326,7 +327,7 @@ if (canvas) {
           // arcs of each tube; facing surfaces stay translucent but never
           // washed out.
           float edgeMask = pow(thickness, 1.25);
-          float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.25 + 0.75 * yT);
+          float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.45 + 0.55 * yT);
           float tintAlpha = mix(0.34, 1.0, clamp(edgeMask + topMask * 0.85, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
           color *= mix(1.0, 0.88, pow(thickness, 2.2));
@@ -352,55 +353,46 @@ if (canvas) {
     // skeleton branch, a sphere cap on every branch end so the joints read
     // as one continuous blown-glass word. Letterform quality comes from the
     // typeface itself, not hand-tuned control points.
-    const WORD_WORLD_WIDTH = 9.0;
-    const TUBE_RADIUS = Math.max(0.17, MAKA_TUBE_RADIUS * WORD_WORLD_WIDTH * 1.28);
-    const wordYValues = MAKA_TUBE_BRANCHES.flatMap((branch) => branch.map(([, y]) => y * WORD_WORLD_WIDTH));
+    // Each letter is the typeface's own bezier outline — designer-quality
+    // curves with zero extraction loss — extruded with a deep round bevel so
+    // the cross-section reads as blown glass, not flat signage.
+    const WORD_WORLD_WIDTH = 8.2;
+    const fontSpanX = MAKA_LETTER_META.maxX - MAKA_LETTER_META.minX;
+    const FONT_TO_WORLD = WORD_WORLD_WIDTH / fontSpanX;
+    const strokeR = MAKA_LETTER_META.strokeRadius;
+    const wordCenterX = (MAKA_LETTER_META.minX + MAKA_LETTER_META.maxX) / 2;
+    const wordCenterY = (MAKA_LETTER_META.minY + MAKA_LETTER_META.maxY) / 2;
     wordGlassUniforms.uTintYRange.value.set(
-      Math.min(...wordYValues) - TUBE_RADIUS,
-      Math.max(...wordYValues) + TUBE_RADIUS,
+      -(MAKA_LETTER_META.maxY - wordCenterY) * FONT_TO_WORLD - 0.2,
+      -(MAKA_LETTER_META.minY - wordCenterY) * FONT_TO_WORLD + 0.2,
     );
-    // Slightly oversized caps swallow the open tube rims — same-radius
-    // spheres z-fight with the tube ends and read as stitched seams.
-    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS * 1.045, 22, 22);
-    for (const branch of MAKA_TUBE_BRANCHES) {
-      if (branch.length < 2) continue;
-      const points = branch.map(([x, y]) => new THREE.Vector3(
-        x * WORD_WORLD_WIDTH,
-        y * WORD_WORLD_WIDTH,
-        0,
-      ));
-      // Two Chaikin passes iron out residual raster wobble before the
-      // spline samples the branch.
-      const chaikin = (pts: THREE.Vector3[]) => {
-        if (pts.length < 3) return pts;
-        const out = [pts[0]];
-        for (let i = 0; i < pts.length - 1; i += 1) {
-          out.push(pts[i].clone().lerp(pts[i + 1], 0.25), pts[i].clone().lerp(pts[i + 1], 0.75));
-        }
-        out.push(pts[pts.length - 1]);
-        return out;
-      };
-      const curve = new THREE.CatmullRomCurve3(chaikin(chaikin(points)), false, "centripetal");
-      const segments = Math.max(16, points.length * 7);
-      const tube = new THREE.Mesh(
-        new THREE.TubeGeometry(curve, segments, TUBE_RADIUS, 22, false),
-        wordFaceMaterial,
+    const svgLoader = new SVGLoader();
+    for (const letter of MAKA_LETTERS) {
+      const svgDocument = svgLoader.parse(
+        `<svg xmlns="http://www.w3.org/2000/svg"><path d="${letter.d}"/></svg>`,
       );
-      tube.castShadow = true;
-      tube.receiveShadow = true;
-      tube.renderOrder = 2;
-      wordmark.add(tube);
-      for (const t of [0, 1]) {
-        // Bake the endpoint into the cap geometry: the tint gradient reads
-        // vertex-local Y, so a translated mesh would tint every cap as if it
-        // sat at the word's midline.
-        const capAt = capGeometry.clone();
-        const end = curve.getPoint(t);
-        capAt.translate(end.x, end.y, end.z);
-        const cap = new THREE.Mesh(capAt, wordFaceMaterial);
-        cap.castShadow = true;
-        cap.renderOrder = 2;
-        wordmark.add(cap);
+      const shapes = svgDocument.paths.flatMap((path) => SVGLoader.createShapes(path));
+      for (const shape of shapes) {
+        // Bevel consumes almost the full half-stroke on each side: the face
+        // narrows to a ridge and the profile approaches a semicircle.
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth: strokeR * 0.35,
+          curveSegments: 26,
+          steps: 1,
+          bevelEnabled: true,
+          bevelSegments: 12,
+          bevelSize: strokeR * 0.92,
+          bevelThickness: strokeR * 1.0,
+          bevelOffset: -strokeR * 0.38,
+        });
+        geometry.translate(letter.x - wordCenterX, -wordCenterY, 0);
+        geometry.scale(FONT_TO_WORLD, -FONT_TO_WORLD, FONT_TO_WORLD);
+        geometry.computeVertexNormals();
+        // No cast shadow: the reference word floats free of the ground —
+        // the caustic streaks behind it do the grounding instead.
+        const mesh = new THREE.Mesh(geometry, wordFaceMaterial);
+        mesh.renderOrder = 2;
+        wordmark.add(mesh);
       }
     }
 
@@ -457,22 +449,17 @@ if (canvas) {
     }
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
-    // Anchors ride the tube crests: M arches, bowls, the k loop, and the
-    // closing swash — where real glass would flare.
-    // One glint per horizontal band, sitting on the highest tube crest in
-    // that band — recomputed from the skeleton so they always ride the word.
-    const GLINT_BANDS = 7;
-    const bandTops: Array<{ x: number; y: number } | null> = Array.from({ length: GLINT_BANDS }, () => null);
-    for (const branch of MAKA_TUBE_BRANCHES) {
-      for (const [x, y] of branch) {
-        const band = Math.min(GLINT_BANDS - 1, Math.max(0, Math.floor((x + 0.5) * GLINT_BANDS)));
-        const current = bandTops[band];
-        if (!current || y > current.y) bandTops[band] = { x, y };
-      }
-    }
-    const glintAnchors = bandTops.flatMap((top, index) => top
-      ? [new THREE.Vector3(top.x * WORD_WORLD_WIDTH, top.y * WORD_WORLD_WIDTH - 0.06, index % 2 ? 0.44 : 0.42)]
-      : []);
+    // Anchors sit on each letter's crests — the M gets one per arch, the
+    // others one at the bowl or loop crown — where real glass would flare.
+    const GLINT_FRACTIONS = [[0.2, 0.68], [0.5], [0.55], [0.45]];
+    const glintAnchors = MAKA_LETTERS.flatMap((letter, letterIndex) => {
+      const [x1, y1, x2] = letter.box;
+      return (GLINT_FRACTIONS[letterIndex] ?? [0.5]).map((fx, i) => new THREE.Vector3(
+        (letter.x + x1 + (x2 - x1) * fx - wordCenterX) * FONT_TO_WORLD,
+        -(y1 + strokeR * 0.7 - wordCenterY) * FONT_TO_WORLD,
+        i % 2 ? 0.44 : 0.42,
+      ));
+    });
     const wordGlints = glintAnchors.map((anchor, index) => {
       const material = new THREE.SpriteMaterial({
         map: glintTexture,
@@ -527,7 +514,7 @@ if (canvas) {
     caustics.renderOrder = 0;
     wordmark.add(caustics);
 
-    wordmark.position.set(-0.35, 0.62, 0.48);
+    wordmark.position.set(-0.35, 0.78, 0.48);
     wordmark.rotation.set(-0.018, 0.028, -0.012);
     wordmark.scale.set(1, 0.98, 1.02);
     wordmark.visible = true;

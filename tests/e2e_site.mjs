@@ -105,8 +105,8 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("#execution-field").getAttribute("data-wordmark")) !== "Maka") {
     throw new Error(`${label}: hero renderer is not bound to the Maka wordmark`);
   }
-  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "catmullrom-glass-tube") {
-    throw new Error(`${label}: hero wordmark is no longer the continuous glass tube`);
+  if ((await page.locator("#execution-field").getAttribute("data-wordmark-geometry")) !== "extruded-outline-glass") {
+    throw new Error(`${label}: hero wordmark is no longer the extruded outline glass`);
   }
   const expectedCenter = `${String(Math.round(width / 2)).padStart(4, "0")}X${String(Math.round(height / 2)).padStart(4, "0")}Y`;
   const initialPointer = (await page.locator(".pointer-readout").textContent() ?? "").replaceAll("\n", " ").replaceAll(/\s+/g, " ").trim();
