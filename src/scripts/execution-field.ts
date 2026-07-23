@@ -13,7 +13,9 @@ const clearBootFallback = () => {
 };
 const revealBoot = (reduceMotion: boolean) => {
   clearBootFallback();
-  if (reduceMotion) {
+  // The 2.4s fallback may already have revealed the page. Re-running the
+  // staged sequence would blink settled content back out — never regress.
+  if (reduceMotion || root.dataset.boot === "complete") {
     root.dataset.boot = "complete";
     return;
   }
@@ -229,41 +231,42 @@ if (canvas) {
     // Unlike the old constant-radius tube, this is a real calligraphic solid:
     // the face carries the letter rhythm, while the deep rounded bevel creates
     // a soft silhouette, side walls, thickness, and readable counters.
+    // Frosted, milky glass: the word should read as a calm background
+    // sculpture (reference-grade restraint), not glossy inflatable candy.
+    // Identity comes from the silhouette; the material stays quiet.
     const wordFaceMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#75b8e8"),
+      color: new THREE.Color("#b7d7ee"),
       metalness: 0,
-      roughness: 0.3,
-      transmission: 0.34,
+      roughness: 0.46,
+      transmission: 0.52,
       thickness: 0.92,
-      ior: 1.31,
-      clearcoat: 0.58,
-      clearcoatRoughness: 0.14,
-      attenuationColor: new THREE.Color("#8ed0f5"),
-      attenuationDistance: 1.8,
-      iridescence: 0.04,
-      iridescenceIOR: 1.28,
-      specularIntensity: 0.66,
+      ior: 1.28,
+      clearcoat: 0.22,
+      clearcoatRoughness: 0.32,
+      attenuationColor: new THREE.Color("#cfe6f6"),
+      attenuationDistance: 2.4,
+      iridescence: 0,
+      specularIntensity: 0.34,
       specularColor: new THREE.Color("#ffffff"),
       transparent: true,
-      opacity: 0.94,
+      opacity: 0.88,
     });
     const wordEdgeMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#2f76ad"),
-      metalness: 0.02,
-      roughness: 0.27,
-      transmission: 0.16,
+      color: new THREE.Color("#79aed6"),
+      metalness: 0,
+      roughness: 0.4,
+      transmission: 0.34,
       thickness: 1.25,
-      ior: 1.34,
-      clearcoat: 0.76,
-      clearcoatRoughness: 0.09,
-      attenuationColor: new THREE.Color("#2f83c4"),
-      attenuationDistance: 1.25,
-      iridescence: 0.12,
-      iridescenceIOR: 1.32,
-      specularIntensity: 0.72,
+      ior: 1.3,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.26,
+      attenuationColor: new THREE.Color("#8ec2e4"),
+      attenuationDistance: 1.9,
+      iridescence: 0,
+      specularIntensity: 0.4,
       specularColor: new THREE.Color("#f7fcff"),
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.84,
     });
     const wordRimMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color("#d9f2ff"),
@@ -282,14 +285,16 @@ if (canvas) {
     });
 
     for (const [shapeIndex, shape] of wordShapes.entries()) {
+      // Bevel reduced ~30% and depth ~20% versus the candy iteration: softness
+      // stays, the inflatable-balloon signal goes.
       const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 12,
+        depth: 9.6,
         curveSegments: 20,
         steps: 1,
         bevelEnabled: true,
         bevelSegments: 10,
-        bevelSize: 6.6,
-        bevelThickness: 5.4,
+        bevelSize: 4.6,
+        bevelThickness: 3.9,
         bevelOffset: -0.8,
       });
       geometry.computeVertexNormals();
@@ -410,9 +415,9 @@ if (canvas) {
     const toolRing = new THREE.Mesh(new THREE.TorusGeometry(0.63, 0.17, 14, 56), ink);
     const toolPin = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 2), cobalt);
     tool.add(toolRing, toolPin);
-    tool.position.set(5.72, 2.5, 0.18);
+    tool.position.set(6.55, 3.15, -0.3);
     tool.rotation.set(0.25, 0.5, 0.25);
-    tool.scale.setScalar(0.66);
+    tool.scale.setScalar(0.56);
     toolRing.castShadow = true;
     satellites.add(tool);
 
@@ -447,9 +452,9 @@ if (canvas) {
     keyHead.position.set(0, 0.1, 0.15);
     keyStem.position.set(0, -0.14, 0.15);
     permission.add(permissionSeal, keyHead, keyStem);
-    permission.position.set(-3.65, 3.02, 1.18);
+    permission.position.set(-4.9, 3.3, 0.5);
     permission.rotation.set(-0.1, 0.24, -0.16);
-    permission.scale.setScalar(0.6);
+    permission.scale.setScalar(0.5);
     permissionSeal.castShadow = true;
     satellites.add(permission);
 
@@ -494,7 +499,7 @@ if (canvas) {
     cursor.castShadow = true;
     scene.add(cursor);
 
-    const makeStickerTexture = (kind: "seal" | "source") => {
+    const makeStickerTexture = (kind: "seal") => {
       const stickerCanvas = document.createElement("canvas");
       stickerCanvas.width = 384;
       stickerCanvas.height = 384;
@@ -526,21 +531,6 @@ if (canvas) {
           context.moveTo(-72, 42);
           context.lineTo(72, -42);
           context.stroke();
-        } else {
-          context.rotate(-0.12);
-          context.fillStyle = "#ff6d8f";
-          context.strokeStyle = "#101722";
-          context.lineWidth = 8;
-          context.beginPath();
-          context.roundRect(-158, -88, 316, 176, 32);
-          context.fill();
-          context.stroke();
-          context.fillStyle = "#101722";
-          context.textAlign = "center";
-          context.textBaseline = "middle";
-          context.font = "900 42px ui-monospace, monospace";
-          context.fillText("OPEN", 0, -27);
-          context.fillText("SOURCE", 0, 31);
         }
       }
       const texture = new THREE.CanvasTexture(stickerCanvas);
@@ -553,20 +543,13 @@ if (canvas) {
       transparent: true,
       depthWrite: false,
     });
-    const sourceStickerMaterial = new THREE.SpriteMaterial({
-      map: makeStickerTexture("source"),
-      transparent: true,
-      depthWrite: false,
-    });
+    // Perimeter placement: the seal may kiss the sculpture, never the copy.
+    // The former "OPEN SOURCE" sticker is gone — it repeated the primary CTA.
     const sealSticker = new THREE.Sprite(sealStickerMaterial);
-    sealSticker.position.set(3.75, 1.52, -0.38);
-    sealSticker.scale.set(1.72, 1.72, 1);
+    sealSticker.position.set(6.05, -0.4, -0.38);
+    sealSticker.scale.set(1.5, 1.5, 1);
     sealSticker.renderOrder = 0;
-    const sourceSticker = new THREE.Sprite(sourceStickerMaterial);
-    sourceSticker.position.set(-3.8, 1.62, -0.46);
-    sourceSticker.scale.set(1.48, 1.48, 1);
-    sourceSticker.renderOrder = 0;
-    satellites.add(sealSticker, sourceSticker);
+    satellites.add(sealSticker);
 
     const nodeGeometry = new THREE.SphereGeometry(0.115, 14, 14);
     const nodes = Array.from({ length: 9 }, (_, index) => {
@@ -582,8 +565,8 @@ if (canvas) {
     nodes.forEach((node) => { node.visible = false; });
 
     const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(14, 8),
-      new THREE.ShadowMaterial({ color: "#2c6095", opacity: 0.052 }),
+      new THREE.PlaneGeometry(12, 6.4),
+      new THREE.ShadowMaterial({ color: "#2c6095", opacity: 0.038 }),
     );
     shadow.position.set(0, -3.25, -0.8);
     shadow.rotation.x = -Math.PI / 2;
@@ -660,7 +643,6 @@ if (canvas) {
       { object: permission, depth: 1.5, x: -0.88, y: 0.56, drift: 0.13, phase: 4.1 },
       { object: success, depth: 0.92, x: 0.5, y: -0.4, drift: 0.09, phase: 5.3 },
       { object: sealSticker, depth: 0.82, x: -0.32, y: 0.26, drift: 0.05, phase: 2.8 },
-      { object: sourceSticker, depth: 0.66, x: 0.28, y: 0.2, drift: 0.045, phase: 4.6 },
       ...nodes.map((object, index) => ({
         object,
         depth: 0.26 + (index % 3) * 0.2,
@@ -864,8 +846,8 @@ if (canvas) {
         glint.position.copy(anchor);
         glint.position.x += Math.sin(elapsed * 0.38 + phase) * 0.48 + pointer.x * 0.16;
         glint.position.y += Math.cos(elapsed * 0.31 + phase) * 0.12 + pointer.y * 0.08;
-        glint.scale.setScalar((index === 2 ? 0.45 : 0.34) + pulse * 0.54);
-        material.opacity = 0.035 + pulse * 0.62;
+        glint.scale.setScalar((index === 2 ? 0.4 : 0.3) + pulse * 0.36);
+        material.opacity = 0.025 + pulse * 0.38;
       });
       sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
       sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
@@ -875,7 +857,6 @@ if (canvas) {
       tool.rotation.y = 0.5 - elapsed * 0.2;
       artifact.rotation.y = 0.38 + Math.sin(elapsed * 0.42) * 0.22;
       sealStickerMaterial.rotation = Math.sin(elapsed * 0.28) * 0.045;
-      sourceStickerMaterial.rotation = -0.12 + Math.cos(elapsed * 0.31) * 0.035;
       recovery.rotation.z = 0.6 - elapsed * 0.26;
       permission.rotation.z = -0.16 + Math.sin(elapsed * 0.48) * 0.14;
       success.rotation.z = 0.13 - Math.sin(elapsed * 0.4) * 0.11;
