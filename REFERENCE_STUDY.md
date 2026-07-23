@@ -150,6 +150,20 @@ execution semantics truthful; visual distance from the reference is not a goal.
   two shared terminal caps replace the previous per-letter assembly. It does
   not reuse the reference model, mesh data, shader code, or exact material
   constants.
+- `SOURCE` — The hello glass is a custom screen-space-refraction
+  ShaderMaterial, not PBR transmission. The scene renders to a half-resolution
+  FBO; the glass samples that texture along per-channel refraction vectors
+  (loop 3, `offset = (refractPower + slide) * chromaticAberration`).
+- `SOURCE` — Light-theme glass constants: refractPower 0.72, chromatic
+  aberration 0.14, shininess 120, diffuseness 0.1, specularStrength 1.2,
+  fresnelPower 1, fresnelStrength 0.24 with a directional side mask
+  (sideDir −1,1,−1), brightness 0.78, contrast 0.9, gamma 1, saturation 1.2,
+  toneMapped false.
+- `SOURCE` — The blue is a vertical tint gradient in model-local Y
+  (#009dff top → #ffffff bottom) applied as Beer-Lambert transmittance;
+  alpha runs 0.92 facing → 1.0 grazing via a 1−|n·v| thickness mask.
+- `SOURCE` — The specular light position is pointer-driven (uLight tracks the
+  cursor with lightZ 0.5), so the tight highlights travel with the mouse.
 - `SOURCE` — The fluid renderer ping-pongs velocity targets and has explicit
   render-target disposal and resize paths.
 - `PARTIAL` — The captured browser remained on the WebGL loading surface, so the

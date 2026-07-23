@@ -221,30 +221,120 @@ if (canvas) {
 
     const wordmark = new THREE.Group();
 
-    // Water-clear blown glass: high transmission with a pale blue interior,
-    // wet clearcoat, and bright white speculars. The tube reads transparent —
-    // light does the drawing, not pigment.
-    const wordFaceMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#eef6fd"),
-      metalness: 0,
-      roughness: 0.06,
-      transmission: 0.95,
-      thickness: 0.5,
-      ior: 1.5,
-      clearcoat: 1,
-      clearcoatRoughness: 0.05,
-      attenuationColor: new THREE.Color("#63a9de"),
-      attenuationDistance: 0.6,
-      iridescence: 0.12,
-      iridescenceIOR: 1.3,
-      specularIntensity: 0.95,
-      specularColor: new THREE.Color("#ffffff"),
-      envMapIntensity: 1.15,
-      // Transparency comes from transmission alone. Flagging the material
-      // `transparent` would also draw it into its own transmission buffer,
-      // producing a gray refracted twin behind the word.
-      transparent: false,
-      opacity: 1,
+    // Soft refractive glass in the reference's optical grammar: the tube
+    // refracts a procedural copy of the page sky (per-channel offsets),
+    // wears one pointer-driven pin-sharp Blinn-Phong highlight, a vertical
+    // blue→white Beer-Lambert tint, and a directional fresnel rim. The
+    // shader is original; the constants follow the documented reference
+    // values in REFERENCE_STUDY.md.
+    const wordGlassUniforms = {
+      uResolution: { value: new THREE.Vector2(1, 1) },
+      uLight: { value: new THREE.Vector3(0.6, 0.9, 0.5) },
+      uOpacity: { value: 1 },
+      uTintTop: { value: new THREE.Color("#009dff") },
+      uTintBottom: { value: new THREE.Color("#ffffff") },
+      uTintYRange: { value: new THREE.Vector2(-2.2, 2.2) },
+      uNight: { value: 0 },
+    };
+    const wordFaceMaterial = new THREE.ShaderMaterial({
+      uniforms: wordGlassUniforms,
+      transparent: true,
+      toneMapped: false,
+      vertexShader: `
+        varying vec3 vWorldNormal;
+        varying vec3 vEyeDir;
+        varying float vLocalY;
+        void main() {
+          vec4 worldPos = modelMatrix * vec4(position, 1.0);
+          vWorldNormal = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
+          vEyeDir = normalize(worldPos.xyz - cameraPosition);
+          vLocalY = position.y;
+          gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }
+      `,
+      fragmentShader: `
+        uniform vec2 uResolution;
+        uniform vec3 uLight;
+        uniform float uOpacity;
+        uniform vec3 uTintTop;
+        uniform vec3 uTintBottom;
+        uniform vec2 uTintYRange;
+        uniform float uNight;
+        varying vec3 vWorldNormal;
+        varying vec3 vEyeDir;
+        varying float vLocalY;
+
+        const float REFRACT_POWER = 0.72;
+        const float CHROMATIC = 0.14;
+        const float SHININESS = 120.0;
+        const float DIFFUSENESS = 0.1;
+        const float SPECULAR_STRENGTH = 1.2;
+        const float FRESNEL_POWER = 1.0;
+        const float FRESNEL_STRENGTH = 0.24;
+        const vec3 FRESNEL_SIDE = vec3(-0.577, 0.577, -0.577);
+
+        // Procedural stand-in for the page sky: paper-blue gradient with
+        // two warm diagonal light bands, matching the DOM backdrop.
+        vec3 sky(vec2 p, float night) {
+          vec3 top = mix(vec3(0.90, 0.945, 0.985), vec3(0.10, 0.12, 0.19), night);
+          vec3 bottom = mix(vec3(0.62, 0.78, 0.92), vec3(0.05, 0.07, 0.12), night);
+          vec3 c = mix(top, bottom, smoothstep(0.05, 0.95, 1.0 - p.y));
+          float d = p.x * 0.62 + (1.0 - p.y) * 0.78;
+          float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
+          float band2 = exp(-pow((d - 1.02) * 6.4, 2.0));
+          vec3 warm = mix(vec3(1.0, 0.985, 0.92), vec3(0.16, 0.2, 0.3), night);
+          return mix(c, warm, clamp(band1 * 0.85 + band2 * 0.6, 0.0, 1.0));
+        }
+
+        float saturateLuma(float x) { return clamp(x, 0.0, 1.0); }
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / uResolution;
+          vec3 normal = normalize(vWorldNormal);
+          vec3 eyeDir = normalize(vEyeDir);
+
+          vec3 refractR = refract(eyeDir, normal, 1.0 / 1.15);
+          vec3 refractG = refract(eyeDir, normal, 1.0 / 1.18);
+          vec3 refractB = refract(eyeDir, normal, 1.0 / 1.22);
+          vec3 color = vec3(0.0);
+          for (int i = 0; i < 3; i++) {
+            float slide = float(i) / 3.0 * 0.1;
+            float offset = (REFRACT_POWER + slide) * CHROMATIC;
+            color.r += sky(uv + refractR.xy * offset, uNight).r;
+            color.g += sky(uv + refractG.xy * offset, uNight).g;
+            color.b += sky(uv + refractB.xy * offset, uNight).b;
+          }
+          color /= 3.0;
+
+          // saturation 1.2, brightness, gentle contrast
+          vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
+          color = mix(luma, color, 1.2);
+          color *= mix(0.94, 1.15, uNight);
+          color = (color - 0.5) * 0.92 + 0.5;
+
+          // vertical Beer-Lambert tint: blue crowns, white baseline
+          float yT = clamp((vLocalY - uTintYRange.x) / max(uTintYRange.y - uTintYRange.x, 1e-4), 0.0, 1.0);
+          vec3 tint = mix(uTintBottom, uTintTop, yT);
+          float ndotv = abs(dot(normal, eyeDir));
+          float thickness = clamp(1.0 - ndotv, 0.0, 1.0);
+          float tintAlpha = mix(0.92, 1.0, thickness);
+          color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
+
+          // pointer-driven pin highlight
+          vec3 lightVector = normalize(-uLight);
+          vec3 halfVector = normalize(eyeDir + lightVector);
+          float kSpec = pow(abs(dot(normal, halfVector)), SHININESS);
+          float kDiff = max(0.0, dot(normal, lightVector)) * DIFFUSENESS;
+          color += (kSpec + kDiff) * SPECULAR_STRENGTH;
+
+          // directional fresnel rim
+          float f = pow(1.0 - abs(dot(eyeDir, normal)), FRESNEL_POWER);
+          float sideMask = smoothstep(-0.5, 0.5, dot(normal, FRESNEL_SIDE));
+          color += f * sideMask * FRESNEL_STRENGTH;
+
+          gl_FragColor = vec4(color, uOpacity);
+        }
+      `,
     });
 
     // Glass tubes along the true Pacifico stroke skeleton: one tube per
@@ -253,7 +343,14 @@ if (canvas) {
     // typeface itself, not hand-tuned control points.
     const WORD_WORLD_WIDTH = 10.6;
     const TUBE_RADIUS = Math.max(0.17, MAKA_TUBE_RADIUS * WORD_WORLD_WIDTH * 1.08);
-    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS, 22, 22);
+    const wordYValues = MAKA_TUBE_BRANCHES.flatMap((branch) => branch.map(([, y]) => y * WORD_WORLD_WIDTH));
+    wordGlassUniforms.uTintYRange.value.set(
+      Math.min(...wordYValues) - TUBE_RADIUS,
+      Math.max(...wordYValues) + TUBE_RADIUS,
+    );
+    // Slightly oversized caps swallow the open tube rims — same-radius
+    // spheres z-fight with the tube ends and read as stitched seams.
+    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS * 1.045, 22, 22);
     for (const branch of MAKA_TUBE_BRANCHES) {
       if (branch.length < 2) continue;
       const points = branch.map(([x, y]) => new THREE.Vector3(
@@ -272,8 +369,13 @@ if (canvas) {
       tube.renderOrder = 2;
       wordmark.add(tube);
       for (const t of [0, 1]) {
-        const cap = new THREE.Mesh(capGeometry, wordFaceMaterial);
-        cap.position.copy(curve.getPoint(t));
+        // Bake the endpoint into the cap geometry: the tint gradient reads
+        // vertex-local Y, so a translated mesh would tint every cap as if it
+        // sat at the word's midline.
+        const capAt = capGeometry.clone();
+        const end = curve.getPoint(t);
+        capAt.translate(end.x, end.y, end.z);
+        const cap = new THREE.Mesh(capAt, wordFaceMaterial);
         cap.castShadow = true;
         cap.renderOrder = 2;
         wordmark.add(cap);
@@ -345,7 +447,7 @@ if (canvas) {
       }
     }
     const glintAnchors = bandTops.flatMap((top, index) => top
-      ? [new THREE.Vector3(top.x * WORD_WORLD_WIDTH, top.y * WORD_WORLD_WIDTH + 0.08, index % 2 ? 0.44 : 0.42)]
+      ? [new THREE.Vector3(top.x * WORD_WORLD_WIDTH, top.y * WORD_WORLD_WIDTH - 0.06, index % 2 ? 0.44 : 0.42)]
       : []);
     const wordGlints = glintAnchors.map((anchor, index) => {
       const material = new THREE.SpriteMaterial({
@@ -360,6 +462,7 @@ if (canvas) {
       glint.position.copy(anchor);
       glint.scale.setScalar(index % 3 === 1 ? 0.86 : 0.62);
       glint.renderOrder = 6;
+      material.depthTest = false;
       wordmark.add(glint);
       return { glint, material, anchor, phase: index * 1.71 };
     });
@@ -799,7 +902,7 @@ if (canvas) {
         world.position.copy(worldPositionTarget);
         world.scale.copy(worldScaleTarget);
         pearl.opacity = materialTargets.pearl;
-        wordFaceMaterial.opacity = materialTargets.word;
+        wordGlassUniforms.uOpacity.value = materialTargets.word;
         causticMaterial.opacity = materialTargets.word * 0.3;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
@@ -823,6 +926,7 @@ if (canvas) {
       renderer.toneMappingExposure = night ? 0.5 : 0.62;
       scene.environmentIntensity = night ? 0.62 : 0.88;
       ink.color.copy(night ? inkNightColor : inkDayColor);
+      wordGlassUniforms.uNight.value = night ? 1 : 0;
       atmosphereNightScale = night ? 0.55 : 1;
       if (reduceMotion) renderer.render(scene, camera);
     };
@@ -853,6 +957,7 @@ if (canvas) {
       const height = Math.max(1, canvas.clientHeight);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 768 ? 1.35 : 1.7));
       renderer.setSize(width, height, false);
+      renderer.getDrawingBufferSize(wordGlassUniforms.uResolution.value);
       camera.aspect = width / height;
       atmosphereUniforms.uMakaAspect.value = width / height;
       camera.fov = width < 768 ? 43 : width < 1100 ? 36 : 30;
@@ -940,8 +1045,8 @@ if (canvas) {
         glint.position.copy(anchor);
         glint.position.x += Math.sin(elapsed * 0.38 + phase) * 0.48 + pointer.x * 0.16;
         glint.position.y += Math.cos(elapsed * 0.31 + phase) * 0.12 + pointer.y * 0.08;
-        glint.scale.setScalar((index % 3 === 1 ? 0.42 : 0.3) + pulse * 0.46);
-        material.opacity = 0.03 + pulse * 0.55;
+        glint.scale.setScalar((index % 3 === 1 ? 0.98 : 0.74) + pulse * 0.28);
+        material.opacity = 0.85 + pulse * 0.15;
       });
       sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
       sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
@@ -971,7 +1076,8 @@ if (canvas) {
       );
 
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
-      wordFaceMaterial.opacity = THREE.MathUtils.damp(wordFaceMaterial.opacity, materialTargets.word, 7, delta);
+      wordGlassUniforms.uOpacity.value = THREE.MathUtils.damp(wordGlassUniforms.uOpacity.value, materialTargets.word, 7, delta);
+      wordGlassUniforms.uLight.value.set(pointer.x * 5 + 0.6, pointer.y * 3 + 0.9, 0.5);
       wordDustMaterial.opacity = THREE.MathUtils.damp(wordDustMaterial.opacity, materialTargets.word * 0.34, 7, delta);
       causticMaterial.opacity = THREE.MathUtils.damp(causticMaterial.opacity, materialTargets.word * 0.3, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
