@@ -265,7 +265,7 @@ if (canvas) {
         varying vec3 vEyeDir;
         varying float vLocalY;
 
-        const float REFRACT_POWER = 0.72;
+        const float REFRACT_POWER = 0.94;
         const float CHROMATIC = 0.14;
         const float SHININESS = 240.0;
         const float DIFFUSENESS = 0.1;
@@ -314,7 +314,7 @@ if (canvas) {
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
           color = mix(luma, color, 1.2);
-          color *= mix(0.9, 1.15, uNight);
+          color *= mix(0.87, 1.15, uNight);
           color = (color - 0.5) * 0.92 + 0.5;
 
           // vertical Beer-Lambert tint: saturated blue only at the crowns,
@@ -326,11 +326,11 @@ if (canvas) {
           // The reference carries its blue on grazing rims AND the upward
           // arcs of each tube; facing surfaces stay translucent but never
           // washed out.
-          float edgeMask = pow(thickness, 1.25);
+          float edgeMask = pow(thickness, 1.15);
           float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.45 + 0.55 * yT);
-          float tintAlpha = mix(0.34, 1.0, clamp(edgeMask + topMask * 0.85, 0.0, 1.0));
+          float tintAlpha = mix(0.42, 1.0, clamp(edgeMask + topMask, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
-          color *= mix(1.0, 0.88, pow(thickness, 2.2));
+          color *= mix(1.0, 0.8, pow(thickness, 2.0));
 
           // pointer-driven pin highlight
           vec3 lightVector = normalize(-uLight);
@@ -427,36 +427,40 @@ if (canvas) {
       // the reference sparkles read as pins of light, not soft orbs.
       const glow = glintContext.createRadialGradient(80, 80, 0, 80, 80, 76);
       glow.addColorStop(0, "rgba(255,255,255,1)");
-      glow.addColorStop(0.05, "rgba(255,255,255,0.95)");
-      glow.addColorStop(0.16, "rgba(220,240,255,0.2)");
+      glow.addColorStop(0.09, "rgba(255,255,255,0.96)");
+      glow.addColorStop(0.22, "rgba(220,240,255,0.28)");
       glow.addColorStop(1, "rgba(190,225,255,0)");
       glintContext.fillStyle = glow;
       glintContext.fillRect(0, 0, 160, 160);
       const ray = glintContext.createLinearGradient(0, 80, 160, 80);
       ray.addColorStop(0, "rgba(255,255,255,0)");
-      ray.addColorStop(0.47, "rgba(255,255,255,0.04)");
-      ray.addColorStop(0.5, "rgba(255,255,255,0.95)");
-      ray.addColorStop(0.53, "rgba(255,255,255,0.04)");
+      ray.addColorStop(0.46, "rgba(255,255,255,0.06)");
+      ray.addColorStop(0.5, "rgba(255,255,255,0.98)");
+      ray.addColorStop(0.54, "rgba(255,255,255,0.06)");
       ray.addColorStop(1, "rgba(255,255,255,0)");
       glintContext.fillStyle = ray;
-      glintContext.fillRect(0, 78.5, 160, 3);
+      glintContext.fillRect(0, 77.5, 160, 5);
       glintContext.save();
       glintContext.translate(80, 80);
       glintContext.rotate(Math.PI / 2);
       glintContext.translate(-80, -80);
-      glintContext.fillRect(0, 79, 160, 2);
+      glintContext.fillRect(0, 78, 160, 4);
       glintContext.restore();
     }
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
     // Anchors sit on each letter's crests — the M gets one per arch, the
     // others one at the bowl or loop crown — where real glass would flare.
-    const GLINT_FRACTIONS = [[0.2, 0.68], [0.5], [0.55], [0.45]];
+    // [x fraction, y fraction from the letter's top] per star — the k's
+    // second star sits on its low arm, not floating at ascender height.
+    const GLINT_FRACTIONS: ReadonlyArray<ReadonlyArray<readonly [number, number]>> = [
+      [[0.2, 0], [0.68, 0]], [[0.5, 0]], [[0.3, 0], [0.85, 0.62]], [[0.45, 0]],
+    ];
     const glintAnchors = MAKA_LETTERS.flatMap((letter, letterIndex) => {
-      const [x1, y1, x2] = letter.box;
-      return (GLINT_FRACTIONS[letterIndex] ?? [0.5]).map((fx, i) => new THREE.Vector3(
+      const [x1, y1, x2, y2] = letter.box;
+      return (GLINT_FRACTIONS[letterIndex] ?? [[0.5, 0] as const]).map(([fx, fy], i) => new THREE.Vector3(
         (letter.x + x1 + (x2 - x1) * fx - wordCenterX) * FONT_TO_WORLD,
-        -(y1 + strokeR * 0.7 - wordCenterY) * FONT_TO_WORLD,
+        -(y1 + (y2 - y1) * fy + strokeR * 0.7 - wordCenterY) * FONT_TO_WORLD,
         i % 2 ? 0.44 : 0.42,
       ));
     });
@@ -1052,12 +1056,14 @@ if (canvas) {
       wordmark.rotation.z = -0.012;
       wordDust.rotation.z = Math.sin(elapsed * 0.18) * 0.004;
       wordGlints.forEach(({ glint, material, anchor, phase }, index) => {
-        const pulse = Math.pow(0.5 + 0.5 * Math.sin(elapsed * 1.42 + phase), 5.0);
+        // Steady-on stars with a gentle breath — the reference sparkles are
+        // a constant presence, not rare flashes.
+        const pulse = Math.pow(0.5 + 0.5 * Math.sin(elapsed * 1.42 + phase), 2.2);
         glint.position.copy(anchor);
         glint.position.x += Math.sin(elapsed * 0.38 + phase) * 0.48 + pointer.x * 0.16;
         glint.position.y += Math.cos(elapsed * 0.31 + phase) * 0.12 + pointer.y * 0.08;
-        glint.scale.setScalar((index % 3 === 1 ? 0.72 : 0.54) + pulse * 0.22);
-        material.opacity = 0.55 + pulse * 0.45;
+        glint.scale.setScalar((index % 3 === 1 ? 0.88 : 0.68) + pulse * 0.26);
+        material.opacity = 0.72 + pulse * 0.28;
       });
       sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
       sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
