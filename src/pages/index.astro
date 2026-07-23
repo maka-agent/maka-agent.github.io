@@ -329,7 +329,7 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
       <p class="stage-caption">LOCAL EXECUTION / OPEN SOURCE</p>
       <p class="stage-status"><span class="stage-status__pulse"></span><b id="telemetry-view">OVERVIEW</b><em>01 / 04</em></p>
       <p class="pointer-readout" aria-label="Pointer coordinates"><b id="pointer-x">0000</b><span>X</span><b id="pointer-y">0000</b><span>Y</span></p>
-      <p class="local-time" aria-label="Local time"><span>LOCAL</span> <b id="local-time">--:--:--</b></p>
+      <p class="local-time" aria-label="Local time"><span id="local-zone">LOCAL</span> <b id="local-time">--:--:--</b></p>
       <a href={githubUrl} target="_blank" rel="noreferrer">github.com/maka-agent/maka-agent</a>
     </footer>
 
@@ -541,7 +541,9 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
     themeCommand?.addEventListener("click", toggleTheme);
     syncThemeCommand();
 
-    const DECODE_GLYPHS = "·:=+*/<>[]{}|\\01";
+    // Pixel-block pool: unresolved characters read as bitmap debris, the
+    // reference finale's decode texture.
+    const DECODE_GLYPHS = "▓▒░█▄▀▖▝▚▞";
     const decodeLines = Array.from(document.querySelectorAll<HTMLElement>("[data-decode]"));
     let decodeToken = 0;
 
@@ -634,6 +636,14 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
       }).format(new Date());
     };
+    // Instrument-shell zone stamp, the reference's GMT+8 CN grammar.
+    const zoneReadout = document.querySelector<HTMLElement>("#local-zone");
+    if (zoneReadout) {
+      const offsetMinutes = -new Date().getTimezoneOffset();
+      const hours = Math.trunc(offsetMinutes / 60);
+      const minutes = Math.abs(offsetMinutes % 60);
+      zoneReadout.textContent = `GMT${hours >= 0 ? "+" : ""}${hours}${minutes ? `:${String(minutes).padStart(2, "0")}` : ""}`;
+    }
     updateTime();
     window.setInterval(updateTime, 1000);
 
