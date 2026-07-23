@@ -266,9 +266,9 @@ if (canvas) {
 
         const float REFRACT_POWER = 0.72;
         const float CHROMATIC = 0.14;
-        const float SHININESS = 120.0;
+        const float SHININESS = 150.0;
         const float DIFFUSENESS = 0.1;
-        const float SPECULAR_STRENGTH = 1.2;
+        const float SPECULAR_STRENGTH = 0.95;
         const float FRESNEL_POWER = 1.0;
         const float FRESNEL_STRENGTH = 0.24;
         const vec3 FRESNEL_SIDE = vec3(-0.577, 0.577, -0.577);
@@ -282,8 +282,8 @@ if (canvas) {
           float d = p.x * 0.62 + (1.0 - p.y) * 0.78;
           float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
           float band2 = exp(-pow((d - 1.02) * 6.4, 2.0));
-          vec3 warm = mix(vec3(1.0, 0.985, 0.92), vec3(0.16, 0.2, 0.3), night);
-          return mix(c, warm, clamp(band1 * 0.85 + band2 * 0.6, 0.0, 1.0));
+          vec3 warm = mix(vec3(0.985, 0.99, 0.995), vec3(0.16, 0.2, 0.3), night);
+          return mix(c, warm, clamp(band1 * 0.7 + band2 * 0.5, 0.0, 1.0));
         }
 
         float saturateLuma(float x) { return clamp(x, 0.0, 1.0); }
@@ -309,15 +309,16 @@ if (canvas) {
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
           color = mix(luma, color, 1.2);
-          color *= mix(0.94, 1.15, uNight);
+          color *= mix(1.0, 1.15, uNight);
           color = (color - 0.5) * 0.92 + 0.5;
 
-          // vertical Beer-Lambert tint: blue crowns, white baseline
+          // vertical Beer-Lambert tint: saturated blue only at the crowns,
+          // airy white through the body — the reference's read
           float yT = clamp((vLocalY - uTintYRange.x) / max(uTintYRange.y - uTintYRange.x, 1e-4), 0.0, 1.0);
-          vec3 tint = mix(uTintBottom, uTintTop, yT);
+          vec3 tint = mix(uTintBottom, uTintTop, pow(yT, 1.5));
           float ndotv = abs(dot(normal, eyeDir));
           float thickness = clamp(1.0 - ndotv, 0.0, 1.0);
-          float tintAlpha = mix(0.92, 1.0, thickness);
+          float tintAlpha = mix(0.8, 1.0, thickness);
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
 
           // pointer-driven pin highlight
@@ -341,8 +342,8 @@ if (canvas) {
     // skeleton branch, a sphere cap on every branch end so the joints read
     // as one continuous blown-glass word. Letterform quality comes from the
     // typeface itself, not hand-tuned control points.
-    const WORD_WORLD_WIDTH = 10.6;
-    const TUBE_RADIUS = Math.max(0.17, MAKA_TUBE_RADIUS * WORD_WORLD_WIDTH * 1.08);
+    const WORD_WORLD_WIDTH = 9.0;
+    const TUBE_RADIUS = Math.max(0.17, MAKA_TUBE_RADIUS * WORD_WORLD_WIDTH * 1.28);
     const wordYValues = MAKA_TUBE_BRANCHES.flatMap((branch) => branch.map(([, y]) => y * WORD_WORLD_WIDTH));
     wordGlassUniforms.uTintYRange.value.set(
       Math.min(...wordYValues) - TUBE_RADIUS,
@@ -503,7 +504,7 @@ if (canvas) {
     caustics.renderOrder = 0;
     wordmark.add(caustics);
 
-    wordmark.position.set(-0.35, 0.5, 0.48);
+    wordmark.position.set(-0.35, 0.62, 0.48);
     wordmark.rotation.set(-0.018, 0.028, -0.012);
     wordmark.scale.set(1, 0.98, 1.02);
     wordmark.visible = true;
