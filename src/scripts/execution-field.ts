@@ -266,9 +266,9 @@ if (canvas) {
 
         const float REFRACT_POWER = 0.72;
         const float CHROMATIC = 0.14;
-        const float SHININESS = 150.0;
+        const float SHININESS = 240.0;
         const float DIFFUSENESS = 0.1;
-        const float SPECULAR_STRENGTH = 0.95;
+        const float SPECULAR_STRENGTH = 0.6;
         const float FRESNEL_POWER = 1.0;
         const float FRESNEL_STRENGTH = 0.24;
         const vec3 FRESNEL_SIDE = vec3(-0.577, 0.577, -0.577);
@@ -322,10 +322,12 @@ if (canvas) {
           vec3 tint = mix(uTintBottom, uTintTop, pow(yT, 1.5));
           float ndotv = abs(dot(normal, eyeDir));
           float thickness = clamp(1.0 - ndotv, 0.0, 1.0);
-          // Measured: facing surfaces stay nearly sky-clear (#d2e6f0-ish);
-          // the blue concentrates at grazing rims (#6d9cd6). The thickness
-          // mask, not the vertical gradient, carries most of the color.
-          float tintAlpha = mix(0.22, 1.0, pow(thickness, 1.25));
+          // The reference carries its blue on grazing rims AND the upward
+          // arcs of each tube; facing surfaces stay translucent but never
+          // washed out.
+          float edgeMask = pow(thickness, 1.25);
+          float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.25 + 0.75 * yT);
+          float tintAlpha = mix(0.34, 1.0, clamp(edgeMask + topMask * 0.85, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
           color *= mix(1.0, 0.88, pow(thickness, 2.2));
 
@@ -367,7 +369,18 @@ if (canvas) {
         y * WORD_WORLD_WIDTH,
         0,
       ));
-      const curve = new THREE.CatmullRomCurve3(points, false, "centripetal");
+      // Two Chaikin passes iron out residual raster wobble before the
+      // spline samples the branch.
+      const chaikin = (pts: THREE.Vector3[]) => {
+        if (pts.length < 3) return pts;
+        const out = [pts[0]];
+        for (let i = 0; i < pts.length - 1; i += 1) {
+          out.push(pts[i].clone().lerp(pts[i + 1], 0.25), pts[i].clone().lerp(pts[i + 1], 0.75));
+        }
+        out.push(pts[pts.length - 1]);
+        return out;
+      };
+      const curve = new THREE.CatmullRomCurve3(chaikin(chaikin(points)), false, "centripetal");
       const segments = Math.max(16, points.length * 7);
       const tube = new THREE.Mesh(
         new THREE.TubeGeometry(curve, segments, TUBE_RADIUS, 22, false),
@@ -418,26 +431,28 @@ if (canvas) {
     glintCanvas.height = 160;
     const glintContext = glintCanvas.getContext("2d");
     if (glintContext) {
+      // Crisp four-point star: a tight core, thin long rays, minimal halo —
+      // the reference sparkles read as pins of light, not soft orbs.
       const glow = glintContext.createRadialGradient(80, 80, 0, 80, 80, 76);
       glow.addColorStop(0, "rgba(255,255,255,1)");
-      glow.addColorStop(0.08, "rgba(255,255,255,0.98)");
-      glow.addColorStop(0.28, "rgba(220,240,255,0.38)");
+      glow.addColorStop(0.05, "rgba(255,255,255,0.95)");
+      glow.addColorStop(0.16, "rgba(220,240,255,0.2)");
       glow.addColorStop(1, "rgba(190,225,255,0)");
       glintContext.fillStyle = glow;
       glintContext.fillRect(0, 0, 160, 160);
       const ray = glintContext.createLinearGradient(0, 80, 160, 80);
       ray.addColorStop(0, "rgba(255,255,255,0)");
-      ray.addColorStop(0.48, "rgba(255,255,255,0.08)");
-      ray.addColorStop(0.5, "rgba(255,255,255,0.9)");
-      ray.addColorStop(0.52, "rgba(255,255,255,0.08)");
+      ray.addColorStop(0.47, "rgba(255,255,255,0.04)");
+      ray.addColorStop(0.5, "rgba(255,255,255,0.95)");
+      ray.addColorStop(0.53, "rgba(255,255,255,0.04)");
       ray.addColorStop(1, "rgba(255,255,255,0)");
       glintContext.fillStyle = ray;
-      glintContext.fillRect(0, 77, 160, 6);
+      glintContext.fillRect(0, 78.5, 160, 3);
       glintContext.save();
       glintContext.translate(80, 80);
       glintContext.rotate(Math.PI / 2);
       glintContext.translate(-80, -80);
-      glintContext.fillRect(0, 78, 160, 4);
+      glintContext.fillRect(0, 79, 160, 2);
       glintContext.restore();
     }
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
@@ -1054,8 +1069,8 @@ if (canvas) {
         glint.position.copy(anchor);
         glint.position.x += Math.sin(elapsed * 0.38 + phase) * 0.48 + pointer.x * 0.16;
         glint.position.y += Math.cos(elapsed * 0.31 + phase) * 0.12 + pointer.y * 0.08;
-        glint.scale.setScalar((index % 3 === 1 ? 0.98 : 0.74) + pulse * 0.28);
-        material.opacity = 0.85 + pulse * 0.15;
+        glint.scale.setScalar((index % 3 === 1 ? 0.72 : 0.54) + pulse * 0.22);
+        material.opacity = 0.55 + pulse * 0.45;
       });
       sweepLight.position.x = -7.1 + ((elapsed * 1.42 + pointer.x * 0.8 + 20) % 14.2);
       sweepLight.position.y = 0.5 + Math.sin(elapsed * 0.84) * 1.2 + pointer.y * 0.72;
