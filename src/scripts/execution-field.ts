@@ -236,7 +236,7 @@ if (canvas) {
       // Baseline strokes keep a whisper of blue so the whole word reads as
       // one glass-blue mass against the pale sky, not blue crowns on a
       // sky-colored body.
-      uTintBottom: { value: new THREE.Color("#cfe6fa") },
+      uTintBottom: { value: new THREE.Color("#bcd9f2") },
       uTintYRange: { value: new THREE.Vector2(-2.2, 2.2) },
       uNight: { value: 0 },
     };
@@ -283,8 +283,8 @@ if (canvas) {
         // (#bfddf0) with gently warmer diagonal bands (#e1e7f0 peaks,
         // #fdf7f0 through the tube bottoms).
         vec3 sky(vec2 p, float night) {
-          vec3 top = mix(vec3(0.749, 0.867, 0.941), vec3(0.10, 0.12, 0.19), night);
-          vec3 bottom = mix(vec3(0.70, 0.82, 0.92), vec3(0.05, 0.07, 0.12), night);
+          vec3 top = mix(vec3(0.805, 0.897, 0.955), vec3(0.10, 0.12, 0.19), night);
+          vec3 bottom = mix(vec3(0.755, 0.856, 0.935), vec3(0.05, 0.07, 0.12), night);
           vec3 c = mix(top, bottom, smoothstep(0.05, 0.95, 1.0 - p.y));
           float d = p.x * 0.62 + (1.0 - p.y) * 0.78;
           float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
@@ -316,8 +316,8 @@ if (canvas) {
 
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
-          color = mix(luma, color, 1.35);
-          color *= mix(0.95, 1.15, uNight);
+          color = mix(luma, color, 1.55);
+          color *= mix(0.93, 1.15, uNight);
           color = (color - 0.5) * 0.94 + 0.5;
 
           // vertical Beer-Lambert tint: saturated blue only at the crowns,
@@ -331,7 +331,7 @@ if (canvas) {
           // washed out.
           float edgeMask = pow(thickness, 1.15);
           float topMask = pow(clamp(normal.y, 0.0, 1.0), 1.7) * (0.45 + 0.55 * yT);
-          float tintAlpha = mix(0.42, 1.0, clamp(edgeMask + topMask, 0.0, 1.0));
+          float tintAlpha = mix(0.48, 1.0, clamp(edgeMask + topMask, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
           color *= mix(1.0, 0.85, pow(thickness, 2.0));
           // Multiplicative tint dies on the dark night sky — the crowns keep
@@ -907,7 +907,7 @@ if (canvas) {
         const compact = canvas.clientWidth < 768;
         const medium = canvas.clientWidth < 1100;
         const compactShort = compact && canvas.clientHeight < 700;
-        worldPositionTarget.set(compact ? 0.65 : medium ? 1.3 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
+        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
         worldScaleTarget.setScalar(1);
         materialTargets.pearl = 1;
         materialTargets.word = 1;
@@ -1015,13 +1015,13 @@ if (canvas) {
       const compact = width < 768;
       const medium = width < 1100;
       const compactShort = compact && height < 700;
-      organism.scale.setScalar(compactShort ? 0.64 : compact ? 0.62 : medium ? 0.8 : 1);
-      satellites.scale.setScalar(compactShort ? 0.58 : compact ? 0.64 : 1);
+      organism.scale.setScalar(compactShort ? 0.64 : compact ? 0.62 : medium ? 0.72 : 1);
+      satellites.scale.setScalar(compactShort ? 0.58 : compact ? 0.64 : medium ? 0.8 : 1);
       // The seal rides the right margin; compact viewports crop it in half,
       // which reads as a bug rather than a sticker.
       sealSticker.visible = !compact;
       if (stateIndex === 0) {
-        worldPositionTarget.set(compact ? 0.65 : medium ? 1.3 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
+        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
       }
       updateCursorVisibility();
       renderer.render(scene, camera);

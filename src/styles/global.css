@@ -4,7 +4,7 @@
   color-scheme: light;
   --blue: oklch(0.7 0.15 250);
   --blue-deep: oklch(0.48 0.18 250);
-  --sky: oklch(0.89 0.055 245);
+  --sky: oklch(0.915 0.042 243);
   --sky-light: oklch(0.96 0.025 240);
   --paper: oklch(0.985 0.004 250);
   --ink: oklch(0.15 0.012 276);
@@ -2474,13 +2474,20 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 @media (min-width: 768px) and (max-width: 1100px) {
   .surfaces-lede { left: 22%; width: 72%; }
   .surfaces-statement { font-size: clamp(3rem, 7vw, 4.8rem); }
+  /* Tablet: compact index labels dodge the sub-copy and the desktop card;
+     evidence cards ride above the window instead of drowning under it. */
+  .surface-index li small { display: none; }
+  .surface-index li:nth-child(2) { top: 34%; }
+  .ui-card { z-index: 4; width: min(30vw, 15rem); }
+  .ui-card--firstrun { top: 68%; left: 3%; }
+  .ui-card--error { display: none; }
   /* The wide lede spans the left column here, so the index keeps its
      tablet placement instead of the wide-viewport left stack. */
   .surfaces-close { top: 41%; left: 34%; width: 33%; }
   .surface-projection--tui { top: 41%; }
   .surface-index li:nth-child(1) { top: 45%; left: var(--gutter); }
   .surface-index li:nth-child(2) { top: 25%; right: 4%; }
-  .surface-index li:nth-child(3) { top: auto; right: 34%; bottom: 18%; }
+  .surface-index li:nth-child(3) { top: auto; right: 34%; bottom: 31%; }
   .surface-index li:nth-child(4) { top: auto; right: 4%; bottom: 28%; left: auto; }
 }
 
