@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
-import { MAKA_WORDMARK_PATH } from "./maka-wordmark-path";
 
 const canvas = document.querySelector<HTMLCanvasElement>("#execution-field");
 const root = document.documentElement;
@@ -220,114 +218,91 @@ if (canvas) {
       clearcoatRoughness: 0.09,
     });
 
-    const svgLoader = new SVGLoader();
-    const svgDocument = svgLoader.parse(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 -114 323 135"><path fill="#fff" d="${MAKA_WORDMARK_PATH}"/></svg>`,
-    );
-    const wordShapes = svgDocument.paths.flatMap((path) => SVGLoader.createShapes(path));
     const wordmark = new THREE.Group();
-    const wordShape = new THREE.Group();
 
-    // Unlike the old constant-radius tube, this is a real calligraphic solid:
-    // the face carries the letter rhythm, while the deep rounded bevel creates
-    // a soft silhouette, side walls, thickness, and readable counters.
     // Water-clear blown glass: high transmission with a pale blue interior,
     // wet clearcoat, and bright white speculars. The tube reads transparent —
     // light does the drawing, not pigment.
     const wordFaceMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#e9f4fc"),
+      color: new THREE.Color("#eef6fd"),
       metalness: 0,
-      roughness: 0.08,
-      transmission: 0.96,
-      thickness: 1.6,
-      ior: 1.44,
+      roughness: 0.06,
+      transmission: 0.95,
+      thickness: 1.05,
+      ior: 1.5,
       clearcoat: 1,
-      clearcoatRoughness: 0.06,
-      attenuationColor: new THREE.Color("#5ea7de"),
-      attenuationDistance: 0.72,
-      iridescence: 0.14,
+      clearcoatRoughness: 0.05,
+      attenuationColor: new THREE.Color("#63a9de"),
+      attenuationDistance: 0.85,
+      iridescence: 0.12,
       iridescenceIOR: 1.3,
-      specularIntensity: 0.9,
+      specularIntensity: 0.95,
       specularColor: new THREE.Color("#ffffff"),
-      envMapIntensity: 1.05,
+      envMapIntensity: 1.15,
       // Transparency comes from transmission alone. Flagging the material
       // `transparent` would also draw it into its own transmission buffer,
       // producing a gray refracted twin behind the word.
       transparent: false,
       opacity: 1,
     });
-    const wordEdgeMaterial = new THREE.MeshPhysicalMaterial({
-      color: new THREE.Color("#cfe7f8"),
-      metalness: 0,
-      roughness: 0.1,
-      transmission: 0.88,
-      thickness: 2.1,
-      ior: 1.46,
-      clearcoat: 1,
-      clearcoatRoughness: 0.08,
-      attenuationColor: new THREE.Color("#3c8ecc"),
-      attenuationDistance: 0.55,
-      iridescence: 0.1,
-      iridescenceIOR: 1.32,
-      specularIntensity: 0.95,
-      specularColor: new THREE.Color("#f7fcff"),
-      envMapIntensity: 1,
-      transparent: false,
-      opacity: 1,
-    });
-    const wordRimMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#d9f2ff"),
-      transparent: true,
-      opacity: 0.045,
-      side: THREE.BackSide,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const wordGlowMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("#f9fdff"),
-      transparent: true,
-      opacity: 0.012,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
 
-    for (const shape of wordShapes) {
-      // Near-circular cross-section: deep round bevels on both sides of a
-      // shallow core so every stroke reads as one continuous glass tube.
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 5.6,
-        curveSegments: 22,
-        steps: 1,
-        bevelEnabled: true,
-        bevelSegments: 12,
-        bevelSize: 5.1,
-        bevelThickness: 4.8,
-        bevelOffset: -1.2,
-      });
-      geometry.computeVertexNormals();
-      const solid = new THREE.Mesh(geometry, [wordFaceMaterial, wordEdgeMaterial]);
-      solid.castShadow = true;
-      solid.receiveShadow = true;
-      solid.renderOrder = 2;
-      wordShape.add(solid);
+    // One continuous blown-glass tube. A hand-authored Catmull-Rom
+    // centreline writes cursive capital-M "Maka" in a single stroke:
+    // ball entry → two M arches → a → looped k → a → long swash.
+    // Coordinates: baseline y≈0, x-height ≈1, caps ≈2.5, width ≈10.5.
+    // Letterforms were tuned against a 2D thick-stroke preview until the
+    // word read unambiguously; z offsets lift the pen at every crossing.
+    const WORD_CENTERLINE: Array<[number, number, number]> = [
+      // capital M — ball entry, two tall arches
+      [-0.5, 0.6, 0], [-0.3, 0.22, 0], [0.1, 0.16, 0], [0.6, 0.9, 0],
+      [1.0, 2.05, 0], [1.2, 2.52, 0], [1.42, 1.8, 0], [1.62, 0.7, 0],
+      [1.78, 0.3, 0], [2.05, 1.1, 0], [2.35, 2.2, 0], [2.52, 2.38, 0],
+      [2.75, 1.6, 0], [2.95, 0.5, 0], [3.15, 0.1, 0], [3.5, 0.02, 0],
+      // a1 — connector runs under the bowl, climbs its right side, arcs over
+      [4.1, 0.08, 0], [4.62, 0.3, -0.05], [4.82, 0.8, -0.07], [4.6, 1.1, -0.06],
+      [4.1, 1.14, -0.04], [3.72, 0.85, 0], [3.62, 0.42, 0], [3.9, 0.08, 0],
+      [4.4, 0.02, 0.03], [4.78, 0.28, 0.07], [4.9, 0.6, 0.09], [4.98, 0.25, 0.07],
+      [5.12, 0.05, 0.03], [5.45, 0.12, 0],
+      // k — leaning stem with a top loop, then a sharp V arm and kicked leg
+      [5.75, 0.75, -0.05], [5.95, 1.75, -0.05], [6.12, 2.48, -0.04],
+      [6.05, 2.76, 0], [5.78, 2.6, 0.06], [5.74, 2.12, 0.1],
+      [5.92, 1.25, 0.12], [6.0, 0.5, 0.08], [6.04, 0.14, 0.03],
+      [6.3, 0.72, 0], [6.65, 1.18, 0], [7.0, 1.44, 0],
+      [7.02, 1.26, 0], [6.94, 1.08, 0], [7.22, 0.58, 0],
+      [7.45, 0.12, 0], [7.72, 0.04, 0],
+      // a2 — same ductus as a1
+      [8.3, 0.08, 0], [8.82, 0.3, -0.05], [9.02, 0.8, -0.07], [8.8, 1.1, -0.06],
+      [8.3, 1.14, -0.04], [7.92, 0.85, 0], [7.82, 0.42, 0], [8.1, 0.08, 0],
+      [8.6, 0.02, 0.03], [8.98, 0.28, 0.07], [9.1, 0.6, 0.09], [9.18, 0.25, 0.07],
+      [9.32, 0.06, 0.03],
+      // closing swash — shallow rise, long tail, ball terminal
+      [9.75, 0.1, 0], [10.25, 0.45, 0], [10.7, 0.62, 0],
+      [11.15, 0.48, 0], [11.55, 0.28, 0], [11.8, 0.24, 0],
+    ];
+    const WORD_SCALE = 0.85;
+    const WORD_CENTER = { x: 5.65, y: 1.12 };
+    const centerlinePoints = WORD_CENTERLINE.map(([x, y, z]) => new THREE.Vector3(
+      (x - WORD_CENTER.x) * WORD_SCALE,
+      (y - WORD_CENTER.y) * WORD_SCALE,
+      z,
+    ));
+    const wordCurve = new THREE.CatmullRomCurve3(centerlinePoints, false, "centripetal");
+    const TUBE_RADIUS = 0.23;
+    const tubeGeometry = new THREE.TubeGeometry(wordCurve, 1400, TUBE_RADIUS, 26, false);
+    const wordTube = new THREE.Mesh(tubeGeometry, wordFaceMaterial);
+    wordTube.castShadow = true;
+    wordTube.receiveShadow = true;
+    wordTube.renderOrder = 2;
+    wordmark.add(wordTube);
 
-      const rimShell = new THREE.Mesh(geometry, wordRimMaterial);
-      rimShell.scale.set(1.004, 1.004, 1.026);
-      rimShell.renderOrder = 3;
-      wordShape.add(rimShell);
-
-      const innerGlow = new THREE.Mesh(geometry, wordGlowMaterial);
-      innerGlow.scale.set(0.985, 0.985, 0.88);
-      innerGlow.position.z += 0.8;
-      innerGlow.renderOrder = 1;
-      wordShape.add(innerGlow);
+    const capGeometry = new THREE.SphereGeometry(TUBE_RADIUS, 24, 24);
+    for (const t of [0, 1]) {
+      const cap = new THREE.Mesh(capGeometry, wordFaceMaterial);
+      cap.position.copy(wordCurve.getPoint(t));
+      cap.castShadow = true;
+      cap.renderOrder = 2;
+      wordmark.add(cap);
     }
-
-    // The source outline uses SVG coordinates. Flip it upright, center it in
-    // world space, and leave enough Z depth for visible beveled side walls.
-    wordShape.scale.set(0.0304, -0.0304, 0.0285);
-    wordShape.position.set(-4.3, -1.28, -0.12);
-    wordmark.add(wordShape);
 
     const dustPositions = new Float32Array(84 * 3);
     for (let index = 0; index < 84; index += 1) {
@@ -380,16 +355,16 @@ if (canvas) {
     }
     const glintTexture = new THREE.CanvasTexture(glintCanvas);
     glintTexture.colorSpace = THREE.SRGBColorSpace;
-    // Anchors ride the capital-M silhouette: entry stroke, arch crowns, the
-    // a/k bowls, and the closing swash — where real glass would flare.
+    // Anchors ride the tube crests: M arches, bowls, the k loop, and the
+    // closing swash — where real glass would flare.
     const glintAnchors = [
-      new THREE.Vector3(-4.15, 0.9, 0.42),
-      new THREE.Vector3(-3.05, -1.1, 0.44),
-      new THREE.Vector3(-1.6, 0.75, 0.42),
-      new THREE.Vector3(-0.15, -0.85, 0.44),
-      new THREE.Vector3(1.35, 0.4, 0.42),
-      new THREE.Vector3(2.7, -0.95, 0.44),
-      new THREE.Vector3(4.1, 0.1, 0.42),
+      new THREE.Vector3(-3.78, 1.19, 0.42),
+      new THREE.Vector3(-3.29, -0.7, 0.44),
+      new THREE.Vector3(-2.66, 1.07, 0.42),
+      new THREE.Vector3(-0.89, -0.02, 0.44),
+      new THREE.Vector3(0.34, 1.39, 0.42),
+      new THREE.Vector3(2.68, -0.02, 0.44),
+      new THREE.Vector3(4.29, -0.43, 0.42),
     ];
     const wordGlints = glintAnchors.map((anchor, index) => {
       const material = new THREE.SpriteMaterial({
@@ -844,9 +819,6 @@ if (canvas) {
         world.scale.copy(worldScaleTarget);
         pearl.opacity = materialTargets.pearl;
         wordFaceMaterial.opacity = materialTargets.word;
-        wordEdgeMaterial.opacity = materialTargets.word;
-        wordRimMaterial.opacity = materialTargets.word * 0.045;
-        wordGlowMaterial.opacity = materialTargets.word * 0.012;
         causticMaterial.opacity = materialTargets.word * 0.3;
         glass.opacity = materialTargets.glass;
         cobalt.opacity = materialTargets.cobalt;
@@ -1014,9 +986,6 @@ if (canvas) {
 
       pearl.opacity = THREE.MathUtils.damp(pearl.opacity, materialTargets.pearl, 7, delta);
       wordFaceMaterial.opacity = THREE.MathUtils.damp(wordFaceMaterial.opacity, materialTargets.word, 7, delta);
-      wordEdgeMaterial.opacity = THREE.MathUtils.damp(wordEdgeMaterial.opacity, materialTargets.word, 7, delta);
-      wordRimMaterial.opacity = THREE.MathUtils.damp(wordRimMaterial.opacity, materialTargets.word * 0.045, 7, delta);
-      wordGlowMaterial.opacity = THREE.MathUtils.damp(wordGlowMaterial.opacity, materialTargets.word * 0.012, 7, delta);
       wordDustMaterial.opacity = THREE.MathUtils.damp(wordDustMaterial.opacity, materialTargets.word * 0.34, 7, delta);
       causticMaterial.opacity = THREE.MathUtils.damp(causticMaterial.opacity, materialTargets.word * 0.3, 7, delta);
       glass.opacity = THREE.MathUtils.damp(glass.opacity, materialTargets.glass, 7, delta);
