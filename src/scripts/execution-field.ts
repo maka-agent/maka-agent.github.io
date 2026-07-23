@@ -854,6 +854,16 @@ if (canvas) {
     handSticker.renderOrder = 0;
     satellites.add(sealSticker, eyesSticker, heartSticker, boltSticker, handSticker);
 
+    // Stickers respond to the pointer: hovered ones swell and wiggle like
+    // peeling die-cuts. Each entry remembers its resting scale and sway.
+    const hoverStickers = [
+      { sprite: sealSticker, material: sealStickerMaterial, baseScale: 1.3, wobble: 0 },
+      { sprite: eyesSticker, material: eyesStickerMaterial, baseScale: 1.05, wobble: 0 },
+      { sprite: heartSticker, material: heartStickerMaterial, baseScale: 0.95, wobble: 0 },
+      { sprite: boltSticker, material: boltStickerMaterial, baseScale: 0.85, wobble: 0 },
+      { sprite: handSticker, material: handStickerMaterial, baseScale: 1.0, wobble: 0 },
+    ];
+
     const nodeGeometry = new THREE.SphereGeometry(0.115, 14, 14);
     const nodes = Array.from({ length: 9 }, (_, index) => {
       const node = new THREE.Mesh(nodeGeometry, index % 3 === 0 ? cobalt : ink);
@@ -1160,9 +1170,11 @@ if (canvas) {
         raycaster.setFromCamera(pointer, camera);
         if (raycaster.ray.intersectPlane(pointerPlane, intersection)) {
           cursorTarget.copy(intersection);
-          // The sculpture glides IN FRONT of the glass like a real cursor —
-          // hiding it inside the word zone made the word feel like a flat
-          // image blocking the pointer.
+          // The sculpture is a companion, not a crosshair: it tags along
+          // below-right of the pointer so whatever the user aims at (a
+          // sticker, the word) stays visible under the OS cursor.
+          cursorTarget.x += 1.0;
+          cursorTarget.y -= 0.85;
           cursorTarget.z = 1.5;
         }
       }
@@ -1171,9 +1183,9 @@ if (canvas) {
       cursor.rotation.y = THREE.MathUtils.damp(cursor.rotation.y, -0.16 - pointerVelocity.x * 0.025, 12, delta);
       cursor.rotation.z = THREE.MathUtils.damp(cursor.rotation.z, 0.05 - pointerVelocity.x * 0.045, 12, delta);
       const cursorSpeed = Math.min(1, pointerVelocity.length() * 0.18);
-      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.6 * (1 + cursorSpeed * 0.13), 13, delta);
-      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.6 * (1 - cursorSpeed * 0.09), 13, delta);
-      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.6, 13, delta);
+      cursor.scale.x = THREE.MathUtils.damp(cursor.scale.x, 0.46 * (1 + cursorSpeed * 0.13), 13, delta);
+      cursor.scale.y = THREE.MathUtils.damp(cursor.scale.y, 0.46 * (1 - cursorSpeed * 0.09), 13, delta);
+      cursor.scale.z = THREE.MathUtils.damp(cursor.scale.z, 0.46, 13, delta);
 
       if (!reduceMotion && cursor.visible && cursor.position.distanceTo(lastTrailPos) > 0.55) {
         lastTrailPos.copy(cursor.position);
@@ -1228,6 +1240,19 @@ if (canvas) {
       sealStickerMaterial.rotation = Math.sin(elapsed * 0.28) * 0.045;
       eyesStickerMaterial.rotation = -0.06 + Math.sin(elapsed * 0.34) * 0.04;
       heartStickerMaterial.rotation = 0.05 + Math.cos(elapsed * 0.26) * 0.05;
+      boltStickerMaterial.rotation = 0.1 + Math.sin(elapsed * 0.31) * 0.04;
+      handStickerMaterial.rotation = -0.14 + Math.cos(elapsed * 0.27) * 0.045;
+      const hoveredSticker = pointerEngaged
+        ? raycaster.intersectObjects(hoverStickers.map((entry) => entry.sprite), false)[0]?.object
+        : undefined;
+      hoverStickers.forEach((entry, index) => {
+        entry.wobble = THREE.MathUtils.damp(entry.wobble, entry.sprite === hoveredSticker ? 1 : 0, 8, delta);
+        if (entry.wobble > 0.001) {
+          entry.material.rotation += Math.sin(elapsed * 9 + index * 1.3) * 0.22 * entry.wobble;
+        }
+        const swell = entry.baseScale * (1 + 0.12 * entry.wobble);
+        entry.sprite.scale.set(swell, swell, 1);
+      });
       causticMaterial.rotation = Math.sin(elapsed * 0.11) * 0.02;
       recovery.rotation.z = 0.6 - elapsed * 0.26;
       permission.rotation.z = -0.16 + Math.sin(elapsed * 0.48) * 0.14;
