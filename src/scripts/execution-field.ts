@@ -334,6 +334,9 @@ if (canvas) {
           float tintAlpha = mix(0.42, 1.0, clamp(edgeMask + topMask, 0.0, 1.0));
           color = mix(color, color * clamp(tint, 0.001, 1.0), tintAlpha);
           color *= mix(1.0, 0.85, pow(thickness, 2.0));
+          // Multiplicative tint dies on the dark night sky — the crowns keep
+          // their light through a night-only additive glow.
+          color += uTintTop * (topMask * 0.5 + edgeMask * 0.24) * uNight;
 
           // pointer-driven pin highlight
           vec3 lightVector = normalize(-uLight);
@@ -948,6 +951,10 @@ if (canvas) {
       scene.environmentIntensity = night ? 0.62 : 0.88;
       ink.color.copy(night ? inkNightColor : inkDayColor);
       wordGlassUniforms.uNight.value = night ? 1 : 0;
+      // The day tints multiply into darkness on the night sky; night gets a
+      // luminous pair so the crowns stay lit.
+      (wordGlassUniforms.uTintTop.value as THREE.Color).set(night ? "#4db4ff" : "#009dff");
+      (wordGlassUniforms.uTintBottom.value as THREE.Color).set(night ? "#a9cdf5" : "#cfe6fa");
       atmosphereNightScale = night ? 0.55 : 1;
       if (reduceMotion) renderer.render(scene, camera);
     };
@@ -989,6 +996,9 @@ if (canvas) {
       const compactShort = compact && height < 700;
       organism.scale.setScalar(compactShort ? 0.64 : compact ? 0.62 : medium ? 0.8 : 1);
       satellites.scale.setScalar(compactShort ? 0.58 : compact ? 0.64 : 1);
+      // The seal rides the right margin; compact viewports crop it in half,
+      // which reads as a bug rather than a sticker.
+      sealSticker.visible = !compact;
       if (stateIndex === 0) {
         worldPositionTarget.set(compact ? 0.65 : medium ? 1.3 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
       }

@@ -512,23 +512,23 @@ html[data-field="unavailable"] .execution-field canvas {
   transform: translateY(-0.08rem);
 }
 
+/* Reference-grammar nav state: the active command sits in a dashed
+   instrument frame instead of underlining like prose. */
 .view-nav a::after {
   content: "";
   position: absolute;
-  right: 1rem;
-  bottom: 0.4rem;
-  left: 1rem;
-  height: 2px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 280ms var(--ease-expo);
+  inset: 0.45rem 0.35rem;
+  border: 1px dashed currentColor;
+  opacity: 0;
+  transform: scale(1.12);
+  transition: opacity 200ms ease, transform 280ms var(--ease-expo);
 }
 
 .view-nav a[aria-current="page"]::after,
-.view-nav a:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
+.view-nav a:hover::after,
+.view-nav a:focus-visible::after {
+  opacity: 0.9;
+  transform: scale(1);
 }
 
 .source-link {
@@ -1611,7 +1611,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .view-nav { justify-self: center; }
   .view-nav a { min-width: 0; padding: 0 0.48rem; font-size: 0.58rem; }
   .view-nav a small { display: none; }
-  .view-nav a::after { right: 0.4rem; left: 0.4rem; }
+  .view-nav a::after { inset: 0.4rem 0.25rem; }
   .source-link { width: 44px; justify-content: center; }
   .source-link span { display: none; }
   .shell-commands { gap: 0.1rem; }
@@ -2193,17 +2193,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .view-nav { gap: clamp(0.45rem, 1.3vw, 1.5rem); }
   .view-nav a { min-width: auto; padding: 0 0.65rem; font-size: 0.9rem; }
   .view-nav a small { display: none; }
-  .view-nav a::after {
-    right: auto;
-    bottom: -0.22rem;
-    left: 50%;
-    width: 0.38rem;
-    height: 0.38rem;
-    border-radius: 50%;
-    background: var(--blue-deep);
-    transform: translateX(-50%) scale(0);
-  }
-  .view-nav a[aria-current="page"]::after { transform: translateX(-50%) scale(1); }
+  .view-nav a::after { inset: 0.3rem 0.15rem; }
 
   .rule--v1 { left: 3.7%; }
   .rule--v2 { left: 30%; }
