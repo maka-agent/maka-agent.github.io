@@ -233,7 +233,10 @@ if (canvas) {
       uLight: { value: new THREE.Vector3(0.6, 0.9, 0.5) },
       uOpacity: { value: 1 },
       uTintTop: { value: new THREE.Color("#009dff") },
-      uTintBottom: { value: new THREE.Color("#ffffff") },
+      // Baseline strokes keep a whisper of blue so the whole word reads as
+      // one glass-blue mass against the pale sky, not blue crowns on a
+      // sky-colored body.
+      uTintBottom: { value: new THREE.Color("#cfe6fa") },
       uTintYRange: { value: new THREE.Vector2(-2.2, 2.2) },
       uNight: { value: 0 },
     };

@@ -27,6 +27,7 @@
     "axe-core": "^4.12.1",
     "opentype.js": "^2.0.0",
     "playwright-core": "^1.61.1",
+    "polygon-clipping": "^0.15.7",
     "typescript": "6.0.3"
   }
 }
