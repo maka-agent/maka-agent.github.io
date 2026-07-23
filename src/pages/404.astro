@@ -1,0 +1,97 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const githubUrl = "https://github.com/maka-agent/maka-agent";
+---
+
+<BaseLayout
+  title="404 — Maka"
+  description="This route returned no artifacts."
+>
+  <main class="lost">
+    <p class="lost__word" aria-hidden="true">Maka</p>
+    <p class="lost__code">404 / NO ARTIFACTS</p>
+    <h1>This route returned no artifacts.</h1>
+    <p class="lost__hint">The task you followed was never appended to the Event Log.</p>
+    <nav class="lost__actions" aria-label="Recovery">
+      <a href="/">Back to overview</a>
+      <a href={githubUrl} target="_blank" rel="noreferrer">View source ↗</a>
+    </nav>
+  </main>
+</BaseLayout>
+
+<style>
+  .lost {
+    display: grid;
+    min-height: 100dvh;
+    align-content: center;
+    justify-items: center;
+    gap: 0.9rem;
+    padding: 2rem;
+    background: var(--sky);
+    text-align: center;
+  }
+
+  .lost__word {
+    margin: 0 0 0.6rem;
+    background: linear-gradient(180deg, oklch(0.52 0.19 255) 0%, oklch(0.66 0.13 250) 55%, oklch(0.8 0.07 246) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: "Pacifico", "Brush Script MT", cursive;
+    font-size: clamp(4.5rem, 14vw, 9rem);
+    line-height: 0.9;
+  }
+
+  .lost__code {
+    margin: 0;
+    color: var(--blue-deep);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.09em;
+  }
+
+  .lost h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+    font-weight: 680;
+    letter-spacing: -0.03em;
+  }
+
+  .lost__hint {
+    margin: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  .lost__actions {
+    display: flex;
+    gap: 1.6rem;
+    margin-top: 1.1rem;
+  }
+
+  .lost__actions a {
+    position: relative;
+    padding: 0.55rem 1.1rem;
+    color: inherit;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    text-decoration: none;
+  }
+
+  .lost__actions a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px dashed currentColor;
+    opacity: 0.55;
+    transition: opacity 200ms ease, transform 280ms var(--ease-expo);
+  }
+
+  .lost__actions a:hover::after,
+  .lost__actions a:focus-visible::after {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+</style>
