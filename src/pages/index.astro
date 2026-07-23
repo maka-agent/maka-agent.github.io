@@ -138,6 +138,12 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
 <span class="d-add">+     window: Duration,</span>
 <span class="d-add">+     limit: u32,</span>
 <span class="d-add">+     hits: HashMap&lt;String, VecDeque&lt;Instant&gt;&gt;,</span></code></pre>
+                <div class="uiw__tool">
+                  <span>⌄ Tool Call</span>
+                  <b>Run tests <code>cargo test rate_limit</code></b>
+                  <em>14 passed <i>✓</i></em>
+                </div>
+                <div class="uiw__reply"><i aria-hidden="true">M</i><p>Rate limiting is live — 60 req/min per key with retry-after. Tests cover burst, refill, and header shape.</p></div>
                 <p class="uiw__input" aria-hidden="true"><span>Ask Maka anything…<i class="uiw__caret"></i></span> <b>→</b></p>
               </div>
               <aside class="uiw__meta" aria-hidden="true">
