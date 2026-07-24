@@ -2069,6 +2069,42 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   transform: none;
 }
 .surface-projection--desktop figcaption { padding: 0.45rem 0; color: var(--blue-deep); }
+
+/* Crafted miniature of the Desktop surface — the last real screenshot
+   retires; abstract rows keep it legible at card scale. Colors are
+   explicit so the light window survives night theme. */
+.surface-projection--desktop .mini {
+  display: grid;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  grid-template-rows: 1.5rem minmax(0, 1fr);
+  background: oklch(0.99 0.003 250);
+  color: oklch(0.15 0.012 276);
+}
+.mini__bar { display: flex; gap: 0.4rem; align-items: center; padding: 0 0.55rem; border-bottom: 1px solid oklch(0.92 0.008 250); font-family: var(--mono); font-size: 0.5rem; }
+.mini__bar i { display: grid; width: 0.8rem; height: 0.8rem; place-items: center; border-radius: 0.22rem; background: var(--blue-deep); color: white; font-size: 0.48rem; font-style: normal; font-weight: 700; }
+.mini__bar b { font-family: var(--sans); font-size: 0.56rem; }
+.mini__bar span { overflow: hidden; color: oklch(0.37 0.018 270); text-overflow: ellipsis; white-space: nowrap; }
+.mini__bar em { margin-left: auto; padding: 0.04rem 0.32rem; border: 1px solid oklch(0.85 0.03 250); border-radius: 1rem; color: var(--blue-deep); font-size: 0.44rem; font-style: normal; }
+.mini__body { display: grid; min-height: 0; grid-template-columns: 17% minmax(0, 1fr) 27%; }
+.mini__rail { display: grid; gap: 0.3rem; padding: 0.5rem 0.4rem; border-right: 1px solid oklch(0.92 0.008 250); background: oklch(0.977 0.005 250); align-content: start; }
+.mini__rail s { height: 0.34rem; border-radius: 0.17rem; background: oklch(0.9 0.01 250); text-decoration: none; }
+.mini__rail s.is-active { background: oklch(0.84 0.06 250); }
+.mini__chat { display: grid; gap: 0.34rem; padding: 0.5rem 0.55rem; align-content: start; }
+.mini__chat u { display: block; height: 0.3rem; border-radius: 0.15rem; background: oklch(0.93 0.008 250); text-decoration: none; }
+.mini__chat u.is-short { width: 62%; }
+.mini__prompt { display: grid; gap: 0.22rem; padding: 0.4rem 0.45rem; border: 1px solid oklch(0.92 0.008 250); border-radius: 0.3rem; background: oklch(0.97 0.004 250); }
+.mini__reply { display: flex; gap: 0.3rem; align-items: center; }
+.mini__reply i { display: grid; width: 0.7rem; height: 0.7rem; flex: none; place-items: center; border-radius: 0.2rem; background: var(--blue-deep); color: white; font-size: 0.42rem; font-style: normal; font-weight: 700; }
+.mini__reply u { flex: 1; display: block; height: 0.3rem; border-radius: 0.15rem; background: oklch(0.93 0.008 250); text-decoration: none; }
+.mini__tool { margin: 0; padding: 0.3rem 0.45rem; border: 1px solid oklch(0.9 0.012 250); border-radius: 0.3rem; font-family: var(--mono); font-size: 0.44rem; }
+.mini__tool em { float: right; color: oklch(0.55 0.15 150); font-style: normal; }
+.mini__diff { display: grid; gap: 0.2rem; padding: 0.35rem 0.45rem; border: 1px solid oklch(0.9 0.05 150 / 0.6); border-radius: 0.3rem; background: oklch(0.97 0.03 150 / 0.4); }
+.mini__diff u { display: block; height: 0.26rem; border-radius: 0.13rem; background: oklch(0.88 0.07 150); text-decoration: none; }
+.mini__diff u.is-short { width: 55%; }
+.mini__meta { display: grid; gap: 0.28rem; padding: 0.5rem 0.45rem; border-left: 1px solid oklch(0.92 0.008 250); align-content: start; font-family: var(--mono); }
+.mini__meta p { margin: 0; color: oklch(0.37 0.018 270); font-size: 0.4rem; letter-spacing: 0.06em; }
+.mini__meta span { padding: 0.26rem 0.32rem; border: 1px solid oklch(0.92 0.008 250); border-radius: 0.26rem; font-size: 0.42rem; }
 .surface-projection--tui,
 .surface-projection--cli,
 .surface-projection--headless {

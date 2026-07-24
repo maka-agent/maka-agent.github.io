@@ -60,7 +60,7 @@ for (const [label, width, height] of VIEWPORTS) {
   if ((await page.locator("[data-view-panel]").count()) !== 4) throw new Error(`${label}: expected 4 views`);
   if ((await page.locator(".surface-index li").count()) !== 4) throw new Error(`${label}: Surfaces index needs four entries`);
   if ((await page.locator("[data-decode]").count()) !== 2) throw new Error(`${label}: Surfaces statement needs two decode lines`);
-  if ((await page.locator("img").count()) !== 1) throw new Error(`${label}: expected only the Surfaces projection image`);
+  if ((await page.locator("img").count()) !== 0) throw new Error(`${label}: crafted surfaces replaced all product imagery`);
   if ((await page.locator(".execution-field img, [data-hero-glass]").count()) !== 0) {
     throw new Error(`${label}: the interactive Hero was replaced by a flattened design image`);
   }

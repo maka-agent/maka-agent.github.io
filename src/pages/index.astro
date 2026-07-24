@@ -1,8 +1,6 @@
 ---
-import { Image } from "astro:assets";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import ExecutionField from "../components/ExecutionField.astro";
-import shellCurrent from "../assets/maka-shell-current.png";
 
 const githubUrl = "https://github.com/maka-agent/maka-agent";
 const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
@@ -258,15 +256,27 @@ const architectureUrl = `${githubUrl}/blob/main/ARCHITECTURE.md`;
         <div class="surface-world" aria-hidden="true">
           <canvas id="surface-field"></canvas>
           <figure class="surface-projection surface-projection--desktop">
-            <Image
-              src={shellCurrent}
-              alt=""
-              widths={[960, 1280, 1600]}
-              sizes="54vw"
-              format="webp"
-              quality={90}
-              loading="eager"
-            />
+            <div class="mini" aria-hidden="true">
+              <header class="mini__bar">
+                <i>M</i><b>Maka</b><span>TASK-4821 · Add rate limiting</span><em>Open</em>
+              </header>
+              <div class="mini__body">
+                <nav class="mini__rail">
+                  <s></s><s class="is-active"></s><s></s><s></s><s></s>
+                </nav>
+                <div class="mini__chat">
+                  <div class="mini__prompt"><u></u><u></u><u class="is-short"></u></div>
+                  <div class="mini__reply"><i>M</i><u></u></div>
+                  <p class="mini__tool">⌄ Tool Call · Edit file <em>✓ 1.2s</em></p>
+                  <div class="mini__diff"><u></u><u></u><u class="is-short"></u></div>
+                </div>
+                <aside class="mini__meta">
+                  <p>ARTIFACTS 3</p>
+                  <span>rate_limit.rs</span>
+                  <span>rate_limit_test.rs</span>
+                </aside>
+              </div>
+            </div>
             <figcaption>Desktop · live workspace</figcaption>
           </figure>
           <div class="surface-projection surface-projection--tui">
