@@ -1239,6 +1239,25 @@ html[data-theme="night"] .cross::after {
   color: var(--blue-deep);
 }
 
+/* The pressed tab wears the same dashed instrument frame as the nav —
+   one command grammar across the shell. */
+.evidence-index button { position: relative; }
+
+.evidence-index button::after {
+  content: "";
+  position: absolute;
+  inset: 0.55rem -0.5rem;
+  border: 1px dashed currentColor;
+  opacity: 0;
+  transform: scale(1.12);
+  transition: opacity 200ms ease, transform 280ms var(--ease-expo);
+}
+
+.evidence-index button[aria-pressed="true"]::after {
+  opacity: 0.9;
+  transform: scale(1);
+}
+
 
 .view--runtime {
   display: block;
