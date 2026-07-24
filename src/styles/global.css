@@ -1241,6 +1241,24 @@ html[data-theme="night"] .cross::after {
 
 /* The pressed tab wears the same dashed instrument frame as the nav —
    one command grammar across the shell. */
+.theme-command { position: relative; }
+
+.theme-command::after {
+  content: "";
+  position: absolute;
+  inset: 0.45rem 0.1rem;
+  border: 1px dashed currentColor;
+  opacity: 0;
+  transform: scale(1.12);
+  transition: opacity 200ms ease, transform 280ms var(--ease-expo);
+}
+
+.theme-command:hover::after,
+.theme-command:focus-visible::after {
+  opacity: 0.9;
+  transform: scale(1);
+}
+
 .evidence-index button { position: relative; }
 
 .evidence-index button::after {
@@ -2101,6 +2119,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
    explicit so the light window survives night theme. */
 .surface-projection--desktop .mini {
   display: grid;
+  overflow: hidden;
   width: 100%;
   aspect-ratio: 16 / 10;
   grid-template-rows: 1.5rem minmax(0, 1fr);
@@ -2250,8 +2269,11 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
     --gutter: clamp(3.2rem, 4.7vw, 4.4rem);
   }
 
-  .shell-commands,
+  /* The reference header ends in commands (THEME[A], SOUND[/]) — ours
+     keeps Theme [T] and the source link on the same right rail. */
   .scene-rail { display: none; }
+  .shell-commands { gap: 1.9rem; }
+  .shell-commands .source-link span { font-size: 0.74rem; }
 
   .stage-header {
     grid-template-columns: 1fr auto 1fr;
@@ -2593,12 +2615,19 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 }
 
 @media (min-width: 768px) and (max-width: 1100px) {
+  /* Header commands compress: icon-only source link, tighter rail. */
+  .shell-commands { gap: 0.9rem; }
+  .shell-commands .source-link span { display: none; }
+  .shell-commands .source-link { width: 44px; justify-content: center; }
+  /* Narrow window: slimmer side rails so the chat column keeps room for
+     the diff and the tool rows' status text. */
+  .uiw__body { grid-template-columns: 6.8rem minmax(0, 1fr) 8.6rem; }
+  .uiw__tool em { white-space: nowrap; }
   .surfaces-lede { left: 22%; width: 72%; }
   .surfaces-statement { font-size: clamp(3rem, 7vw, 4.8rem); }
   /* Tablet: compact index labels dodge the sub-copy and the desktop card;
      evidence cards ride above the window instead of drowning under it. */
   .surface-index li small { display: none; }
-  .surface-index li:nth-child(2) { top: 34%; }
   .ui-card { z-index: 4; width: min(30vw, 15rem); }
   .ui-card--firstrun { top: 68%; left: 3%; }
   .ui-card--error { display: none; }
@@ -2607,7 +2636,7 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .surfaces-close { top: 41%; left: 34%; width: 33%; }
   .surface-projection--tui { top: 41%; }
   .surface-index li:nth-child(1) { top: 45%; left: var(--gutter); }
-  .surface-index li:nth-child(2) { top: 25%; right: 4%; }
+  .surface-index li:nth-child(2) { top: 34%; right: 4%; }
   .surface-index li:nth-child(3) { top: auto; right: 34%; bottom: 31%; }
   .surface-index li:nth-child(4) { top: auto; right: 4%; bottom: 28%; left: auto; }
 }
