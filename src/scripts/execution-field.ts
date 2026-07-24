@@ -555,7 +555,7 @@ if (canvas) {
     caustics.renderOrder = 0;
     wordmark.add(caustics);
 
-    wordmark.position.set(-0.35, 0.78, 0.48);
+    wordmark.position.set(0.05, 0.72, 0.48);
     wordmark.rotation.set(-0.018, 0.028, -0.012);
     wordmark.scale.set(1, 0.98, 1.02);
     wordmark.visible = true;
@@ -844,7 +844,7 @@ if (canvas) {
     // Perimeter placement: the seal may kiss the sculpture, never the copy.
     // The former "OPEN SOURCE" sticker is gone — it repeated the primary CTA.
     const sealSticker = new THREE.Sprite(sealStickerMaterial);
-    sealSticker.position.set(4.3, 2.55, -0.38);
+    sealSticker.position.set(5.5, 2.95, -0.38);
     sealSticker.scale.set(1.3, 1.3, 1);
     sealSticker.renderOrder = 0;
     const eyesStickerMaterial = new THREE.SpriteMaterial({
@@ -862,7 +862,7 @@ if (canvas) {
       depthWrite: false,
     });
     const heartSticker = new THREE.Sprite(heartStickerMaterial);
-    heartSticker.position.set(-6.55, -0.7, -0.2);
+    heartSticker.position.set(-6.75, 0.6, -0.2);
     heartSticker.scale.set(0.95, 0.95, 1);
     heartSticker.renderOrder = 0;
     const boltStickerMaterial = new THREE.SpriteMaterial({
@@ -871,7 +871,7 @@ if (canvas) {
       depthWrite: false,
     });
     const boltSticker = new THREE.Sprite(boltStickerMaterial);
-    boltSticker.position.set(2.1, 3.1, -0.42);
+    boltSticker.position.set(2.4, 3.5, -0.42);
     boltSticker.scale.set(0.85, 0.85, 1);
     boltSticker.renderOrder = 0;
     const handStickerMaterial = new THREE.SpriteMaterial({
@@ -890,7 +890,7 @@ if (canvas) {
     });
     // Half-tucked behind the glass like the reference's smiley on hello.
     const smileSticker = new THREE.Sprite(smileStickerMaterial);
-    smileSticker.position.set(3.55, 1.12, -0.3);
+    smileSticker.position.set(4.1, 1.05, -0.3);
     smileSticker.scale.set(0.72, 0.72, 1);
     smileSticker.renderOrder = 0;
     satellites.add(sealSticker, eyesSticker, heartSticker, boltSticker, handSticker, smileSticker);
@@ -1035,7 +1035,7 @@ if (canvas) {
         const compact = canvas.clientWidth < 768;
         const medium = canvas.clientWidth < 1100;
         const compactShort = compact && canvas.clientHeight < 700;
-        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
+        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.2, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
         worldScaleTarget.setScalar(1);
         materialTargets.pearl = 1;
         materialTargets.word = 1;
@@ -1169,7 +1169,7 @@ if (canvas) {
       boltSticker.visible = !compact;
       handSticker.visible = !compact;
       if (stateIndex === 0) {
-        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.75, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
+        worldPositionTarget.set(compact ? 0.65 : medium ? 0.35 : 0.2, compactShort ? 1.8 : compact ? 0.46 : 0.28, 0);
       }
       updateCursorVisibility();
       renderer.render(scene, camera);

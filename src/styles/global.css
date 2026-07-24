@@ -2333,28 +2333,39 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .stage-status__pulse { display: none; }
   .stage-status::after { content: "↓"; margin-left: 2.2rem; font-size: 1.7rem; font-weight: 300; line-height: 0.6; }
 
-  /* Overview: the glass wordmark is the hero; one quiet sentence and the
-     actions sit under it, exactly like the approved mockup. */
+  /* Overview as a poster: the glass word owns the upper stage and a
+     monumental uppercase statement runs the full lower band, its first
+     line lapping the glass — type and object interlock, the reference's
+     core compositional move. */
   .overview-note { display: none; }
   .hero-copy {
     top: auto;
-    bottom: 3.15rem;
+    right: var(--gutter);
+    bottom: 2.4rem;
     left: var(--gutter);
-    width: min(34vw, 30rem);
+    width: auto;
     max-width: none;
     opacity: 1;
     filter: none;
     transform: none;
   }
   .hero-copy h1 {
-    max-width: 17ch;
+    max-width: none;
     margin: 0;
-    font-size: clamp(1.8rem, 2.15vw, 2.7rem);
-    font-weight: 650;
-    line-height: 1.18;
-    letter-spacing: -0.028em;
+    font-size: clamp(3.2rem, 5.4vw, 6rem);
+    font-weight: 740;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+    text-transform: uppercase;
   }
-  .hero-actions { display: flex; gap: 0.65rem; margin-top: 1rem; }
+  .hero-actions {
+    position: absolute;
+    right: 0;
+    bottom: 0.4rem;
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 0;
+  }
   .hero-actions a {
     display: inline-flex;
     min-height: 2.7rem;
@@ -2370,14 +2381,16 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .hero-actions svg { width: 1rem; fill: none; stroke: currentColor; stroke-width: 1.4; }
   .secondary-action { border: 1px solid currentColor; background: oklch(0.98 0.012 245 / 0.55); }
 
-  /* Right-hand concept rail (mockup): five labeled execution objects. */
+  /* Concept strip: the five execution objects read as one instrument
+     line under the header, clearing the right field for the glass. */
   .object-index {
-    top: 24%;
+    top: calc(var(--header-height) + 1.3rem);
     right: var(--gutter);
     bottom: auto;
+    left: auto;
     width: auto;
-    display: grid;
-    gap: 1.05rem;
+    display: flex;
+    gap: 1.7rem;
   }
   .object-index li {
     display: grid;
@@ -2756,8 +2769,16 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 .hero-copy h1 { letter-spacing: -0.04em; }
 
 @media (min-width: 768px) {
-  .hero-copy { bottom: 2.55rem; width: min(52vw, 56rem); }
-  .hero-copy h1 { font-size: clamp(3.15rem, 4.25vw, 5.15rem); line-height: 0.88; }
+  /* Poster band: full-width monumental statement, actions in the right
+     corner, concept strip as its eyebrow. */
+  .hero-copy { right: var(--gutter); bottom: 2.4rem; left: var(--gutter); width: auto; }
+  .hero-copy h1 { font-size: clamp(3.2rem, 5.4vw, 6rem); line-height: 0.96; }
+  .object-index {
+    top: auto;
+    bottom: calc(2.4rem + 3 * clamp(3.2rem, 5.4vw, 6rem) * 0.96 + 1.5rem);
+    right: auto;
+    left: var(--gutter);
+  }
   .runtime-step--hub { z-index: 4; }
   .runtime-step--hub strong { font-size: clamp(3.6rem, 4.35vw, 4.8rem); }
   .runtime-signal--message { top: 27%; left: 27%; }
