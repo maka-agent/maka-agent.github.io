@@ -2090,7 +2090,10 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
 .mini__rail { display: grid; gap: 0.3rem; padding: 0.5rem 0.4rem; border-right: 1px solid oklch(0.92 0.008 250); background: oklch(0.977 0.005 250); align-content: start; }
 .mini__rail s { height: 0.34rem; border-radius: 0.17rem; background: oklch(0.9 0.01 250); text-decoration: none; }
 .mini__rail s.is-active { background: oklch(0.84 0.06 250); }
-.mini__chat { display: grid; gap: 0.34rem; padding: 0.5rem 0.55rem; align-content: start; }
+.mini__chat { display: flex; flex-direction: column; gap: 0.34rem; padding: 0.5rem 0.55rem; }
+.mini__inputbar { display: flex; gap: 0.3rem; align-items: center; margin-top: auto; padding: 0.28rem 0.4rem; border: 1px solid oklch(0.9 0.012 250); border-radius: 0.32rem; }
+.mini__inputbar u { flex: 1; display: block; height: 0.26rem; border-radius: 0.13rem; background: oklch(0.94 0.006 250); text-decoration: none; }
+.mini__inputbar b { display: grid; width: 0.72rem; height: 0.72rem; place-items: center; border-radius: 0.2rem; background: var(--blue-deep); color: white; font-size: 0.4rem; }
 .mini__chat u { display: block; height: 0.3rem; border-radius: 0.15rem; background: oklch(0.93 0.008 250); text-decoration: none; }
 .mini__chat u.is-short { width: 62%; }
 .mini__prompt { display: grid; gap: 0.22rem; padding: 0.4rem 0.45rem; border: 1px solid oklch(0.92 0.008 250); border-radius: 0.3rem; background: oklch(0.97 0.004 250); }
@@ -2410,8 +2413,10 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   }
   .evidence-index { gap: 2.2rem; }
   .evidence-index button { font-size: 0.7rem; }
-  .ui-card--firstrun { top: 24%; left: 28.5%; }
-  .ui-card--error { top: 62%; left: 29.5%; }
+  /* Tuck under the window by a sliver only — deep tucks cut chips and
+     buttons mid-glyph and read as broken cards. */
+  .ui-card--firstrun { top: 24%; left: 23.5%; }
+  .ui-card--error { top: 62%; left: 24.5%; }
   .product-tabs { bottom: 1.4%; }
   .product-tabs button { min-height: 34px; }
 
