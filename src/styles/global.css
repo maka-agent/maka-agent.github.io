@@ -2197,7 +2197,9 @@ html.js[data-boot="shell"] .stage-footer > :nth-child(5) { animation-delay: 280m
   .brand svg { display: none; }
   .view-nav { gap: clamp(0.45rem, 1.3vw, 1.5rem); }
   .view-nav a { min-width: auto; padding: 0 0.65rem; font-size: 0.9rem; }
-  .view-nav a small { display: none; }
+  /* The reference reads its nav as keyboard commands (THEME[A]); the
+     [1]-[4] hints live inside the dashed frame. */
+  .view-nav a small { display: inline; font-size: 0.6rem; }
   .view-nav a::after { inset: 0.3rem 0.15rem; }
 
   .rule--v1 { left: 3.7%; }
