@@ -30,7 +30,9 @@ if (canvas) {
     const renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: true,
-      antialias: true,
+      // MSAA is wasted on high-DPR screens: pixel density already covers
+      // edge quality, and skipping it cuts fill cost noticeably.
+      antialias: (window.devicePixelRatio || 1) < 1.5,
       depth: true,
       powerPreference: "high-performance",
     });
@@ -1087,6 +1089,8 @@ if (canvas) {
 
     window.addEventListener("maka:viewchange", ((event: CustomEvent<{ index: number }>) => {
       applyState(event.detail.index);
+      offStageSince = 0;
+      if (!reduceMotion && visible && !frame) animate();
     }) as EventListener);
 
     const inkDayColor = ink.color.clone();
@@ -1144,7 +1148,7 @@ if (canvas) {
     const resize = () => {
       const width = Math.max(1, canvas.clientWidth);
       const height = Math.max(1, canvas.clientHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 768 ? 1.35 : 1.7));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 768 ? 1.35 : 1.55));
       renderer.setSize(width, height, false);
       renderer.getDrawingBufferSize(wordGlassUniforms.uResolution.value);
       camera.aspect = width / height;
@@ -1169,11 +1173,27 @@ if (canvas) {
       renderer.render(scene, camera);
     };
 
+    let offStageSince = 0;
     const animate = (now = performance.now()) => {
       if (!visible) {
         frame = 0;
         lastFrameAt = now;
         return;
+      }
+      // Off the Overview stage the word is invisible; after the fade-out
+      // settles there is nothing left to draw — park the loop instead of
+      // burning a second GPU pass under the other views.
+      if (stateIndex !== 0) {
+        if (!offStageSince) offStageSince = now;
+        if (now - offStageSince > 1600) {
+          frame = 0;
+          lastFrameAt = now;
+          canvas.dataset.power = "suspended";
+          return;
+        }
+      } else {
+        offStageSince = 0;
+        if (canvas.dataset.power !== "active") canvas.dataset.power = "active";
       }
       frame = requestAnimationFrame(animate);
       const elapsed = (now - startedAt) / 1000;
