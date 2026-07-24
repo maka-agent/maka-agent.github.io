@@ -223,3 +223,34 @@ execution semantics truthful; visual distance from the reference is not a goal.
   palette process selects a related hue for product reasons.
 - Do not ship a fake terminal aesthetic. Any technical data shown on the Maka
   page must correspond to an actual product capability or architecture fact.
+
+## Implementation snapshot — 2026-07-24
+
+The sections above are a working log; several intermediate approaches they
+describe were superseded. Current state of the build:
+
+- **Wordmark** — per-letter Pacifico bezier outlines (generated into
+  `src/scripts/maka-letter-paths.ts`; interior letters polygon-clipped at
+  0.985× advance to amputate cross-letter exit tails, counters preserved via
+  even-odd clipping), extruded with a deep round bevel and rendered by a
+  custom screen-space-refraction glass shader. Shader constants come from
+  pixel measurements of the reference render (documented in this file):
+  near-uniform powder sky, rim- and arc-carried blue, warm transmitted
+  bands, 0.025 refraction grain. The pixel-skeleton tube pipeline described
+  earlier is retired.
+- **Field calibration** — whole-frame saturation histogram matched to the
+  reference (0.469 vs 0.496); composition split (white/blue/mid) verified
+  identical at 6/80/14.
+- **Crafted surfaces** — the site ships zero product photography: the
+  Product task window, its evidence cards, and the Surfaces desktop
+  miniature are hand-built DOM with real product semantics.
+- **Shell grammar** — dashed instrument frames (nav, evidence tabs, 404
+  actions), [1]-[4] key hints, fiducial grid crosses, footer telemetry row
+  (pointer coordinates, GMT stamp, view status).
+- **Life** — per-letter float, steady star glints, pointer sparkle wake,
+  companion arrow, sticker cast with hover wiggle (eyes, heart, seal, pixel
+  hand, frosted bolt, yellow smiley), pixel-block decode finale, theme
+  cross-fade driven by one damped night mix.
+- **Power ladder** — hero renders full-rate while interacting, half-rate
+  after 8s of ambient idle, and parks entirely off the Overview stage;
+  `data-power` exposes the state for tests.
