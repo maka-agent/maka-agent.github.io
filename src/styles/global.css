@@ -435,7 +435,14 @@ html[data-field="unavailable"] .execution-field canvas {
 .cross::after {
   content: "";
   position: absolute;
-  background: var(--grid-color);
+  /* Fiducial marks read a step darker than the grid they anchor — the
+     reference's instrument crosses are deliberate, not residual. */
+  background: oklch(0.42 0.03 260 / 0.42);
+}
+
+html[data-theme="night"] .cross::before,
+html[data-theme="night"] .cross::after {
+  background: oklch(0.85 0.02 260 / 0.4);
 }
 
 .cross::before { top: 7px; left: 0; width: 15px; height: 1px; }
