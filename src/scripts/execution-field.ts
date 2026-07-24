@@ -1090,6 +1090,7 @@ if (canvas) {
     window.addEventListener("maka:viewchange", ((event: CustomEvent<{ index: number }>) => {
       applyState(event.detail.index);
       offStageSince = 0;
+      lastInteractionAt = performance.now();
       if (!reduceMotion && visible && !frame) animate();
     }) as EventListener);
 
@@ -1136,6 +1137,7 @@ if (canvas) {
       pointerType: string;
     }>) => {
       const { x, y, normalizedX, normalizedY, pointerType } = event.detail;
+      lastInteractionAt = performance.now();
       if (pointerType !== "touch") pointerEngaged = true;
       pointerInShell = y < 72 || y > window.innerHeight - 44;
       updateCursorVisibility();
@@ -1174,6 +1176,8 @@ if (canvas) {
     };
 
     let offStageSince = 0;
+    let lastInteractionAt = performance.now();
+    let idleBeat = false;
     const animate = (now = performance.now()) => {
       if (!visible) {
         frame = 0;
@@ -1193,7 +1197,17 @@ if (canvas) {
         }
       } else {
         offStageSince = 0;
-        if (canvas.dataset.power !== "active") canvas.dataset.power = "active";
+        // Ambient-only idle: with the pointer at rest there is nothing to
+        // chase — halve the beat and let the balloons breathe at 30fps.
+        const idle = now - lastInteractionAt > 8000;
+        canvas.dataset.power = idle ? "idle" : "active";
+        if (idle) {
+          idleBeat = !idleBeat;
+          if (idleBeat) {
+            frame = requestAnimationFrame(animate);
+            return;
+          }
+        }
       }
       frame = requestAnimationFrame(animate);
       const elapsed = (now - startedAt) / 1000;
