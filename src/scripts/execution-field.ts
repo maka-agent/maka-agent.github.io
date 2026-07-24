@@ -670,7 +670,7 @@ if (canvas) {
     cursor.castShadow = true;
     scene.add(cursor);
 
-    const makeStickerTexture = (kind: "seal" | "eyes" | "heart" | "bolt" | "hand") => {
+    const makeStickerTexture = (kind: "seal" | "eyes" | "heart" | "bolt" | "hand" | "smile") => {
       const stickerCanvas = document.createElement("canvas");
       stickerCanvas.width = 384;
       stickerCanvas.height = 384;
@@ -770,6 +770,35 @@ if (canvas) {
           boltSheen.addColorStop(0.5, "rgba(255,255,255,0)");
           context.fillStyle = boltSheen;
           context.fill(bolt);
+        } else if (kind === "smile") {
+          // Warm counterweight: a yellow die-cut smiley, the one hot note
+          // the reference's sticker crowd carries and ours lacked.
+          context.rotate(0.16);
+          context.fillStyle = "#ffffff";
+          context.beginPath();
+          context.arc(0, 0, 132, 0, Math.PI * 2);
+          context.fill();
+          const face = context.createRadialGradient(-34, -40, 20, 0, 0, 120);
+          face.addColorStop(0, "#ffe680");
+          face.addColorStop(1, "#ffc21a");
+          context.fillStyle = face;
+          context.strokeStyle = "#7a4d00";
+          context.lineWidth = 7;
+          context.beginPath();
+          context.arc(0, 0, 112, 0, Math.PI * 2);
+          context.fill();
+          context.stroke();
+          context.fillStyle = "#3a2a08";
+          context.beginPath();
+          context.ellipse(-38, -22, 12, 20, 0, 0, Math.PI * 2);
+          context.ellipse(38, -22, 12, 20, 0, 0, Math.PI * 2);
+          context.fill();
+          context.strokeStyle = "#3a2a08";
+          context.lineWidth = 10;
+          context.lineCap = "round";
+          context.beginPath();
+          context.arc(0, 8, 58, 0.25 * Math.PI, 0.75 * Math.PI);
+          context.stroke();
         } else if (kind === "hand") {
           // Pixel pointing hand, drawn on an 11x12 grid like an old cursor.
           const P = 13;
@@ -852,7 +881,17 @@ if (canvas) {
     handSticker.position.set(-4.7, 3.0, -0.35);
     handSticker.scale.set(1.0, 1.0, 1);
     handSticker.renderOrder = 0;
-    satellites.add(sealSticker, eyesSticker, heartSticker, boltSticker, handSticker);
+    const smileStickerMaterial = new THREE.SpriteMaterial({
+      map: makeStickerTexture("smile"),
+      transparent: true,
+      depthWrite: false,
+    });
+    // Half-tucked behind the glass like the reference's smiley on hello.
+    const smileSticker = new THREE.Sprite(smileStickerMaterial);
+    smileSticker.position.set(3.55, 1.12, -0.3);
+    smileSticker.scale.set(0.72, 0.72, 1);
+    smileSticker.renderOrder = 0;
+    satellites.add(sealSticker, eyesSticker, heartSticker, boltSticker, handSticker, smileSticker);
 
     // Stickers respond to the pointer: hovered ones swell and wiggle like
     // peeling die-cuts. Each entry remembers its resting scale and sway.
@@ -862,6 +901,7 @@ if (canvas) {
       { sprite: heartSticker, material: heartStickerMaterial, baseScale: 0.95, wobble: 0 },
       { sprite: boltSticker, material: boltStickerMaterial, baseScale: 0.85, wobble: 0 },
       { sprite: handSticker, material: handStickerMaterial, baseScale: 1.0, wobble: 0 },
+      { sprite: smileSticker, material: smileStickerMaterial, baseScale: 0.72, wobble: 0 },
     ];
 
     const nodeGeometry = new THREE.SphereGeometry(0.115, 14, 14);
@@ -965,6 +1005,7 @@ if (canvas) {
       { object: heartSticker, depth: 0.9, x: 0.36, y: -0.24, drift: 0.06, phase: 3.7 },
       { object: boltSticker, depth: 0.75, x: -0.28, y: 0.24, drift: 0.055, phase: 5.1 },
       { object: handSticker, depth: 0.6, x: 0.26, y: 0.2, drift: 0.05, phase: 0.9 },
+      { object: smileSticker, depth: 0.5, x: -0.2, y: 0.16, drift: 0.045, phase: 2.3 },
       ...nodes.map((object, index) => ({
         object,
         depth: 0.26 + (index % 3) * 0.2,
@@ -1242,6 +1283,7 @@ if (canvas) {
       heartStickerMaterial.rotation = 0.05 + Math.cos(elapsed * 0.26) * 0.05;
       boltStickerMaterial.rotation = 0.1 + Math.sin(elapsed * 0.31) * 0.04;
       handStickerMaterial.rotation = -0.14 + Math.cos(elapsed * 0.27) * 0.045;
+      smileStickerMaterial.rotation = 0.16 + Math.sin(elapsed * 0.29) * 0.04;
       const hoveredSticker = pointerEngaged
         ? raycaster.intersectObjects(hoverStickers.map((entry) => entry.sprite), false)[0]?.object
         : undefined;
