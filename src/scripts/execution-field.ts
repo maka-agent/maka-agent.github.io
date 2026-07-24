@@ -283,8 +283,8 @@ if (canvas) {
         // (#bfddf0) with gently warmer diagonal bands (#e1e7f0 peaks,
         // #fdf7f0 through the tube bottoms).
         vec3 sky(vec2 p, float night) {
-          vec3 top = mix(vec3(0.805, 0.897, 0.955), vec3(0.10, 0.12, 0.19), night);
-          vec3 bottom = mix(vec3(0.755, 0.856, 0.935), vec3(0.05, 0.07, 0.12), night);
+          vec3 top = mix(vec3(0.778, 0.884, 0.952), vec3(0.10, 0.12, 0.19), night);
+          vec3 bottom = mix(vec3(0.728, 0.84, 0.93), vec3(0.05, 0.07, 0.12), night);
           vec3 c = mix(top, bottom, smoothstep(0.05, 0.95, 1.0 - p.y));
           float d = p.x * 0.62 + (1.0 - p.y) * 0.78;
           float band1 = exp(-pow((d - 0.5) * 5.2, 2.0));
@@ -316,7 +316,7 @@ if (canvas) {
 
           // saturation 1.2, brightness, gentle contrast
           vec3 luma = vec3(dot(color, vec3(0.2125, 0.7154, 0.0721)));
-          color = mix(luma, color, 1.55);
+          color = mix(luma, color, 1.75);
           color *= mix(0.93, 1.15, uNight);
           color = (color - 0.5) * 0.94 + 0.5;
 
